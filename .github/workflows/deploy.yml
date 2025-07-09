@@ -34,6 +34,7 @@ jobs:
         password: ${{ secrets.FTP_PASSWORD }}
         local-dir: ./dist/
         server-dir: /home/tibbyhu/bendetibor.hu/
+        dangerous-clean-slate: true
         exclude: |
           **/.git*
           **/.git*/**
