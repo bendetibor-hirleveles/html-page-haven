@@ -50,6 +50,215 @@ export type Database = {
         }
         Relationships: []
       }
+      global_seo_settings: {
+        Row: {
+          canonical_domain: string | null
+          created_at: string
+          custom_body_scripts: string | null
+          custom_head_scripts: string | null
+          facebook_pixel_id: string | null
+          google_analytics_id: string | null
+          google_search_console_id: string | null
+          google_tag_manager_id: string | null
+          id: string
+          open_graph_image: string | null
+          robots_txt: string | null
+          schema_markup: Json | null
+          site_description: string | null
+          site_keywords: string | null
+          site_title: string | null
+          tiktok_pixel_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          canonical_domain?: string | null
+          created_at?: string
+          custom_body_scripts?: string | null
+          custom_head_scripts?: string | null
+          facebook_pixel_id?: string | null
+          google_analytics_id?: string | null
+          google_search_console_id?: string | null
+          google_tag_manager_id?: string | null
+          id?: string
+          open_graph_image?: string | null
+          robots_txt?: string | null
+          schema_markup?: Json | null
+          site_description?: string | null
+          site_keywords?: string | null
+          site_title?: string | null
+          tiktok_pixel_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          canonical_domain?: string | null
+          created_at?: string
+          custom_body_scripts?: string | null
+          custom_head_scripts?: string | null
+          facebook_pixel_id?: string | null
+          google_analytics_id?: string | null
+          google_search_console_id?: string | null
+          google_tag_manager_id?: string | null
+          id?: string
+          open_graph_image?: string | null
+          robots_txt?: string | null
+          schema_markup?: Json | null
+          site_description?: string | null
+          site_keywords?: string | null
+          site_title?: string | null
+          tiktok_pixel_id?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      keywords: {
+        Row: {
+          cpc: number | null
+          created_at: string
+          difficulty: number | null
+          id: string
+          keyword: string
+          search_volume: number | null
+          trend_data: Json | null
+          updated_at: string
+        }
+        Insert: {
+          cpc?: number | null
+          created_at?: string
+          difficulty?: number | null
+          id?: string
+          keyword: string
+          search_volume?: number | null
+          trend_data?: Json | null
+          updated_at?: string
+        }
+        Update: {
+          cpc?: number | null
+          created_at?: string
+          difficulty?: number | null
+          id?: string
+          keyword?: string
+          search_volume?: number | null
+          trend_data?: Json | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      page_keywords: {
+        Row: {
+          created_at: string
+          density: number | null
+          id: string
+          keyword_id: string
+          page_id: string
+          page_type: string
+          position: number | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          density?: number | null
+          id?: string
+          keyword_id: string
+          page_id: string
+          page_type: string
+          position?: number | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          density?: number | null
+          id?: string
+          keyword_id?: string
+          page_id?: string
+          page_type?: string
+          position?: number | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "page_keywords_keyword_id_fkey"
+            columns: ["keyword_id"]
+            isOneToOne: false
+            referencedRelation: "keywords"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      page_seo_settings: {
+        Row: {
+          canonical_url: string | null
+          created_at: string
+          custom_body_scripts: string | null
+          custom_head_scripts: string | null
+          focus_keywords: string[] | null
+          id: string
+          meta_description: string | null
+          meta_keywords: string | null
+          meta_title: string | null
+          og_description: string | null
+          og_image: string | null
+          og_title: string | null
+          og_type: string | null
+          page_id: string
+          page_type: string
+          schema_markup: Json | null
+          seo_score: number | null
+          twitter_card: string | null
+          twitter_description: string | null
+          twitter_image: string | null
+          twitter_title: string | null
+          updated_at: string
+        }
+        Insert: {
+          canonical_url?: string | null
+          created_at?: string
+          custom_body_scripts?: string | null
+          custom_head_scripts?: string | null
+          focus_keywords?: string[] | null
+          id?: string
+          meta_description?: string | null
+          meta_keywords?: string | null
+          meta_title?: string | null
+          og_description?: string | null
+          og_image?: string | null
+          og_title?: string | null
+          og_type?: string | null
+          page_id: string
+          page_type: string
+          schema_markup?: Json | null
+          seo_score?: number | null
+          twitter_card?: string | null
+          twitter_description?: string | null
+          twitter_image?: string | null
+          twitter_title?: string | null
+          updated_at?: string
+        }
+        Update: {
+          canonical_url?: string | null
+          created_at?: string
+          custom_body_scripts?: string | null
+          custom_head_scripts?: string | null
+          focus_keywords?: string[] | null
+          id?: string
+          meta_description?: string | null
+          meta_keywords?: string | null
+          meta_title?: string | null
+          og_description?: string | null
+          og_image?: string | null
+          og_title?: string | null
+          og_type?: string | null
+          page_id?: string
+          page_type?: string
+          schema_markup?: Json | null
+          seo_score?: number | null
+          twitter_card?: string | null
+          twitter_description?: string | null
+          twitter_image?: string | null
+          twitter_title?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       static_pages: {
         Row: {
           assets_zip_path: string | null

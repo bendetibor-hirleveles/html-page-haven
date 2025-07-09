@@ -13,6 +13,8 @@ export function StaticPageUpload() {
   const [slug, setSlug] = useState("");
   const [htmlFile, setHtmlFile] = useState<File | null>(null);
   const [assetsZip, setAssetsZip] = useState<File | null>(null);
+  const [metaDescription, setMetaDescription] = useState("");
+  const [keywords, setKeywords] = useState("");
   const [isUploading, setIsUploading] = useState(false);
   const { toast } = useToast();
 
@@ -62,7 +64,7 @@ export function StaticPageUpload() {
       }
 
       // Insert into database
-      const { error: dbError } = await supabase
+      const { data: pageData, error: dbError } = await supabase
         .from('static_pages')
         .insert({
           title,
@@ -70,9 +72,28 @@ export function StaticPageUpload() {
           html_content: htmlContent,
           html_file_path: htmlFileName,
           assets_zip_path: assetsZipPath,
-        });
+        })
+        .select()
+        .single();
 
       if (dbError) throw dbError;
+
+      // Create initial SEO settings if meta description or keywords are provided
+      if (pageData && (metaDescription || keywords)) {
+        await supabase
+          .from('page_seo_settings')
+          .insert({
+            page_type: 'static',
+            page_id: pageData.id,
+            meta_title: title,
+            meta_description: metaDescription,
+            meta_keywords: keywords,
+            og_title: title,
+            og_description: metaDescription,
+            twitter_title: title,
+            twitter_description: metaDescription,
+          });
+      }
 
       toast({
         title: "Success!",
@@ -84,6 +105,8 @@ export function StaticPageUpload() {
       setSlug("");
       setHtmlFile(null);
       setAssetsZip(null);
+      setMetaDescription("");
+      setKeywords("");
       
     } catch (error) {
       console.error('Error uploading:', error);
@@ -119,6 +142,29 @@ export function StaticPageUpload() {
             value={slug}
             onChange={(e) => setSlug(e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, '-'))}
             required
+          />
+        </div>
+      </div>
+
+      <div className="grid grid-cols-2 gap-4">
+        <div className="space-y-2">
+          <Label htmlFor="meta-description">Meta Description (Optional)</Label>
+          <Textarea
+            id="meta-description"
+            placeholder="SEO description for this page"
+            value={metaDescription}
+            onChange={(e) => setMetaDescription(e.target.value)}
+            rows={3}
+          />
+        </div>
+        
+        <div className="space-y-2">
+          <Label htmlFor="keywords">Keywords (Optional)</Label>
+          <Input
+            id="keywords"
+            placeholder="keyword1, keyword2, keyword3"
+            value={keywords}
+            onChange={(e) => setKeywords(e.target.value)}
           />
         </div>
       </div>

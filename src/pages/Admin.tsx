@@ -4,7 +4,10 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { StaticPageUpload } from "@/components/admin/StaticPageUpload";
 import { BlogPostUpload } from "@/components/admin/BlogPostUpload";
 import { ContentList } from "@/components/admin/ContentList";
-import { FileText, BookOpen, Upload } from "lucide-react";
+import { GlobalSEOSettings } from "@/components/admin/GlobalSEOSettings";
+import { KeywordAnalysis } from "@/components/admin/KeywordAnalysis";
+import { PageSEOSettings } from "@/components/admin/PageSEOSettings";
+import { FileText, BookOpen, Upload, Globe, Search, Settings } from "lucide-react";
 
 export default function Admin() {
   const [activeTab, setActiveTab] = useState("static-pages");
@@ -14,11 +17,11 @@ export default function Admin() {
       <div className="max-w-6xl mx-auto">
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-foreground mb-2">Admin Panel</h1>
-          <p className="text-muted-foreground">Manage your static pages and blog posts</p>
+          <p className="text-muted-foreground">Manage your static pages, blog posts, and SEO settings</p>
         </div>
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-2">
+          <TabsList className="grid w-full grid-cols-5">
             <TabsTrigger value="static-pages" className="flex items-center gap-2">
               <FileText className="h-4 w-4" />
               Static Pages
@@ -26,6 +29,18 @@ export default function Admin() {
             <TabsTrigger value="blog-posts" className="flex items-center gap-2">
               <BookOpen className="h-4 w-4" />
               Blog Posts
+            </TabsTrigger>
+            <TabsTrigger value="global-seo" className="flex items-center gap-2">
+              <Globe className="h-4 w-4" />
+              Global SEO
+            </TabsTrigger>
+            <TabsTrigger value="page-seo" className="flex items-center gap-2">
+              <Settings className="h-4 w-4" />
+              Page SEO
+            </TabsTrigger>
+            <TabsTrigger value="keywords" className="flex items-center gap-2">
+              <Search className="h-4 w-4" />
+              Keywords
             </TabsTrigger>
           </TabsList>
 
@@ -81,6 +96,18 @@ export default function Admin() {
                 <ContentList type="blog" />
               </CardContent>
             </Card>
+          </TabsContent>
+
+          <TabsContent value="global-seo" className="space-y-6">
+            <GlobalSEOSettings />
+          </TabsContent>
+
+          <TabsContent value="page-seo" className="space-y-6">
+            <PageSEOSettings />
+          </TabsContent>
+
+          <TabsContent value="keywords" className="space-y-6">
+            <KeywordAnalysis />
           </TabsContent>
         </Tabs>
       </div>
