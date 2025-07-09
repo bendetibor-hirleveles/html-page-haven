@@ -34,4 +34,3 @@ jobs:
         password: ${{ secrets.FTP_PASSWORD }}
         local_dir: ./dist/
         remote_dir: /home/tibbyhu/bendetibor.hu/
-        port: 21
