@@ -26,21 +26,12 @@ jobs:
     - name: Build project
       run: npm run build
       
-    - name: Debug secrets
-      run: |
-        echo "Checking if FTP_PASSWORD secret exists..."
-        if [ -z "${{ secrets.FTP_PASSWORD }}" ]; then
-          echo "FTP_PASSWORD secret is empty or not set"
-          exit 1
-        else
-          echo "FTP_PASSWORD secret is set"
-        fi
-        
     - name: Deploy to FTP
-      uses: sebastianpopp/ftp-action@releases/v2
+      uses: wlixcc/SFTP-Deploy-Action@v1.2.4
       with:
-        host: ftp.tibby.hu
-        user: git_lovable@bendetibor.hu
+        server: ftp.tibby.hu
+        username: git_lovable@bendetibor.hu
         password: ${{ secrets.FTP_PASSWORD }}
-        localDir: dist
-        remoteDir: /home/tibbyhu/bendetibor.hu/
+        local_path: './dist/*'
+        remote_path: '/home/tibbyhu/bendetibor.hu/'
+        sftp_only: false
