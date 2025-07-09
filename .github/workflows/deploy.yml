@@ -27,10 +27,11 @@ jobs:
       run: npm run build
       
     - name: Deploy to FTP
-      uses: SamKirkland/FTP-Deploy-Action@v4.3.4
+      uses: airvzxf/ftp-deployment-action@latest
       with:
         server: ftp.tibby.hu
-        username: git_lovable@bendetibor.hu
+        user: git_lovable@bendetibor.hu
         password: ${{ secrets.FTP_PASSWORD }}
-        local-dir: ./dist/
-        server-dir: /home/tibbyhu/bendetibor.hu/
+        local_dir: ./dist/
+        remote_dir: /home/tibbyhu/bendetibor.hu/
+        port: 21
