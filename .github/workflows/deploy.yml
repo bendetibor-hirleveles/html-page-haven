@@ -36,7 +36,6 @@ jobs:
         port: 21
         security: loose
         timeout: 30000
-        retries: 3
         log-level: verbose
         local-dir: ./dist/
         server-dir: /home/tibbyhu/bendetibor.hu/
