@@ -14,7 +14,75 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      blog_posts: {
+        Row: {
+          assets_zip_path: string | null
+          created_at: string
+          html_content: string
+          html_file_path: string | null
+          id: string
+          published: boolean
+          slug: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          assets_zip_path?: string | null
+          created_at?: string
+          html_content: string
+          html_file_path?: string | null
+          id?: string
+          published?: boolean
+          slug: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          assets_zip_path?: string | null
+          created_at?: string
+          html_content?: string
+          html_file_path?: string | null
+          id?: string
+          published?: boolean
+          slug?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      static_pages: {
+        Row: {
+          assets_zip_path: string | null
+          created_at: string
+          html_content: string
+          html_file_path: string | null
+          id: string
+          slug: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          assets_zip_path?: string | null
+          created_at?: string
+          html_content: string
+          html_file_path?: string | null
+          id?: string
+          slug: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          assets_zip_path?: string | null
+          created_at?: string
+          html_content?: string
+          html_file_path?: string | null
+          id?: string
+          slug?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
