@@ -4,7 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { ExternalLink, Trash2, Edit3, Eye, EyeOff } from "lucide-react";
+import { ExternalLink, Trash2, Edit3, Eye, EyeOff, Home } from "lucide-react";
 import { format } from "date-fns";
 
 interface StaticPage {
@@ -13,6 +13,7 @@ interface StaticPage {
   slug: string;
   html_file_path: string;
   assets_zip_path: string | null;
+  is_homepage: boolean;
   created_at: string;
   updated_at: string;
 }
@@ -118,6 +119,33 @@ export function ContentList({ type }: ContentListProps) {
     }
   };
 
+  const toggleHomepage = async (id: string, currentStatus: boolean) => {
+    if (type !== 'static') return;
+
+    try {
+      const { error } = await supabase
+        .from('static_pages')
+        .update({ is_homepage: !currentStatus })
+        .eq('id', id);
+
+      if (error) throw error;
+
+      toast({
+        title: "Success",
+        description: `Page ${!currentStatus ? 'set as homepage' : 'removed as homepage'} successfully`,
+      });
+
+      fetchItems();
+    } catch (error) {
+      console.error('Error updating page:', error);
+      toast({
+        title: "Error",
+        description: "Failed to update page",
+        variant: "destructive",
+      });
+    }
+  };
+
   const getFileUrl = (bucket: string, path: string) => {
     const { data } = supabase.storage.from(bucket).getPublicUrl(path);
     return data.publicUrl;
@@ -154,6 +182,11 @@ export function ContentList({ type }: ContentListProps) {
                 {type === 'blog' && (
                   <Badge variant={(item as BlogPost).published ? 'default' : 'secondary'}>
                     {(item as BlogPost).published ? 'Published' : 'Draft'}
+                  </Badge>
+                )}
+                {type === 'static' && (item as StaticPage).is_homepage && (
+                  <Badge variant="default" className="bg-primary">
+                    Homepage
                   </Badge>
                 )}
                 {item.assets_zip_path && (
@@ -216,6 +249,17 @@ export function ContentList({ type }: ContentListProps) {
                         Publish
                       </>
                     )}
+                  </Button>
+                )}
+                
+                {type === 'static' && (
+                  <Button
+                    variant={(item as StaticPage).is_homepage ? "default" : "outline"}
+                    size="sm"
+                    onClick={() => toggleHomepage(item.id, (item as StaticPage).is_homepage)}
+                  >
+                    <Home className="h-4 w-4 mr-2" />
+                    {(item as StaticPage).is_homepage ? 'Remove Homepage' : 'Set as Homepage'}
                   </Button>
                 )}
                 
