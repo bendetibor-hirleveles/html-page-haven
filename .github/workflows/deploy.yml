@@ -30,8 +30,8 @@ jobs:
       uses: SamKirkland/FTP-Deploy-Action@v4.3.5
       with:
         server: ftp.tibby.hu
-        username: git_lovable@bendetibor.hu
-        password: ,r@pmObR3NW-#Wtl
+        username: ${{ secrets.FTP_USER }}
+         password: ${{ secrets.FTP_PASSWORD }}
         local-dir: ./dist/
         server-dir: /home/tibbyhu/bendetibor.hu/
         protocol: ftp
