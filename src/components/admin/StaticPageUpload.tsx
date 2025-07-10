@@ -18,8 +18,55 @@ export function StaticPageUpload() {
   const [useFolder, setUseFolder] = useState(false);
   const [metaDescription, setMetaDescription] = useState("");
   const [keywords, setKeywords] = useState("");
+  const [isHomepage, setIsHomepage] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
   const { toast } = useToast();
+
+  // Automatically generate slug from title
+  const generateSlug = (text: string) => {
+    return text
+      .toLowerCase()
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '') // Remove diacritics
+      .replace(/[^a-z0-9\s-]/g, '') // Remove special characters except spaces and hyphens
+      .replace(/\s+/g, '-') // Replace spaces with hyphens
+      .replace(/-+/g, '-') // Replace multiple hyphens with single hyphen
+      .trim()
+      .replace(/^-+|-+$/g, ''); // Remove leading/trailing hyphens
+  };
+
+  // Extract keywords from HTML content
+  const extractKeywords = (htmlContent: string) => {
+    try {
+      const parser = new DOMParser();
+      const doc = parser.parseFromString(htmlContent, 'text/html');
+      
+      // Get text content and clean it
+      const textContent = doc.body?.textContent || '';
+      const words = textContent
+        .toLowerCase()
+        .replace(/[^\w\sáéíóúöüőűÁÉÍÓÚÖÜŐŰ]/g, '')
+        .split(/\s+/)
+        .filter(word => word.length > 3); // Only words longer than 3 characters
+      
+      // Count word frequency
+      const wordCount: { [key: string]: number } = {};
+      words.forEach(word => {
+        wordCount[word] = (wordCount[word] || 0) + 1;
+      });
+      
+      // Get top 10 most frequent words
+      const topWords = Object.entries(wordCount)
+        .sort(([,a], [,b]) => b - a)
+        .slice(0, 10)
+        .map(([word]) => word);
+      
+      return topWords.join(', ');
+    } catch (error) {
+      console.error('Error extracting keywords:', error);
+      return '';
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -36,8 +83,9 @@ export function StaticPageUpload() {
     setIsUploading(true);
 
     try {
-      // Read HTML file content
+      // Read HTML file content and extract keywords if not provided
       const htmlContent = await htmlFile.text();
+      const extractedKeywords = keywords || extractKeywords(htmlContent);
       
       // Upload HTML file
       const htmlFileName = `${slug}.html`;
@@ -84,6 +132,14 @@ export function StaticPageUpload() {
         assetsZipPath = zipFileName;
       }
 
+      // If this is set as homepage, unset other homepages
+      if (isHomepage) {
+        await supabase
+          .from('static_pages')
+          .update({ is_homepage: false })
+          .neq('id', '00000000-0000-0000-0000-000000000000'); // Update all existing pages
+      }
+
       // Insert into database
       const { data: pageData, error: dbError } = await supabase
         .from('static_pages')
@@ -93,6 +149,7 @@ export function StaticPageUpload() {
           html_content: htmlContent,
           html_file_path: htmlFileName,
           assets_zip_path: assetsZipPath,
+          is_homepage: isHomepage,
         })
         .select()
         .single();
@@ -100,7 +157,7 @@ export function StaticPageUpload() {
       if (dbError) throw dbError;
 
       // Create initial SEO settings if meta description or keywords are provided
-      if (pageData && (metaDescription || keywords)) {
+      if (pageData && (metaDescription || extractedKeywords)) {
         await supabase
           .from('page_seo_settings')
           .insert({
@@ -108,7 +165,7 @@ export function StaticPageUpload() {
             page_id: pageData.id,
             meta_title: title,
             meta_description: metaDescription,
-            meta_keywords: keywords,
+            meta_keywords: extractedKeywords,
             og_title: title,
             og_description: metaDescription,
             twitter_title: title,
@@ -129,6 +186,7 @@ export function StaticPageUpload() {
       setAssetsFolder(null);
       setMetaDescription("");
       setKeywords("");
+      setIsHomepage(false);
       
     } catch (error) {
       console.error('Error uploading:', error);
@@ -146,23 +204,26 @@ export function StaticPageUpload() {
     <form onSubmit={handleSubmit} className="space-y-6">
       <div className="grid grid-cols-2 gap-4">
         <div className="space-y-2">
-          <Label htmlFor="title">Page Title</Label>
+          <Label htmlFor="title">Oldal címe</Label>
           <Input
             id="title"
-            placeholder="Enter page title"
+            placeholder="Adja meg az oldal címét"
             value={title}
-            onChange={(e) => setTitle(e.target.value)}
+            onChange={(e) => {
+              setTitle(e.target.value);
+              setSlug(generateSlug(e.target.value));
+            }}
             required
           />
         </div>
         
         <div className="space-y-2">
-          <Label htmlFor="slug">URL Slug</Label>
+          <Label htmlFor="slug">URL Slug (automatikusan generált)</Label>
           <Input
             id="slug"
-            placeholder="page-url-slug"
+            placeholder="automatikusan-generalt-slug"
             value={slug}
-            onChange={(e) => setSlug(e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, '-'))}
+            onChange={(e) => setSlug(generateSlug(e.target.value))}
             required
           />
         </div>
@@ -170,10 +231,10 @@ export function StaticPageUpload() {
 
       <div className="grid grid-cols-2 gap-4">
         <div className="space-y-2">
-          <Label htmlFor="meta-description">Meta Description (Optional)</Label>
+          <Label htmlFor="meta-description">Meta leírás (Opcionális)</Label>
           <Textarea
             id="meta-description"
-            placeholder="SEO description for this page"
+            placeholder="SEO leírás ehhez az oldalhoz"
             value={metaDescription}
             onChange={(e) => setMetaDescription(e.target.value)}
             rows={3}
@@ -181,26 +242,35 @@ export function StaticPageUpload() {
         </div>
         
         <div className="space-y-2">
-          <Label htmlFor="keywords">Keywords (Optional)</Label>
+          <Label htmlFor="keywords">Kulcsszavak (Automatikusan generált a HTML alapján)</Label>
           <Input
             id="keywords"
-            placeholder="keyword1, keyword2, keyword3"
+            placeholder="kulcsszó1, kulcsszó2, kulcsszó3"
             value={keywords}
             onChange={(e) => setKeywords(e.target.value)}
           />
         </div>
       </div>
 
+      <div className="flex items-center space-x-2">
+        <Switch
+          id="is-homepage"
+          checked={isHomepage}
+          onCheckedChange={setIsHomepage}
+        />
+        <Label htmlFor="is-homepage">Beállítás kezdőoldalként</Label>
+      </div>
+
       <div className="space-y-4">
         <div className="space-y-2">
-          <Label htmlFor="html-file">HTML File</Label>
+          <Label htmlFor="html-file">HTML Fájl</Label>
           <Card className="border-dashed border-2 border-muted-foreground/25 hover:border-muted-foreground/50 transition-colors">
             <CardContent className="p-6">
               <div className="flex flex-col items-center space-y-2">
                 <FileText className="h-8 w-8 text-muted-foreground" />
                 <div className="text-center">
                   <p className="text-sm text-muted-foreground mb-2">
-                    {htmlFile ? htmlFile.name : "Click to select HTML file"}
+                    {htmlFile ? htmlFile.name : "Kattints a HTML fájl kiválasztásához"}
                   </p>
                   <Input
                     id="html-file"
@@ -287,7 +357,7 @@ export function StaticPageUpload() {
         className="w-full"
       >
         <Upload className="h-4 w-4 mr-2" />
-        {isUploading ? "Uploading..." : "Upload Static Page"}
+        {isUploading ? "Feltöltés..." : "Statikus oldal feltöltése"}
       </Button>
     </form>
   );
