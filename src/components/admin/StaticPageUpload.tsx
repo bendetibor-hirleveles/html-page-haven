@@ -6,13 +6,16 @@ import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent } from "@/components/ui/card";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { Upload, FileText, Archive } from "lucide-react";
+import { Upload, FileText, Archive, Folder } from "lucide-react";
+import { Switch } from "@/components/ui/switch";
 
 export function StaticPageUpload() {
   const [title, setTitle] = useState("");
   const [slug, setSlug] = useState("");
   const [htmlFile, setHtmlFile] = useState<File | null>(null);
   const [assetsZip, setAssetsZip] = useState<File | null>(null);
+  const [assetsFolder, setAssetsFolder] = useState<FileList | null>(null);
+  const [useFolder, setUseFolder] = useState(false);
   const [metaDescription, setMetaDescription] = useState("");
   const [keywords, setKeywords] = useState("");
   const [isUploading, setIsUploading] = useState(false);
@@ -49,8 +52,26 @@ export function StaticPageUpload() {
 
       let assetsZipPath = null;
       
-      // Upload assets ZIP if provided
-      if (assetsZip) {
+      // Upload assets (ZIP or folder)
+      if (useFolder && assetsFolder) {
+        // Upload folder files individually
+        const folderPath = `${slug}/`;
+        for (let i = 0; i < assetsFolder.length; i++) {
+          const file = assetsFolder[i];
+          const relativePath = file.webkitRelativePath || file.name;
+          const filePath = `${folderPath}${relativePath}`;
+          
+          const { error: fileError } = await supabase.storage
+            .from('assets')
+            .upload(filePath, file, {
+              upsert: true
+            });
+          
+          if (fileError) throw fileError;
+        }
+        assetsZipPath = folderPath;
+      } else if (!useFolder && assetsZip) {
+        // Upload ZIP file
         const zipFileName = `${slug}-assets.zip`;
         const { error: zipError } = await supabase.storage
           .from('assets')
@@ -105,6 +126,7 @@ export function StaticPageUpload() {
       setSlug("");
       setHtmlFile(null);
       setAssetsZip(null);
+      setAssetsFolder(null);
       setMetaDescription("");
       setKeywords("");
       
@@ -194,27 +216,68 @@ export function StaticPageUpload() {
           </Card>
         </div>
 
-        <div className="space-y-2">
-          <Label htmlFor="assets-zip">Assets ZIP (Optional)</Label>
-          <Card className="border-dashed border-2 border-muted-foreground/25 hover:border-muted-foreground/50 transition-colors">
-            <CardContent className="p-6">
-              <div className="flex flex-col items-center space-y-2">
-                <Archive className="h-8 w-8 text-muted-foreground" />
-                <div className="text-center">
-                  <p className="text-sm text-muted-foreground mb-2">
-                    {assetsZip ? assetsZip.name : "Click to select assets ZIP file"}
-                  </p>
-                  <Input
-                    id="assets-zip"
-                    type="file"
-                    accept=".zip"
-                    onChange={(e) => setAssetsZip(e.target.files?.[0] || null)}
-                    className="w-full"
-                  />
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+        <div className="space-y-4">
+          <div className="flex items-center space-x-2">
+            <Label htmlFor="upload-type">Assets feltöltés típusa:</Label>
+            <div className="flex items-center space-x-2">
+              <span className="text-sm">ZIP fájl</span>
+              <Switch
+                id="upload-type"
+                checked={useFolder}
+                onCheckedChange={setUseFolder}
+              />
+              <span className="text-sm">Mappa</span>
+            </div>
+          </div>
+
+          {useFolder ? (
+            <div className="space-y-2">
+              <Label htmlFor="assets-folder">Assets Mappa (Optional)</Label>
+              <Card className="border-dashed border-2 border-muted-foreground/25 hover:border-muted-foreground/50 transition-colors">
+                <CardContent className="p-6">
+                  <div className="flex flex-col items-center space-y-2">
+                    <Folder className="h-8 w-8 text-muted-foreground" />
+                    <div className="text-center">
+                      <p className="text-sm text-muted-foreground mb-2">
+                        {assetsFolder ? `${assetsFolder.length} fájl kiválasztva` : "Kattints a mappa kiválasztásához"}
+                      </p>
+                      <Input
+                        id="assets-folder"
+                        type="file"
+                        onChange={(e) => setAssetsFolder(e.target.files)}
+                        className="w-full"
+                        {...({ webkitdirectory: "", directory: "" } as any)}
+                        multiple
+                      />
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          ) : (
+            <div className="space-y-2">
+              <Label htmlFor="assets-zip">Assets ZIP (Optional)</Label>
+              <Card className="border-dashed border-2 border-muted-foreground/25 hover:border-muted-foreground/50 transition-colors">
+                <CardContent className="p-6">
+                  <div className="flex flex-col items-center space-y-2">
+                    <Archive className="h-8 w-8 text-muted-foreground" />
+                    <div className="text-center">
+                      <p className="text-sm text-muted-foreground mb-2">
+                        {assetsZip ? assetsZip.name : "Kattints a ZIP fájl kiválasztásához"}
+                      </p>
+                      <Input
+                        id="assets-zip"
+                        type="file"
+                        accept=".zip"
+                        onChange={(e) => setAssetsZip(e.target.files?.[0] || null)}
+                        className="w-full"
+                      />
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          )}
         </div>
       </div>
 
