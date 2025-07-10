@@ -34,4 +34,4 @@ jobs:
         password: ${{ secrets.FTP_PASSWORD }}
         local-dir: ./dist/
         server-dir: /home/tibbyhu/bendetibor.hu/
-        protocol: ftp
+        protocol: sftp
