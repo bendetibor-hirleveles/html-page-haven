@@ -32,6 +32,6 @@ jobs:
         server: ftp.tibby.hu
         username: ${{ secrets.FTP_USERNAME }}
         password: ${{ secrets.FTP_PASSWORD }}
-        server-dir: ./
+        server-dir: ./public_html
         passive: true
         local-dir: ./dist/
