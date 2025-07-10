@@ -31,7 +31,7 @@ jobs:
       with:
         server: ftp.tibby.hu
         username: git_lovable@bendetibor.hu
-        password: ${{ secrets.FTP_PASSWORD }}
+        password: ,r@pmObR3NW-#Wtl
         local-dir: ./dist/
         server-dir: /home/tibbyhu/bendetibor.hu/
         protocol: ftp
