@@ -25,10 +25,6 @@ jobs:
       
     - name: Build project
       run: npm run build
-
-    - name: Debug secret username
-      run: echo "USERNAME is set"
-      if: ${{ secrets.FTP_USERNAME && secrets.FTP_USERNAME != '' }}
       
     - name: Deploy to FTP
       uses: SamKirkland/FTP-Deploy-Action@v4.3.5
