@@ -34,4 +34,4 @@ jobs:
         password: ${{ secrets.FTP_PASSWORD }}
         server-dir: /home/tibbyhu/bendetibor.hu/
         passive: true
-        local-dir: ./
+        local-dir: ./dist/
