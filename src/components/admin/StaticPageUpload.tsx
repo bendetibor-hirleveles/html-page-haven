@@ -83,17 +83,37 @@ export function StaticPageUpload() {
     setIsUploading(true);
 
     try {
-      // Read HTML file content and extract keywords if not provided
-      const htmlContent = await htmlFile.text();
-      const extractedKeywords = keywords || extractKeywords(htmlContent);
+      // Read HTML file content with UTF-8 encoding and extract keywords if not provided
+      const buffer = await htmlFile.arrayBuffer();
+      const decoder = new TextDecoder('utf-8');
+      const htmlContent = decoder.decode(buffer);
       
-      // Upload HTML file
+      // Ensure UTF-8 charset meta tag is present
+      const ensureUtf8Charset = (html: string) => {
+        if (!html.includes('charset=') && !html.includes('charset =')) {
+          // Add charset meta tag after <head> or at the beginning if no head tag
+          if (html.includes('<head>')) {
+            return html.replace('<head>', '<head>\n  <meta charset="UTF-8">');
+          } else if (html.includes('<html>')) {
+            return html.replace('<html>', '<html>\n<head>\n  <meta charset="UTF-8">\n</head>');
+          } else {
+            return `<head>\n  <meta charset="UTF-8">\n</head>\n${html}`;
+          }
+        }
+        return html;
+      };
+      
+      const processedHtmlContent = ensureUtf8Charset(htmlContent);
+      const extractedKeywords = keywords || extractKeywords(processedHtmlContent);
+      
+      // Upload HTML file with UTF-8 content
       const htmlFileName = `${slug}.html`;
+      const htmlBlob = new Blob([processedHtmlContent], { type: 'text/html; charset=utf-8' });
       const { error: htmlError } = await supabase.storage
         .from('static-pages')
-        .upload(htmlFileName, htmlFile, {
+        .upload(htmlFileName, htmlBlob, {
           upsert: true,
-          contentType: 'text/html'
+          contentType: 'text/html; charset=utf-8'
         });
 
       if (htmlError) throw htmlError;
@@ -146,7 +166,7 @@ export function StaticPageUpload() {
         .insert({
           title,
           slug,
-          html_content: htmlContent,
+          html_content: processedHtmlContent,
           html_file_path: htmlFileName,
           assets_zip_path: assetsZipPath,
           is_homepage: isHomepage,

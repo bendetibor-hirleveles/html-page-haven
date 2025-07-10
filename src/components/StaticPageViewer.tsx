@@ -75,7 +75,7 @@ export function StaticPageViewer() {
 
   return (
     <div 
-      className="min-h-screen bg-background"
+      className="min-h-screen"
       dangerouslySetInnerHTML={{ __html: page.html_content }}
     />
   );
