@@ -29,8 +29,8 @@ jobs:
     - name: Deploy to FTP
       uses: SamKirkland/FTP-Deploy-Action@v4.3.5
       with:
-        server: ftp.tibby.hu
-        username: ${{ secrets.FTP_USER }}
+        server: sftp.tibby.hu
+        username: ${{ secrets.FTP_USERNAME }}
         password: ${{ secrets.FTP_PASSWORD }}
         local-dir: ./dist/
         server-dir: /home/tibbyhu/bendetibor.hu/
