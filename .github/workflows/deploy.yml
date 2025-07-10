@@ -32,6 +32,5 @@ jobs:
         server: sftp.tibby.hu
         username: ${{ secrets.FTP_USERNAME }}
         password: ${{ secrets.FTP_PASSWORD }}
-        local-dir: ./dist/
         server-dir: /home/tibbyhu/bendetibor.hu/
         protocol: sftp
