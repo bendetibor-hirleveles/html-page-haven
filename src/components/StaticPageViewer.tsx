@@ -45,6 +45,26 @@ export function StaticPageViewer() {
     fetchPage();
   }, [slug]);
 
+  // Process HTML content to handle asset URLs
+  const processHtmlContent = (htmlContent: string) => {
+    if (!page?.assets_zip_path) return htmlContent;
+    
+    // Get the public URL for the assets
+    const { data: { publicUrl } } = supabase.storage.from('static-assets').getPublicUrl('dummy');
+    const baseUrl = publicUrl.replace('/dummy', '');
+    const assetsPath = page.assets_zip_path.replace('.zip', '');
+    
+    // Replace asset URLs in the HTML
+    let processedHtml = htmlContent;
+    
+    // Replace common asset patterns
+    processedHtml = processedHtml.replace(/href="\/assets\//g, `href="${baseUrl}/${assetsPath}/`);
+    processedHtml = processedHtml.replace(/src="\/assets\//g, `src="${baseUrl}/${assetsPath}/`);
+    processedHtml = processedHtml.replace(/url\(\/assets\//g, `url(${baseUrl}/${assetsPath}/`);
+    
+    return processedHtml;
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
@@ -76,7 +96,7 @@ export function StaticPageViewer() {
   return (
     <div 
       className="min-h-screen"
-      dangerouslySetInnerHTML={{ __html: page.html_content }}
+      dangerouslySetInnerHTML={{ __html: processHtmlContent(page.html_content) }}
     />
   );
 }
