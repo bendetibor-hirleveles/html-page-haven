@@ -49,18 +49,18 @@ export function StaticPageViewer() {
   const processHtmlContent = (htmlContent: string) => {
     if (!page?.assets_zip_path) return htmlContent;
     
-    // Get the public URL for the assets
-    const { data: { publicUrl } } = supabase.storage.from('static-assets').getPublicUrl('dummy');
+    // Get the public URL for the assets from the correct bucket
+    const { data: { publicUrl } } = supabase.storage.from('assets').getPublicUrl('dummy');
     const baseUrl = publicUrl.replace('/dummy', '');
-    const assetsPath = page.assets_zip_path.replace('.zip', '');
+    const assetsPath = page.assets_zip_path.replace('.zip', '').replace('/', '');
     
     // Replace asset URLs in the HTML
     let processedHtml = htmlContent;
     
-    // Replace common asset patterns
-    processedHtml = processedHtml.replace(/href="\/assets\//g, `href="${baseUrl}/${assetsPath}/`);
-    processedHtml = processedHtml.replace(/src="\/assets\//g, `src="${baseUrl}/${assetsPath}/`);
-    processedHtml = processedHtml.replace(/url\(\/assets\//g, `url(${baseUrl}/${assetsPath}/`);
+    // Replace common asset patterns with the correct storage URLs
+    processedHtml = processedHtml.replace(/href="\/assets\//g, `href="${baseUrl}/${assetsPath}/assets/`);
+    processedHtml = processedHtml.replace(/src="\/assets\//g, `src="${baseUrl}/${assetsPath}/assets/`);
+    processedHtml = processedHtml.replace(/url\(\/assets\//g, `url(${baseUrl}/${assetsPath}/assets/`);
     
     return processedHtml;
   };
