@@ -22,6 +22,8 @@ export type Database = {
           html_file_path: string | null
           id: string
           published: boolean
+          show_in_header: boolean | null
+          show_in_menu: boolean | null
           slug: string
           title: string
           updated_at: string
@@ -33,6 +35,8 @@ export type Database = {
           html_file_path?: string | null
           id?: string
           published?: boolean
+          show_in_header?: boolean | null
+          show_in_menu?: boolean | null
           slug: string
           title: string
           updated_at?: string
@@ -44,6 +48,8 @@ export type Database = {
           html_file_path?: string | null
           id?: string
           published?: boolean
+          show_in_header?: boolean | null
+          show_in_menu?: boolean | null
           slug?: string
           title?: string
           updated_at?: string

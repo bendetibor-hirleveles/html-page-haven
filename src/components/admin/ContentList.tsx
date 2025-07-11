@@ -27,6 +27,8 @@ interface BlogPost {
   html_file_path: string;
   assets_zip_path: string | null;
   published: boolean;
+  show_in_menu?: boolean;
+  show_in_header?: boolean;
   created_at: string;
   updated_at: string;
 }
@@ -149,11 +151,10 @@ export function ContentList({ type }: ContentListProps) {
   };
 
   const toggleMenuVisibility = async (id: string, field: 'show_in_menu' | 'show_in_header', currentStatus: boolean) => {
-    if (type !== 'static') return;
-
     try {
+      const table = type === 'static' ? 'static_pages' : 'blog_posts';
       const { error } = await supabase
-        .from('static_pages')
+        .from(table)
         .update({ [field]: !currentStatus })
         .eq('id', id);
 
@@ -162,15 +163,15 @@ export function ContentList({ type }: ContentListProps) {
       const fieldName = field === 'show_in_menu' ? 'menüben' : 'fejléc menüben';
       toast({
         title: "Sikeres módosítás",
-        description: `Oldal ${!currentStatus ? 'megjelenik' : 'elrejtve'} a ${fieldName}`,
+        description: `${type === 'static' ? 'Oldal' : 'Poszt'} ${!currentStatus ? 'megjelenik' : 'elrejtve'} a ${fieldName}`,
       });
 
       fetchItems();
     } catch (error) {
-      console.error('Error updating page:', error);
+      console.error('Error updating item:', error);
       toast({
         title: "Hiba",
-        description: "Nem sikerült frissíteni az oldalt",
+        description: `Nem sikerült frissíteni a ${type === 'static' ? 'oldalt' : 'posztot'}`,
         variant: "destructive",
       });
     }
@@ -219,13 +220,15 @@ export function ContentList({ type }: ContentListProps) {
                     Kezdőoldal
                   </Badge>
                 )}
-                {type === 'static' && (item as StaticPage).show_in_menu && (
+                {((type === 'static' && (item as StaticPage).show_in_menu) || 
+                  (type === 'blog' && (item as BlogPost).show_in_menu)) && (
                   <Badge variant="outline">
                     <Menu className="h-3 w-3 mr-1" />
                     Menü
                   </Badge>
                 )}
-                {type === 'static' && (item as StaticPage).show_in_header && (
+                {((type === 'static' && (item as StaticPage).show_in_header) || 
+                  (type === 'blog' && (item as BlogPost).show_in_header)) && (
                   <Badge variant="outline">
                     <Navigation className="h-3 w-3 mr-1" />
                     Fejléc
@@ -295,35 +298,51 @@ export function ContentList({ type }: ContentListProps) {
                 )}
                 
                 {type === 'static' && (
-                  <>
-                    <Button
-                      variant={(item as StaticPage).is_homepage ? "default" : "outline"}
-                      size="sm"
-                      onClick={() => toggleHomepage(item.id, (item as StaticPage).is_homepage)}
-                    >
-                      <Home className="h-4 w-4 mr-2" />
-                      {(item as StaticPage).is_homepage ? 'Nem kezdőoldal' : 'Kezdőoldal'}
-                    </Button>
-                    
-                    <Button
-                      variant={(item as StaticPage).show_in_menu ? "default" : "outline"}
-                      size="sm"
-                      onClick={() => toggleMenuVisibility(item.id, 'show_in_menu', (item as StaticPage).show_in_menu)}
-                    >
-                      <Menu className="h-4 w-4 mr-2" />
-                      Menü
-                    </Button>
-                    
-                    <Button
-                      variant={(item as StaticPage).show_in_header ? "default" : "outline"}
-                      size="sm"
-                      onClick={() => toggleMenuVisibility(item.id, 'show_in_header', (item as StaticPage).show_in_header)}
-                    >
-                      <Navigation className="h-4 w-4 mr-2" />
-                      Fejléc
-                    </Button>
-                  </>
+                  <Button
+                    variant={(item as StaticPage).is_homepage ? "default" : "outline"}
+                    size="sm"
+                    onClick={() => toggleHomepage(item.id, (item as StaticPage).is_homepage)}
+                  >
+                    <Home className="h-4 w-4 mr-2" />
+                    {(item as StaticPage).is_homepage ? 'Nem kezdőoldal' : 'Kezdőoldal'}
+                  </Button>
                 )}
+                
+                <Button
+                  variant={type === 'static' 
+                    ? ((item as StaticPage).show_in_menu ? "default" : "outline")
+                    : ((item as BlogPost).show_in_menu ? "default" : "outline")
+                  }
+                  size="sm"
+                  onClick={() => toggleMenuVisibility(
+                    item.id, 
+                    'show_in_menu', 
+                    type === 'static' 
+                      ? (item as StaticPage).show_in_menu 
+                      : (item as BlogPost).show_in_menu || false
+                  )}
+                >
+                  <Menu className="h-4 w-4 mr-2" />
+                  Menü
+                </Button>
+                
+                <Button
+                  variant={type === 'static' 
+                    ? ((item as StaticPage).show_in_header ? "default" : "outline")
+                    : ((item as BlogPost).show_in_header ? "default" : "outline")
+                  }
+                  size="sm"
+                  onClick={() => toggleMenuVisibility(
+                    item.id, 
+                    'show_in_header', 
+                    type === 'static' 
+                      ? (item as StaticPage).show_in_header 
+                      : (item as BlogPost).show_in_header || false
+                  )}
+                >
+                  <Navigation className="h-4 w-4 mr-2" />
+                  Fejléc
+                </Button>
                 
                 <Button
                   variant="destructive"

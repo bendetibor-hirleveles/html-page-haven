@@ -15,6 +15,8 @@ export function BlogPostUpload() {
   const [htmlFile, setHtmlFile] = useState<File | null>(null);
   const [assetsZip, setAssetsZip] = useState<File | null>(null);
   const [published, setPublished] = useState(false);
+  const [showInMenu, setShowInMenu] = useState(true);
+  const [showInHeader, setShowInHeader] = useState(true);
   const [isUploading, setIsUploading] = useState(false);
   const { toast } = useToast();
 
@@ -73,6 +75,8 @@ export function BlogPostUpload() {
           html_file_path: htmlFileName,
           assets_zip_path: assetsZipPath,
           published,
+          show_in_menu: showInMenu,
+          show_in_header: showInHeader,
         });
 
       if (dbError) throw dbError;
@@ -88,6 +92,8 @@ export function BlogPostUpload() {
       setHtmlFile(null);
       setAssetsZip(null);
       setPublished(false);
+      setShowInMenu(true);
+      setShowInHeader(true);
       
     } catch (error) {
       console.error('Error uploading:', error);
@@ -127,13 +133,33 @@ export function BlogPostUpload() {
         </div>
       </div>
 
-      <div className="flex items-center space-x-2">
-        <Switch
-          id="published"
-          checked={published}
-          onCheckedChange={setPublished}
-        />
-        <Label htmlFor="published">Publish immediately</Label>
+      <div className="grid grid-cols-3 gap-4">
+        <div className="flex items-center space-x-2">
+          <Switch
+            id="published"
+            checked={published}
+            onCheckedChange={setPublished}
+          />
+          <Label htmlFor="published">Publish immediately</Label>
+        </div>
+        
+        <div className="flex items-center space-x-2">
+          <Switch
+            id="show-in-menu"
+            checked={showInMenu}
+            onCheckedChange={setShowInMenu}
+          />
+          <Label htmlFor="show-in-menu">Show in menu</Label>
+        </div>
+        
+        <div className="flex items-center space-x-2">
+          <Switch
+            id="show-in-header"
+            checked={showInHeader}
+            onCheckedChange={setShowInHeader}
+          />
+          <Label htmlFor="show-in-header">Show in header</Label>
+        </div>
       </div>
 
       <div className="space-y-4">
