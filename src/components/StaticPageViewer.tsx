@@ -5,17 +5,25 @@ import { Card, CardContent } from "@/components/ui/card";
 import { CookieConsent } from "@/components/CookieConsent";
 import { Loader } from "lucide-react";
 
-interface StaticPage {
+interface PageContent {
   id: string;
   title: string;
   slug: string;
   html_content: string;
   assets_zip_path: string | null;
+  created_at: string;
+  updated_at: string;
+  // Optional fields that may differ between static_pages and blog_posts
+  html_file_path?: string | null;
+  is_homepage?: boolean;
+  show_in_menu?: boolean;
+  show_in_header?: boolean;
+  published?: boolean;
 }
 
 export function StaticPageViewer() {
   const { slug } = useParams<{ slug: string }>();
-  const [page, setPage] = useState<StaticPage | null>(null);
+  const [page, setPage] = useState<PageContent | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -24,13 +32,41 @@ export function StaticPageViewer() {
       if (!slug) return;
 
       try {
-        const { data, error } = await supabase
+        // Try static_pages first
+        let { data, error } = await supabase
           .from("static_pages")
           .select("*")
           .eq("slug", slug)
           .maybeSingle();
 
+        // If not found in static_pages, try blog_posts
+        if (!data && !error) {
+          const { data: blogData, error: blogError } = await supabase
+            .from("blog_posts")
+            .select("*")
+            .eq("slug", slug)
+            .eq("published", true)
+            .maybeSingle();
+          
+          // Convert blog post data to match our interface
+          if (blogData) {
+            data = {
+              ...blogData,
+              html_file_path: null,
+              is_homepage: false,
+              show_in_menu: true,
+              show_in_header: true
+            };
+          }
+          error = blogError;
+        }
+
         if (error) {
+          setError("Oldal nem található");
+          return;
+        }
+
+        if (!data) {
           setError("Oldal nem található");
           return;
         }
