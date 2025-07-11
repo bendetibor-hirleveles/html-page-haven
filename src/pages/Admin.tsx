@@ -10,8 +10,9 @@ import { ContentList } from "@/components/admin/ContentList";
 import { GlobalSEOSettings } from "@/components/admin/GlobalSEOSettings";
 import { KeywordAnalysis } from "@/components/admin/KeywordAnalysis";
 import { PageSEOSettings } from "@/components/admin/PageSEOSettings";
+import { RedirectManager } from "@/components/admin/RedirectManager";
 import { MFASetup } from "@/components/MFASetup";
-import { FileText, BookOpen, Upload, Globe, Search, Settings, LogOut, Shield, User } from "lucide-react";
+import { FileText, BookOpen, Upload, Globe, Search, Settings, LogOut, Shield, User, Link } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 export default function Admin() {
@@ -91,7 +92,7 @@ export default function Admin() {
         )}
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-5">
+          <TabsList className="grid w-full grid-cols-6">
             <TabsTrigger value="static-pages" className="flex items-center gap-2">
               <FileText className="h-4 w-4" />
               Static Pages
@@ -111,6 +112,10 @@ export default function Admin() {
             <TabsTrigger value="keywords" className="flex items-center gap-2">
               <Search className="h-4 w-4" />
               Keywords
+            </TabsTrigger>
+            <TabsTrigger value="redirects" className="flex items-center gap-2">
+              <Link className="h-4 w-4" />
+              Redirectek
             </TabsTrigger>
           </TabsList>
 
@@ -178,6 +183,10 @@ export default function Admin() {
 
           <TabsContent value="keywords" className="space-y-6">
             <KeywordAnalysis />
+          </TabsContent>
+
+          <TabsContent value="redirects" className="space-y-6">
+            <RedirectManager />
           </TabsContent>
         </Tabs>
       </div>

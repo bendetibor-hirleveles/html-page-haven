@@ -286,6 +286,36 @@ export type Database = {
         }
         Relationships: []
       }
+      redirects: {
+        Row: {
+          created_at: string
+          from_path: string
+          id: string
+          is_active: boolean
+          redirect_type: number
+          to_path: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          from_path: string
+          id?: string
+          is_active?: boolean
+          redirect_type?: number
+          to_path: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          from_path?: string
+          id?: string
+          is_active?: boolean
+          redirect_type?: number
+          to_path?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       static_pages: {
         Row: {
           assets_zip_path: string | null
@@ -294,6 +324,8 @@ export type Database = {
           html_file_path: string | null
           id: string
           is_homepage: boolean | null
+          show_in_header: boolean | null
+          show_in_menu: boolean | null
           slug: string
           title: string
           updated_at: string
@@ -305,6 +337,8 @@ export type Database = {
           html_file_path?: string | null
           id?: string
           is_homepage?: boolean | null
+          show_in_header?: boolean | null
+          show_in_menu?: boolean | null
           slug: string
           title: string
           updated_at?: string
@@ -316,6 +350,8 @@ export type Database = {
           html_file_path?: string | null
           id?: string
           is_homepage?: boolean | null
+          show_in_header?: boolean | null
+          show_in_menu?: boolean | null
           slug?: string
           title?: string
           updated_at?: string

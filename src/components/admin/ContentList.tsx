@@ -4,7 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { ExternalLink, Trash2, Edit3, Eye, EyeOff, Home } from "lucide-react";
+import { ExternalLink, Trash2, Edit3, Eye, EyeOff, Home, Menu, Navigation } from "lucide-react";
 import { format } from "date-fns";
 
 interface StaticPage {
@@ -14,6 +14,8 @@ interface StaticPage {
   html_file_path: string;
   assets_zip_path: string | null;
   is_homepage: boolean;
+  show_in_menu: boolean;
+  show_in_header: boolean;
   created_at: string;
   updated_at: string;
 }
@@ -146,6 +148,34 @@ export function ContentList({ type }: ContentListProps) {
     }
   };
 
+  const toggleMenuVisibility = async (id: string, field: 'show_in_menu' | 'show_in_header', currentStatus: boolean) => {
+    if (type !== 'static') return;
+
+    try {
+      const { error } = await supabase
+        .from('static_pages')
+        .update({ [field]: !currentStatus })
+        .eq('id', id);
+
+      if (error) throw error;
+
+      const fieldName = field === 'show_in_menu' ? 'menüben' : 'fejléc menüben';
+      toast({
+        title: "Sikeres módosítás",
+        description: `Oldal ${!currentStatus ? 'megjelenik' : 'elrejtve'} a ${fieldName}`,
+      });
+
+      fetchItems();
+    } catch (error) {
+      console.error('Error updating page:', error);
+      toast({
+        title: "Hiba",
+        description: "Nem sikerült frissíteni az oldalt",
+        variant: "destructive",
+      });
+    }
+  };
+
   const getFileUrl = (bucket: string, path: string) => {
     const { data } = supabase.storage.from(bucket).getPublicUrl(path);
     return data.publicUrl;
@@ -186,11 +216,23 @@ export function ContentList({ type }: ContentListProps) {
                 )}
                 {type === 'static' && (item as StaticPage).is_homepage && (
                   <Badge variant="default" className="bg-primary">
-                    Homepage
+                    Kezdőoldal
+                  </Badge>
+                )}
+                {type === 'static' && (item as StaticPage).show_in_menu && (
+                  <Badge variant="outline">
+                    <Menu className="h-3 w-3 mr-1" />
+                    Menü
+                  </Badge>
+                )}
+                {type === 'static' && (item as StaticPage).show_in_header && (
+                  <Badge variant="outline">
+                    <Navigation className="h-3 w-3 mr-1" />
+                    Fejléc
                   </Badge>
                 )}
                 {item.assets_zip_path && (
-                  <Badge variant="outline">Has Assets</Badge>
+                  <Badge variant="outline">Van asset</Badge>
                 )}
               </div>
             </div>
@@ -253,14 +295,34 @@ export function ContentList({ type }: ContentListProps) {
                 )}
                 
                 {type === 'static' && (
-                  <Button
-                    variant={(item as StaticPage).is_homepage ? "default" : "outline"}
-                    size="sm"
-                    onClick={() => toggleHomepage(item.id, (item as StaticPage).is_homepage)}
-                  >
-                    <Home className="h-4 w-4 mr-2" />
-                    {(item as StaticPage).is_homepage ? 'Remove Homepage' : 'Set as Homepage'}
-                  </Button>
+                  <>
+                    <Button
+                      variant={(item as StaticPage).is_homepage ? "default" : "outline"}
+                      size="sm"
+                      onClick={() => toggleHomepage(item.id, (item as StaticPage).is_homepage)}
+                    >
+                      <Home className="h-4 w-4 mr-2" />
+                      {(item as StaticPage).is_homepage ? 'Nem kezdőoldal' : 'Kezdőoldal'}
+                    </Button>
+                    
+                    <Button
+                      variant={(item as StaticPage).show_in_menu ? "default" : "outline"}
+                      size="sm"
+                      onClick={() => toggleMenuVisibility(item.id, 'show_in_menu', (item as StaticPage).show_in_menu)}
+                    >
+                      <Menu className="h-4 w-4 mr-2" />
+                      Menü
+                    </Button>
+                    
+                    <Button
+                      variant={(item as StaticPage).show_in_header ? "default" : "outline"}
+                      size="sm"
+                      onClick={() => toggleMenuVisibility(item.id, 'show_in_header', (item as StaticPage).show_in_header)}
+                    >
+                      <Navigation className="h-4 w-4 mr-2" />
+                      Fejléc
+                    </Button>
+                  </>
                 )}
                 
                 <Button

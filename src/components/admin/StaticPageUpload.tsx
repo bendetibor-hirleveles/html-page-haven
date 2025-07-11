@@ -19,6 +19,8 @@ export function StaticPageUpload() {
   const [metaDescription, setMetaDescription] = useState("");
   const [keywords, setKeywords] = useState("");
   const [isHomepage, setIsHomepage] = useState(false);
+  const [showInMenu, setShowInMenu] = useState(true);
+  const [showInHeader, setShowInHeader] = useState(true);
   const [isUploading, setIsUploading] = useState(false);
   const { toast } = useToast();
 
@@ -170,6 +172,8 @@ export function StaticPageUpload() {
           html_file_path: htmlFileName,
           assets_zip_path: assetsZipPath,
           is_homepage: isHomepage,
+          show_in_menu: showInMenu,
+          show_in_header: showInHeader,
         })
         .select()
         .single();
@@ -207,6 +211,8 @@ export function StaticPageUpload() {
       setMetaDescription("");
       setKeywords("");
       setIsHomepage(false);
+      setShowInMenu(true);
+      setShowInHeader(true);
       
     } catch (error) {
       console.error('Error uploading:', error);
@@ -272,13 +278,35 @@ export function StaticPageUpload() {
         </div>
       </div>
 
-      <div className="flex items-center space-x-2">
-        <Switch
-          id="is-homepage"
-          checked={isHomepage}
-          onCheckedChange={setIsHomepage}
-        />
-        <Label htmlFor="is-homepage">Beállítás kezdőoldalként</Label>
+      <div className="space-y-4">
+        <div className="flex items-center space-x-2">
+          <Switch
+            id="is-homepage"
+            checked={isHomepage}
+            onCheckedChange={setIsHomepage}
+          />
+          <Label htmlFor="is-homepage">Beállítás kezdőoldalként</Label>
+        </div>
+
+        <div className="grid grid-cols-2 gap-4">
+          <div className="flex items-center space-x-2">
+            <Switch
+              id="show-in-menu"
+              checked={showInMenu}
+              onCheckedChange={setShowInMenu}
+            />
+            <Label htmlFor="show-in-menu">Megjelenítés menüben</Label>
+          </div>
+
+          <div className="flex items-center space-x-2">
+            <Switch
+              id="show-in-header"
+              checked={showInHeader}
+              onCheckedChange={setShowInHeader}
+            />
+            <Label htmlFor="show-in-header">Megjelenítés fejléc menüben</Label>
+          </div>
+        </div>
       </div>
 
       <div className="space-y-4">
