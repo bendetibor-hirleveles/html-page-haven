@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent } from "@/components/ui/card";
+import { CookieConsent } from "@/components/CookieConsent";
 import { Loader } from "lucide-react";
 
 interface StaticPage {
@@ -94,9 +95,12 @@ export function StaticPageViewer() {
   }
 
   return (
-    <div 
-      className="min-h-screen"
-      dangerouslySetInnerHTML={{ __html: processHtmlContent(page.html_content) }}
-    />
+    <>
+      <div 
+        className="min-h-screen"
+        dangerouslySetInnerHTML={{ __html: processHtmlContent(page.html_content) }}
+      />
+      <CookieConsent />
+    </>
   );
 }

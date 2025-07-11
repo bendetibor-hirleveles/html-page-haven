@@ -72,9 +72,9 @@ const Index = () => {
           </div>
           
           <Button asChild className="w-full">
-            <Link to="/admin">
+            <Link to="/auth">
               <Settings className="h-4 w-4 mr-2" />
-              Admin panel megnyitása
+              Admin bejelentkezés
             </Link>
           </Button>
 
