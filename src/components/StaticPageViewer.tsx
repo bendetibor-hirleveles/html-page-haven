@@ -28,7 +28,7 @@ export function StaticPageViewer() {
           .from("static_pages")
           .select("*")
           .eq("slug", slug)
-          .single();
+          .maybeSingle();
 
         if (error) {
           setError("Oldal nem található");
