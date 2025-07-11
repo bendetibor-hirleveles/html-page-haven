@@ -8,6 +8,7 @@ import { Switch } from "@/components/ui/switch";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { Upload, FileText, Archive } from "lucide-react";
+import { BlogPostSEOSettings } from "./BlogPostSEOSettings";
 
 export function BlogPostUpload() {
   const [title, setTitle] = useState("");
@@ -18,6 +19,7 @@ export function BlogPostUpload() {
   const [showInMenu, setShowInMenu] = useState(true);
   const [showInHeader, setShowInHeader] = useState(true);
   const [isUploading, setIsUploading] = useState(false);
+  const [blogPostId, setBlogPostId] = useState<string | null>(null);
   const { toast } = useToast();
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -66,7 +68,7 @@ export function BlogPostUpload() {
       }
 
       // Insert into database
-      const { error: dbError } = await supabase
+      const { data: blogPostData, error: dbError } = await supabase
         .from('blog_posts')
         .insert({
           title,
@@ -77,9 +79,13 @@ export function BlogPostUpload() {
           published,
           show_in_menu: showInMenu,
           show_in_header: showInHeader,
-        });
+        })
+        .select()
+        .single();
 
       if (dbError) throw dbError;
+      
+      setBlogPostId(blogPostData.id);
 
       toast({
         title: "Success!",
@@ -94,6 +100,7 @@ export function BlogPostUpload() {
       setPublished(false);
       setShowInMenu(true);
       setShowInHeader(true);
+      setBlogPostId(null);
       
     } catch (error) {
       console.error('Error uploading:', error);
@@ -219,6 +226,16 @@ export function BlogPostUpload() {
         <Upload className="h-4 w-4 mr-2" />
         {isUploading ? "Uploading..." : "Upload Blog Post"}
       </Button>
+      
+      {blogPostId && (
+        <div className="mt-6 border-t pt-6">
+          <h3 className="text-lg font-semibold mb-4">SEO Settings</h3>
+          <BlogPostSEOSettings 
+            pageId={blogPostId}
+            currentTitle={title}
+          />
+        </div>
+      )}
     </form>
   );
 }
