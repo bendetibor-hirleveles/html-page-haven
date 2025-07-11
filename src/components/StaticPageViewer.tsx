@@ -96,41 +96,8 @@ export function StaticPageViewer() {
 
   return (
     <>
-      <style dangerouslySetInnerHTML={{
-        __html: `
-          .static-page-reset {
-            all: initial !important;
-            display: block !important;
-            min-height: 100vh !important;
-            font-family: system-ui, -apple-system, sans-serif !important;
-            background: white !important;
-            color: black !important;
-          }
-          .static-page-reset * {
-            box-sizing: border-box !important;
-          }
-          .static-page-reset img {
-            max-width: 100% !important;
-            height: auto !important;
-          }
-          .static-page-reset a {
-            color: inherit !important;
-            text-decoration: none !important;
-          }
-          .static-page-reset h1, .static-page-reset h2, .static-page-reset h3,
-          .static-page-reset h4, .static-page-reset h5, .static-page-reset h6 {
-            margin: 0 !important;
-            padding: 0 !important;
-            font-weight: bold !important;
-          }
-          .static-page-reset p {
-            margin: 0 !important;
-            padding: 0 !important;
-          }
-        `
-      }} />
       <div 
-        className="min-h-screen static-page-reset"
+        className="min-h-screen"
         dangerouslySetInnerHTML={{ __html: processHtmlContent(page.html_content) }}
       />
       <CookieConsent />
