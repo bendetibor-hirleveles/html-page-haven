@@ -116,6 +116,12 @@ export function StaticPageViewer() {
       if (assetsPath.endsWith('.zip')) {
         // Legacy ZIP-based: remove .zip extension
         assetsPath = assetsPath.replace('.zip', '');
+        
+        // HOTFIX: If this is the MailerLite page, use the correct folder name
+        if (assetsPath === 'mailerlite-hasznalata-magyarul-assets') {
+          assetsPath = 'hirleveleshu-8211-az-email-marketing-ceg-email-marketing-hirlevel-szovegiras-megirjuk-a-penzt-assets';
+          console.log('Applied MailerLite path hotfix:', assetsPath);
+        }
       }
     }
     
