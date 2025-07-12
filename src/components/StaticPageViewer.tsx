@@ -6,6 +6,9 @@ import { CookieConsent } from "@/components/CookieConsent";
 import { Loader } from "lucide-react";
 import { extractZipAssets } from "@/utils/extractAssets";
 
+// Cache for extracted assets to avoid repeated checks
+const extractedAssetsCache = new Set<string>();
+
 interface PageContent {
   id: string;
   title: string;
@@ -72,31 +75,18 @@ export function StaticPageViewer() {
           return;
         }
 
-        // Check if assets are already extracted (only extract once)
-        if (data.assets_zip_path) {
-          const assetsPath = data.assets_zip_path.replace('.zip', '').replace('/', '');
-          
-          // Check if assets folder already exists by trying to fetch a common file
-          const { data: { publicUrl } } = supabase.storage.from('assets').getPublicUrl('dummy');
-          const baseUrl = publicUrl.replace('/dummy', '');
-          const testUrl = `${baseUrl}/${assetsPath}/assets/bootstrap/css/bootstrap.min.css`;
-          
+        // Check if assets are already extracted using cache
+        if (data.assets_zip_path && !extractedAssetsCache.has(data.assets_zip_path)) {
+          console.log('Extracting ZIP assets for the first time:', data.assets_zip_path);
           try {
-            const response = await fetch(testUrl, { method: 'HEAD' });
-            if (!response.ok) {
-              console.log('Assets not extracted yet, extracting ZIP:', data.assets_zip_path);
-              await extractZipAssets(data.assets_zip_path);
-            } else {
-              console.log('Assets already extracted, skipping extraction');
-            }
+            await extractZipAssets(data.assets_zip_path);
+            extractedAssetsCache.add(data.assets_zip_path);
+            console.log('ZIP extraction completed and cached');
           } catch (extractError) {
-            console.log('Could not check assets, attempting extraction:', data.assets_zip_path);
-            try {
-              await extractZipAssets(data.assets_zip_path);
-            } catch (secondError) {
-              console.error('ZIP extraction failed:', secondError);
-            }
+            console.error('ZIP extraction failed:', extractError);
           }
+        } else if (data.assets_zip_path) {
+          console.log('Assets already extracted and cached, skipping');
         }
 
         setPage(data);
