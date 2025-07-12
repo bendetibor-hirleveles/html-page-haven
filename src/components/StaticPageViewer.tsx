@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent } from "@/components/ui/card";
 import { CookieConsent } from "@/components/CookieConsent";
 import { Loader } from "lucide-react";
+import { extractZipAssets } from "@/utils/extractAssets";
 
 interface PageContent {
   id: string;
@@ -69,6 +70,16 @@ export function StaticPageViewer() {
         if (!data) {
           setError("Oldal nem található");
           return;
+        }
+
+        // Auto-extract ZIP assets if needed
+        if (data.assets_zip_path) {
+          console.log('Attempting to extract ZIP:', data.assets_zip_path);
+          try {
+            await extractZipAssets(data.assets_zip_path);
+          } catch (extractError) {
+            console.error('ZIP extraction failed:', extractError);
+          }
         }
 
         setPage(data);
