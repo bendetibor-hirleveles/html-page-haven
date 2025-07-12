@@ -90,10 +90,15 @@ export function StaticPageViewer() {
   const processHtmlContent = (htmlContent: string) => {
     let processedHtml = htmlContent;
     
+    // Convert logo links to point to homepage (/)
+    // This handles links that typically point to index.html or the homepage
+    processedHtml = processedHtml.replace(/href=["'](\.\/)?(index\.html|\/)?["']/g, 'href="/"');
+    console.log('Logo links converted to point to homepage');
+    
     // Convert .html links to relative links (remove .html extension)
     processedHtml = processedHtml.replace(/href=["']([^"']*\.html)["']/g, (match, url) => {
       // Only process internal links (not starting with http:// or https://)
-      if (!url.startsWith('http://') && !url.startsWith('https://') && !url.startsWith('//')) {
+      if (!url.startsWith('http://') && !url.startsWith('https://') && !url.startsWith('//') && url !== 'index.html') {
         const relativePath = url.replace(/\.html$/, '');
         console.log(`Converting link: ${url} -> ${relativePath}`);
         return `href="${relativePath}"`;
