@@ -94,6 +94,13 @@ export function StaticPageViewer() {
     // Replace asset URLs in the HTML
     let processedHtml = htmlContent;
     
+    // Handle Bootstrap CSS and JS from /assets/ paths (most common pattern)
+    processedHtml = processedHtml.replace(/href=["']?\/assets\/bootstrap\/css\//g, `href="${baseUrl}/${assetsPath}/assets/bootstrap/css/`);
+    processedHtml = processedHtml.replace(/src=["']?\/assets\/bootstrap\/js\//g, `src="${baseUrl}/${assetsPath}/assets/bootstrap/js/`);
+    processedHtml = processedHtml.replace(/src=["']?\/assets\/js\//g, `src="${baseUrl}/${assetsPath}/assets/js/`);
+    processedHtml = processedHtml.replace(/href=["']?\/assets\/css\//g, `href="${baseUrl}/${assetsPath}/assets/css/`);
+    processedHtml = processedHtml.replace(/href=["']?\/assets\/fonts\//g, `href="${baseUrl}/${assetsPath}/assets/fonts/`);
+    
     // Handle CSS files - multiple patterns
     processedHtml = processedHtml.replace(/href=["']?\.\/css\//g, `href="${baseUrl}/${assetsPath}/css/`);
     processedHtml = processedHtml.replace(/href=["']?css\//g, `href="${baseUrl}/${assetsPath}/css/`);
@@ -106,7 +113,10 @@ export function StaticPageViewer() {
     processedHtml = processedHtml.replace(/src=["']?js\//g, `src="${baseUrl}/${assetsPath}/js/`);
     processedHtml = processedHtml.replace(/src=["']?\/js\//g, `src="${baseUrl}/${assetsPath}/js/`);
     
-    // Handle images and other assets
+    // Handle images from /assets/img/
+    processedHtml = processedHtml.replace(/src=["']?\/assets\/img\//g, `src="${baseUrl}/${assetsPath}/assets/img/`);
+    
+    // Handle generic assets
     processedHtml = processedHtml.replace(/href=["']?\.\/assets\//g, `href="${baseUrl}/${assetsPath}/assets/`);
     processedHtml = processedHtml.replace(/src=["']?\.\/assets\//g, `src="${baseUrl}/${assetsPath}/assets/`);
     processedHtml = processedHtml.replace(/href=["']?\/assets\//g, `href="${baseUrl}/${assetsPath}/assets/`);
