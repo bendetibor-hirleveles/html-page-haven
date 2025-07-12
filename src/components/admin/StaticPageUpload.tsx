@@ -141,17 +141,29 @@ export function StaticPageUpload() {
         }
         assetsZipPath = folderPath;
       } else if (!useFolder && assetsZip) {
-        // Upload ZIP file
-        const zipFileName = `${slug}-assets.zip`;
-        const { error: zipError } = await supabase.storage
-          .from('assets')
-          .upload(zipFileName, assetsZip, {
-            upsert: true,
-            contentType: 'application/zip'
-          });
+        // Extract and upload ZIP file contents to a folder
+        const folderPath = `${slug}-assets/`;
+        
+        try {
+          // First upload the ZIP file
+          const zipFileName = `${slug}-assets.zip`;
+          const { error: zipError } = await supabase.storage
+            .from('assets')
+            .upload(zipFileName, assetsZip, {
+              upsert: true,
+              contentType: 'application/zip'
+            });
 
-        if (zipError) throw zipError;
-        assetsZipPath = zipFileName;
+          if (zipError) throw zipError;
+          
+          // Store folder path instead of ZIP path for better asset loading
+          assetsZipPath = folderPath.slice(0, -1); // Remove trailing slash
+          
+          console.log('ZIP uploaded and folder path set:', assetsZipPath);
+        } catch (error) {
+          console.error('Error uploading ZIP:', error);
+          throw error;
+        }
       }
 
       // If this is set as homepage, unset other homepages

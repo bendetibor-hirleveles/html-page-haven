@@ -116,18 +116,7 @@ export function StaticPageViewer() {
       // Handle both ZIP-based and folder-based assets
       if (assetsPath.endsWith('.zip')) {
         // Legacy ZIP-based: remove .zip extension
-        const originalPath = assetsPath.replace('.zip', '');
-        
-        // Simple mapping for known problematic paths
-        const pathMappings: Record<string, string> = {
-          'mailerlite-hasznalata-magyarul-assets': 'hirleveleshu-8211-az-email-marketing-ceg-email-marketing-hirlevel-szovegiras-megirjuk-a-penzt-assets'
-        };
-        
-        assetsPath = pathMappings[originalPath] || originalPath;
-        
-        if (pathMappings[originalPath]) {
-          console.log('Applied path mapping:', originalPath, '->', assetsPath);
-        }
+        assetsPath = assetsPath.replace('.zip', '');
       }
     }
     
