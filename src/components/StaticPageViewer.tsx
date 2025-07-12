@@ -126,25 +126,6 @@ export function StaticPageViewer() {
     return processedHtml;
   };
 
-  // Create a complete HTML document for iframe
-  const createIframeContent = (htmlContent: string) => {
-    const processedContent = processHtmlContent(htmlContent);
-    
-    return `<!DOCTYPE html>
-<html lang="hu">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>${page?.title || 'Oldal'}</title>
-  <style>
-    body { margin: 0; padding: 0; }
-  </style>
-</head>
-<body>
-  ${processedContent}
-</body>
-</html>`;
-  };
 
   if (loading) {
     return (
@@ -176,17 +157,9 @@ export function StaticPageViewer() {
 
   return (
     <>
-      <iframe
-        src={`data:text/html;charset=utf-8,${encodeURIComponent(createIframeContent(page.html_content))}`}
-        className="w-full min-h-screen border-0"
-        title={page.title}
-        style={{
-          width: '100%',
-          height: '100vh',
-          border: 'none',
-          margin: 0,
-          padding: 0,
-        }}
+      <div 
+        className="min-h-screen"
+        dangerouslySetInnerHTML={{ __html: processHtmlContent(page.html_content) }}
       />
       <CookieConsent />
     </>
