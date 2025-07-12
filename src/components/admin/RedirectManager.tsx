@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { useToast } from "@/hooks/use-toast";
-import { Plus, Trash2, Save, ExternalLink } from "lucide-react";
+import { Plus, Trash2, Save, ExternalLink, Upload, Download } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 interface Redirect {
@@ -23,6 +23,8 @@ export function RedirectManager() {
   const [newRedirect, setNewRedirect] = useState({ from_path: "", to_path: "", redirect_type: 301, is_active: true });
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [importing, setImporting] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -141,6 +143,75 @@ export function RedirectManager() {
     }
   };
 
+  const handleCSVUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    setImporting(true);
+    try {
+      const text = await file.text();
+      const lines = text.split('\n').filter(line => line.trim());
+      
+      // Skip header if exists
+      const dataLines = lines[0].includes('from_path') ? lines.slice(1) : lines;
+      
+      const redirectsToImport = dataLines.map((line, index) => {
+        const [from_path, to_path, redirect_type, is_active] = line.split(',').map(s => s.trim().replace(/"/g, ''));
+        
+        if (!from_path || !to_path) {
+          throw new Error(`Sor ${index + 1}: from_path és to_path kötelező`);
+        }
+
+        return {
+          from_path: from_path.startsWith('/') ? from_path : `/${from_path}`,
+          to_path,
+          redirect_type: parseInt(redirect_type) || 301,
+          is_active: is_active === 'false' ? false : true,
+        };
+      });
+
+      // Bulk insert
+      const { error } = await supabase
+        .from('redirects')
+        .insert(redirectsToImport);
+
+      if (error) throw error;
+
+      toast({
+        title: "Sikeres import",
+        description: `${redirectsToImport.length} redirect sikeresen importálva`,
+      });
+
+      fetchRedirects();
+    } catch (error: any) {
+      toast({
+        title: "Import hiba",
+        description: error.message,
+        variant: "destructive",
+      });
+    } finally {
+      setImporting(false);
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
+    }
+  };
+
+  const handleCSVExport = () => {
+    const csvContent = [
+      'from_path,to_path,redirect_type,is_active',
+      ...redirects.map(r => `"${r.from_path}","${r.to_path}",${r.redirect_type},${r.is_active}`)
+    ].join('\n');
+
+    const blob = new Blob([csvContent], { type: 'text/csv' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `redirects_${new Date().toISOString().split('T')[0]}.csv`;
+    a.click();
+    window.URL.revokeObjectURL(url);
+  };
+
   if (loading) {
     return <div className="flex items-center justify-center p-8">Betöltés...</div>;
   }
@@ -209,6 +280,56 @@ export function RedirectManager() {
             <Save className="h-4 w-4 mr-2" />
             {saving ? "Mentés..." : "Redirect Hozzáadása"}
           </Button>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Upload className="h-5 w-5" />
+            CSV Import/Export
+          </CardTitle>
+          <CardDescription>
+            Tömeges redirectek importálása CSV fájlból vagy exportálás. Formátum: from_path,to_path,redirect_type,is_active
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="flex gap-4">
+            <div className="flex-1">
+              <input
+                type="file"
+                accept=".csv"
+                onChange={handleCSVUpload}
+                ref={fileInputRef}
+                className="hidden"
+              />
+              <Button 
+                onClick={() => fileInputRef.current?.click()}
+                disabled={importing}
+                variant="outline"
+                className="w-full"
+              >
+                <Upload className="h-4 w-4 mr-2" />
+                {importing ? "Importálás..." : "CSV Feltöltés"}
+              </Button>
+            </div>
+            <Button 
+              onClick={handleCSVExport}
+              variant="outline"
+              disabled={redirects.length === 0}
+            >
+              <Download className="h-4 w-4 mr-2" />
+              CSV Letöltés
+            </Button>
+          </div>
+          <div className="text-sm text-muted-foreground">
+            <p><strong>CSV formátum példa:</strong></p>
+            <code className="block bg-muted p-2 rounded mt-1">
+              from_path,to_path,redirect_type,is_active<br/>
+              /old-page,/new-page,301,true<br/>
+              /category/old,/new-category,301,true
+            </code>
+          </div>
         </CardContent>
       </Card>
 

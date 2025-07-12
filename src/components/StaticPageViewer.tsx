@@ -95,28 +95,34 @@ export function StaticPageViewer() {
     let processedHtml = htmlContent;
     
     // Replace common asset patterns with the correct storage URLs
-    // Handle CSS files
-    processedHtml = processedHtml.replace(/href="\.\/css\//g, `href="${baseUrl}/${assetsPath}/css/`);
-    processedHtml = processedHtml.replace(/href="css\//g, `href="${baseUrl}/${assetsPath}/css/`);
-    processedHtml = processedHtml.replace(/href="\/css\//g, `href="${baseUrl}/${assetsPath}/css/`);
+    // Handle CSS files - multiple patterns
+    processedHtml = processedHtml.replace(/href=["']\.\/css\//g, `href="${baseUrl}/${assetsPath}/css/`);
+    processedHtml = processedHtml.replace(/href=["']css\//g, `href="${baseUrl}/${assetsPath}/css/`);
+    processedHtml = processedHtml.replace(/href=["']\/css\//g, `href="${baseUrl}/${assetsPath}/css/`);
+    processedHtml = processedHtml.replace(/href=["']\.\/style/g, `href="${baseUrl}/${assetsPath}/style`);
+    processedHtml = processedHtml.replace(/href=["']style/g, `href="${baseUrl}/${assetsPath}/style`);
     
     // Handle JS files
-    processedHtml = processedHtml.replace(/src="\.\/js\//g, `src="${baseUrl}/${assetsPath}/js/`);
-    processedHtml = processedHtml.replace(/src="js\//g, `src="${baseUrl}/${assetsPath}/js/`);
-    processedHtml = processedHtml.replace(/src="\/js\//g, `src="${baseUrl}/${assetsPath}/js/`);
+    processedHtml = processedHtml.replace(/src=["']\.\/js\//g, `src="${baseUrl}/${assetsPath}/js/`);
+    processedHtml = processedHtml.replace(/src=["']js\//g, `src="${baseUrl}/${assetsPath}/js/`);
+    processedHtml = processedHtml.replace(/src=["']\/js\//g, `src="${baseUrl}/${assetsPath}/js/`);
     
     // Handle images and other assets
-    processedHtml = processedHtml.replace(/href="\.\/assets\//g, `href="${baseUrl}/${assetsPath}/assets/`);
-    processedHtml = processedHtml.replace(/src="\.\/assets\//g, `src="${baseUrl}/${assetsPath}/assets/`);
-    processedHtml = processedHtml.replace(/href="\/assets\//g, `href="${baseUrl}/${assetsPath}/assets/`);
-    processedHtml = processedHtml.replace(/src="\/assets\//g, `src="${baseUrl}/${assetsPath}/assets/`);
-    processedHtml = processedHtml.replace(/url\(\/assets\//g, `url(${baseUrl}/${assetsPath}/assets/`);
-    processedHtml = processedHtml.replace(/url\(\.\/assets\//g, `url(${baseUrl}/${assetsPath}/assets/`);
+    processedHtml = processedHtml.replace(/href=["']\.\/assets\//g, `href="${baseUrl}/${assetsPath}/assets/`);
+    processedHtml = processedHtml.replace(/src=["']\.\/assets\//g, `src="${baseUrl}/${assetsPath}/assets/`);
+    processedHtml = processedHtml.replace(/href=["']\/assets\//g, `href="${baseUrl}/${assetsPath}/assets/`);
+    processedHtml = processedHtml.replace(/src=["']\/assets\//g, `src="${baseUrl}/${assetsPath}/assets/`);
+    processedHtml = processedHtml.replace(/url\(["']?\/assets\//g, `url("${baseUrl}/${assetsPath}/assets/`);
+    processedHtml = processedHtml.replace(/url\(["']?\.\/assets\//g, `url("${baseUrl}/${assetsPath}/assets/`);
     
     // Handle relative paths for images
-    processedHtml = processedHtml.replace(/src="\.\/images\//g, `src="${baseUrl}/${assetsPath}/images/`);
-    processedHtml = processedHtml.replace(/src="images\//g, `src="${baseUrl}/${assetsPath}/images/`);
-    processedHtml = processedHtml.replace(/src="\/images\//g, `src="${baseUrl}/${assetsPath}/images/`);
+    processedHtml = processedHtml.replace(/src=["']\.\/images\//g, `src="${baseUrl}/${assetsPath}/images/`);
+    processedHtml = processedHtml.replace(/src=["']images\//g, `src="${baseUrl}/${assetsPath}/images/`);
+    processedHtml = processedHtml.replace(/src=["']\/images\//g, `src="${baseUrl}/${assetsPath}/images/`);
+    
+    // Handle generic relative paths (last resort)
+    processedHtml = processedHtml.replace(/href=["']\.\//g, `href="${baseUrl}/${assetsPath}/`);
+    processedHtml = processedHtml.replace(/src=["']\.\//g, `src="${baseUrl}/${assetsPath}/`);
     
     return processedHtml;
   };
