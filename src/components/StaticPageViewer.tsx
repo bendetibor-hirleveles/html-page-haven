@@ -100,28 +100,32 @@ export function StaticPageViewer() {
       return match;
     });
 
-    if (!page?.assets_zip_path) {
-      console.log('No assets path found, returning processed HTML with converted links');
-      return processedHtml;
-    }
-    
     // Get the public URL for the assets from the correct bucket
     const { data: { publicUrl } } = supabase.storage.from('assets').getPublicUrl('dummy');
     const baseUrl = publicUrl.replace('/dummy', '');
     
-    // Handle both ZIP-based and folder-based assets
-    let assetsPath = page.assets_zip_path;
-    if (assetsPath.endsWith('.zip')) {
-      // Legacy ZIP-based: remove .zip extension
-      assetsPath = assetsPath.replace('.zip', '');
+    // Try to determine assets path
+    let assetsPath = page?.assets_zip_path;
+    
+    if (!assetsPath) {
+      // If no assets_zip_path, try to derive from slug for consistent behavior
+      console.log('No assets path found, attempting to process CSS with slug-based path');
+      assetsPath = page?.slug || 'default';
+    } else {
+      // Handle both ZIP-based and folder-based assets
+      if (assetsPath.endsWith('.zip')) {
+        // Legacy ZIP-based: remove .zip extension
+        assetsPath = assetsPath.replace('.zip', '');
+      }
     }
+    
     // Remove any leading/trailing slashes for consistency
     assetsPath = assetsPath.replace(/^\/+|\/+$/g, '');
     
     console.log('Processing HTML content:');
     console.log('- baseUrl:', baseUrl);
     console.log('- assetsPath:', assetsPath);
-    console.log('- original assets_zip_path:', page.assets_zip_path);
+    console.log('- original assets_zip_path:', page?.assets_zip_path);
     
     // Handle Bootstrap CSS and JS from /assets/ paths (most common pattern)
     const bootstrapCssPattern = /href=["']?\/assets\/bootstrap\/css\//g;
