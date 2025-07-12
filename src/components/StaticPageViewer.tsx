@@ -140,12 +140,16 @@ export function StaticPageViewer() {
     processedHtml = processedHtml.replace(/href=["']?\/assets\/css\//g, `href="${baseUrl}/${assetsPath}/assets/css/`);
     processedHtml = processedHtml.replace(/href=["']?\/assets\/fonts\//g, `href="${baseUrl}/${assetsPath}/assets/fonts/`);
     
-    // Handle CSS files - multiple patterns
+    // Handle CSS files - multiple patterns and direct CSS file references
     processedHtml = processedHtml.replace(/href=["']?\.\/css\//g, `href="${baseUrl}/${assetsPath}/css/`);
     processedHtml = processedHtml.replace(/href=["']?css\//g, `href="${baseUrl}/${assetsPath}/css/`);
     processedHtml = processedHtml.replace(/href=["']?\/css\//g, `href="${baseUrl}/${assetsPath}/css/`);
     processedHtml = processedHtml.replace(/href=["']?\.\/style/g, `href="${baseUrl}/${assetsPath}/style`);
     processedHtml = processedHtml.replace(/href=["']?style/g, `href="${baseUrl}/${assetsPath}/style`);
+    
+    // Handle direct CSS file references (like styles.min.css, bootstrap.min.css)
+    processedHtml = processedHtml.replace(/href=["']?([^"'\/]+\.css)["']?/g, `href="${baseUrl}/${assetsPath}/$1"`);
+    processedHtml = processedHtml.replace(/href=["']?\.\/([^"'\/]+\.css)["']?/g, `href="${baseUrl}/${assetsPath}/$1"`);
     
     // Handle JS files
     processedHtml = processedHtml.replace(/src=["']?\.\/js\//g, `src="${baseUrl}/${assetsPath}/js/`);
