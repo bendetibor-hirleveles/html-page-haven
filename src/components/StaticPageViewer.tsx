@@ -85,11 +85,24 @@ export function StaticPageViewer() {
     fetchPage();
   }, [slug]);
 
-  // Process HTML content to handle asset URLs
+  // Process HTML content to handle asset URLs and convert .html links
   const processHtmlContent = (htmlContent: string) => {
+    let processedHtml = htmlContent;
+    
+    // Convert .html links to relative links (remove .html extension)
+    processedHtml = processedHtml.replace(/href=["']([^"']*\.html)["']/g, (match, url) => {
+      // Only process internal links (not starting with http:// or https://)
+      if (!url.startsWith('http://') && !url.startsWith('https://') && !url.startsWith('//')) {
+        const relativePath = url.replace(/\.html$/, '');
+        console.log(`Converting link: ${url} -> ${relativePath}`);
+        return `href="${relativePath}"`;
+      }
+      return match;
+    });
+
     if (!page?.assets_zip_path) {
-      console.log('No assets path found, returning original HTML');
-      return htmlContent;
+      console.log('No assets path found, returning processed HTML with converted links');
+      return processedHtml;
     }
     
     // Get the public URL for the assets from the correct bucket
@@ -109,9 +122,6 @@ export function StaticPageViewer() {
     console.log('- baseUrl:', baseUrl);
     console.log('- assetsPath:', assetsPath);
     console.log('- original assets_zip_path:', page.assets_zip_path);
-    
-    // Replace asset URLs in the HTML
-    let processedHtml = htmlContent;
     
     // Handle Bootstrap CSS and JS from /assets/ paths (most common pattern)
     const bootstrapCssPattern = /href=["']?\/assets\/bootstrap\/css\//g;
