@@ -158,7 +158,11 @@ export function StaticPageViewer() {
   return (
     <>
       <div 
-        className="min-h-screen"
+        className="min-h-screen static-page-content"
+        style={{
+          contain: 'style layout',
+          isolation: 'isolate'
+        }}
         dangerouslySetInnerHTML={{ __html: processHtmlContent(page.html_content) }}
       />
       <CookieConsent />
