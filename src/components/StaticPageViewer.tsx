@@ -127,6 +127,12 @@ export function StaticPageViewer() {
     console.log('- assetsPath:', assetsPath);
     console.log('- original assets_zip_path:', page?.assets_zip_path);
     
+    // Log some sample CSS links before transformation
+    const cssMatches = processedHtml.match(/href=["'][^"']*\.css["']/g);
+    if (cssMatches) {
+      console.log('CSS links before transformation:', cssMatches.slice(0, 3));
+    }
+    
     // Handle Bootstrap CSS and JS from /assets/ paths (most common pattern)
     const bootstrapCssPattern = /href=["']?\/assets\/bootstrap\/css\//g;
     const beforeBootstrap = processedHtml.match(bootstrapCssPattern);
@@ -180,6 +186,12 @@ export function StaticPageViewer() {
     const exampleBootstrapLink = processedHtml.match(/href="[^"]*bootstrap[^"]*"/);
     if (exampleBootstrapLink) {
       console.log('Example transformed Bootstrap link:', exampleBootstrapLink[0]);
+    }
+    
+    // Log CSS links after transformation
+    const cssMatchesAfter = processedHtml.match(/href=["'][^"']*\.css["']/g);
+    if (cssMatchesAfter) {
+      console.log('CSS links after transformation:', cssMatchesAfter.slice(0, 3));
     }
     
     return processedHtml;
