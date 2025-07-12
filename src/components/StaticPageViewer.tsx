@@ -94,37 +94,56 @@ export function StaticPageViewer() {
     // Replace asset URLs in the HTML
     let processedHtml = htmlContent;
     
-    // Replace common asset patterns with the correct storage URLs
     // Handle CSS files - multiple patterns
-    processedHtml = processedHtml.replace(/href=["']\.\/css\//g, `href="${baseUrl}/${assetsPath}/css/`);
-    processedHtml = processedHtml.replace(/href=["']css\//g, `href="${baseUrl}/${assetsPath}/css/`);
-    processedHtml = processedHtml.replace(/href=["']\/css\//g, `href="${baseUrl}/${assetsPath}/css/`);
-    processedHtml = processedHtml.replace(/href=["']\.\/style/g, `href="${baseUrl}/${assetsPath}/style`);
-    processedHtml = processedHtml.replace(/href=["']style/g, `href="${baseUrl}/${assetsPath}/style`);
+    processedHtml = processedHtml.replace(/href=["']?\.\/css\//g, `href="${baseUrl}/${assetsPath}/css/`);
+    processedHtml = processedHtml.replace(/href=["']?css\//g, `href="${baseUrl}/${assetsPath}/css/`);
+    processedHtml = processedHtml.replace(/href=["']?\/css\//g, `href="${baseUrl}/${assetsPath}/css/`);
+    processedHtml = processedHtml.replace(/href=["']?\.\/style/g, `href="${baseUrl}/${assetsPath}/style`);
+    processedHtml = processedHtml.replace(/href=["']?style/g, `href="${baseUrl}/${assetsPath}/style`);
     
     // Handle JS files
-    processedHtml = processedHtml.replace(/src=["']\.\/js\//g, `src="${baseUrl}/${assetsPath}/js/`);
-    processedHtml = processedHtml.replace(/src=["']js\//g, `src="${baseUrl}/${assetsPath}/js/`);
-    processedHtml = processedHtml.replace(/src=["']\/js\//g, `src="${baseUrl}/${assetsPath}/js/`);
+    processedHtml = processedHtml.replace(/src=["']?\.\/js\//g, `src="${baseUrl}/${assetsPath}/js/`);
+    processedHtml = processedHtml.replace(/src=["']?js\//g, `src="${baseUrl}/${assetsPath}/js/`);
+    processedHtml = processedHtml.replace(/src=["']?\/js\//g, `src="${baseUrl}/${assetsPath}/js/`);
     
     // Handle images and other assets
-    processedHtml = processedHtml.replace(/href=["']\.\/assets\//g, `href="${baseUrl}/${assetsPath}/assets/`);
-    processedHtml = processedHtml.replace(/src=["']\.\/assets\//g, `src="${baseUrl}/${assetsPath}/assets/`);
-    processedHtml = processedHtml.replace(/href=["']\/assets\//g, `href="${baseUrl}/${assetsPath}/assets/`);
-    processedHtml = processedHtml.replace(/src=["']\/assets\//g, `src="${baseUrl}/${assetsPath}/assets/`);
+    processedHtml = processedHtml.replace(/href=["']?\.\/assets\//g, `href="${baseUrl}/${assetsPath}/assets/`);
+    processedHtml = processedHtml.replace(/src=["']?\.\/assets\//g, `src="${baseUrl}/${assetsPath}/assets/`);
+    processedHtml = processedHtml.replace(/href=["']?\/assets\//g, `href="${baseUrl}/${assetsPath}/assets/`);
+    processedHtml = processedHtml.replace(/src=["']?\/assets\//g, `src="${baseUrl}/${assetsPath}/assets/`);
     processedHtml = processedHtml.replace(/url\(["']?\/assets\//g, `url("${baseUrl}/${assetsPath}/assets/`);
     processedHtml = processedHtml.replace(/url\(["']?\.\/assets\//g, `url("${baseUrl}/${assetsPath}/assets/`);
     
     // Handle relative paths for images
-    processedHtml = processedHtml.replace(/src=["']\.\/images\//g, `src="${baseUrl}/${assetsPath}/images/`);
-    processedHtml = processedHtml.replace(/src=["']images\//g, `src="${baseUrl}/${assetsPath}/images/`);
-    processedHtml = processedHtml.replace(/src=["']\/images\//g, `src="${baseUrl}/${assetsPath}/images/`);
+    processedHtml = processedHtml.replace(/src=["']?\.\/images\//g, `src="${baseUrl}/${assetsPath}/images/`);
+    processedHtml = processedHtml.replace(/src=["']?images\//g, `src="${baseUrl}/${assetsPath}/images/`);
+    processedHtml = processedHtml.replace(/src=["']?\/images\//g, `src="${baseUrl}/${assetsPath}/images/`);
     
     // Handle generic relative paths (last resort)
-    processedHtml = processedHtml.replace(/href=["']\.\//g, `href="${baseUrl}/${assetsPath}/`);
-    processedHtml = processedHtml.replace(/src=["']\.\//g, `src="${baseUrl}/${assetsPath}/`);
+    processedHtml = processedHtml.replace(/href=["']?\.\//g, `href="${baseUrl}/${assetsPath}/`);
+    processedHtml = processedHtml.replace(/src=["']?\.\//g, `src="${baseUrl}/${assetsPath}/`);
     
     return processedHtml;
+  };
+
+  // Create a complete HTML document for iframe
+  const createIframeContent = (htmlContent: string) => {
+    const processedContent = processHtmlContent(htmlContent);
+    
+    return `<!DOCTYPE html>
+<html lang="hu">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>${page?.title || 'Oldal'}</title>
+  <style>
+    body { margin: 0; padding: 0; }
+  </style>
+</head>
+<body>
+  ${processedContent}
+</body>
+</html>`;
   };
 
   if (loading) {
@@ -157,13 +176,17 @@ export function StaticPageViewer() {
 
   return (
     <>
-      <div 
-        className="min-h-screen static-page-content"
+      <iframe
+        src={`data:text/html;charset=utf-8,${encodeURIComponent(createIframeContent(page.html_content))}`}
+        className="w-full min-h-screen border-0"
+        title={page.title}
         style={{
-          contain: 'style layout',
-          isolation: 'isolate'
+          width: '100%',
+          height: '100vh',
+          border: 'none',
+          margin: 0,
+          padding: 0,
         }}
-        dangerouslySetInnerHTML={{ __html: processHtmlContent(page.html_content) }}
       />
       <CookieConsent />
     </>
