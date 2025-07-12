@@ -84,18 +84,32 @@ export function StaticPageViewer() {
 
   // Process HTML content to handle asset URLs
   const processHtmlContent = (htmlContent: string) => {
-    if (!page?.assets_zip_path) return htmlContent;
+    if (!page?.assets_zip_path) {
+      console.log('No assets_zip_path found, returning original HTML');
+      return htmlContent;
+    }
     
     // Get the public URL for the assets from the correct bucket
     const { data: { publicUrl } } = supabase.storage.from('assets').getPublicUrl('dummy');
     const baseUrl = publicUrl.replace('/dummy', '');
     const assetsPath = page.assets_zip_path.replace('.zip', '').replace('/', '');
     
+    console.log('Processing HTML content:');
+    console.log('- baseUrl:', baseUrl);
+    console.log('- assetsPath:', assetsPath);
+    console.log('- assets_zip_path:', page.assets_zip_path);
+    
     // Replace asset URLs in the HTML
     let processedHtml = htmlContent;
     
     // Handle Bootstrap CSS and JS from /assets/ paths (most common pattern)
-    processedHtml = processedHtml.replace(/href=["']?\/assets\/bootstrap\/css\//g, `href="${baseUrl}/${assetsPath}/assets/bootstrap/css/`);
+    const bootstrapCssPattern = /href=["']?\/assets\/bootstrap\/css\//g;
+    const beforeBootstrap = processedHtml.match(bootstrapCssPattern);
+    processedHtml = processedHtml.replace(bootstrapCssPattern, `href="${baseUrl}/${assetsPath}/assets/bootstrap/css/`);
+    if (beforeBootstrap) {
+      console.log('Bootstrap CSS links found and replaced:', beforeBootstrap.length);
+    }
+    
     processedHtml = processedHtml.replace(/src=["']?\/assets\/bootstrap\/js\//g, `src="${baseUrl}/${assetsPath}/assets/bootstrap/js/`);
     processedHtml = processedHtml.replace(/src=["']?\/assets\/js\//g, `src="${baseUrl}/${assetsPath}/assets/js/`);
     processedHtml = processedHtml.replace(/href=["']?\/assets\/css\//g, `href="${baseUrl}/${assetsPath}/assets/css/`);
@@ -132,6 +146,12 @@ export function StaticPageViewer() {
     // Handle generic relative paths (last resort)
     processedHtml = processedHtml.replace(/href=["']?\.\//g, `href="${baseUrl}/${assetsPath}/`);
     processedHtml = processedHtml.replace(/src=["']?\.\//g, `src="${baseUrl}/${assetsPath}/`);
+    
+    // Log some example transformations
+    const exampleBootstrapLink = processedHtml.match(/href="[^"]*bootstrap[^"]*"/);
+    if (exampleBootstrapLink) {
+      console.log('Example transformed Bootstrap link:', exampleBootstrapLink[0]);
+    }
     
     return processedHtml;
   };
