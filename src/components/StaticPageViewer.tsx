@@ -26,6 +26,7 @@ export function StaticPageViewer() {
   const [page, setPage] = useState<PageContent | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  
 
   useEffect(() => {
     const fetchPage = async () => {
@@ -115,12 +116,17 @@ export function StaticPageViewer() {
       // Handle both ZIP-based and folder-based assets
       if (assetsPath.endsWith('.zip')) {
         // Legacy ZIP-based: remove .zip extension
-        assetsPath = assetsPath.replace('.zip', '');
+        const originalPath = assetsPath.replace('.zip', '');
         
-        // HOTFIX: If this is the MailerLite page, use the correct folder name
-        if (assetsPath === 'mailerlite-hasznalata-magyarul-assets') {
-          assetsPath = 'hirleveleshu-8211-az-email-marketing-ceg-email-marketing-hirlevel-szovegiras-megirjuk-a-penzt-assets';
-          console.log('Applied MailerLite path hotfix:', assetsPath);
+        // Simple mapping for known problematic paths
+        const pathMappings: Record<string, string> = {
+          'mailerlite-hasznalata-magyarul-assets': 'hirleveleshu-8211-az-email-marketing-ceg-email-marketing-hirlevel-szovegiras-megirjuk-a-penzt-assets'
+        };
+        
+        assetsPath = pathMappings[originalPath] || originalPath;
+        
+        if (pathMappings[originalPath]) {
+          console.log('Applied path mapping:', originalPath, '->', assetsPath);
         }
       }
     }
