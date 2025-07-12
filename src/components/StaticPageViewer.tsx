@@ -4,10 +4,6 @@ import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent } from "@/components/ui/card";
 import { CookieConsent } from "@/components/CookieConsent";
 import { Loader } from "lucide-react";
-import { extractZipAssets } from "@/utils/extractAssets";
-
-// Cache for extracted assets to avoid repeated checks
-const extractedAssetsCache = new Set<string>();
 
 interface PageContent {
   id: string;
@@ -75,19 +71,8 @@ export function StaticPageViewer() {
           return;
         }
 
-        // Check if assets are already extracted using cache
-        if (data.assets_zip_path && !extractedAssetsCache.has(data.assets_zip_path)) {
-          console.log('Extracting ZIP assets for the first time:', data.assets_zip_path);
-          try {
-            await extractZipAssets(data.assets_zip_path);
-            extractedAssetsCache.add(data.assets_zip_path);
-            console.log('ZIP extraction completed and cached');
-          } catch (extractError) {
-            console.error('ZIP extraction failed:', extractError);
-          }
-        } else if (data.assets_zip_path) {
-          console.log('Assets already extracted and cached, skipping');
-        }
+        // No need for ZIP extraction - using direct folder assets
+        console.log('Page loaded successfully:', data.title);
 
         setPage(data);
       } catch (err) {
@@ -103,19 +88,27 @@ export function StaticPageViewer() {
   // Process HTML content to handle asset URLs
   const processHtmlContent = (htmlContent: string) => {
     if (!page?.assets_zip_path) {
-      console.log('No assets_zip_path found, returning original HTML');
+      console.log('No assets path found, returning original HTML');
       return htmlContent;
     }
     
     // Get the public URL for the assets from the correct bucket
     const { data: { publicUrl } } = supabase.storage.from('assets').getPublicUrl('dummy');
     const baseUrl = publicUrl.replace('/dummy', '');
-    const assetsPath = page.assets_zip_path.replace('.zip', '').replace('/', '');
+    
+    // Handle both ZIP-based and folder-based assets
+    let assetsPath = page.assets_zip_path;
+    if (assetsPath.endsWith('.zip')) {
+      // Legacy ZIP-based: remove .zip extension
+      assetsPath = assetsPath.replace('.zip', '');
+    }
+    // Remove any leading/trailing slashes for consistency
+    assetsPath = assetsPath.replace(/^\/+|\/+$/g, '');
     
     console.log('Processing HTML content:');
     console.log('- baseUrl:', baseUrl);
     console.log('- assetsPath:', assetsPath);
-    console.log('- assets_zip_path:', page.assets_zip_path);
+    console.log('- original assets_zip_path:', page.assets_zip_path);
     
     // Replace asset URLs in the HTML
     let processedHtml = htmlContent;

@@ -15,7 +15,7 @@ export function StaticPageUpload() {
   const [htmlFile, setHtmlFile] = useState<File | null>(null);
   const [assetsZip, setAssetsZip] = useState<File | null>(null);
   const [assetsFolder, setAssetsFolder] = useState<FileList | null>(null);
-  const [useFolder, setUseFolder] = useState(false);
+  const [useFolder, setUseFolder] = useState(true); // Default to folder upload
   const [metaDescription, setMetaDescription] = useState("");
   const [keywords, setKeywords] = useState("");
   const [isHomepage, setIsHomepage] = useState(false);
