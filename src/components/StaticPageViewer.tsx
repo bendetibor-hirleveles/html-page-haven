@@ -136,10 +136,30 @@ export function StaticPageViewer() {
     // Test the first CSS URL to check if assets are accessible
     const testCssUrl = `${baseUrl}/${assetsPath}/assets/bootstrap/css/bootstrap.min.css`;
     console.log('Test CSS URL:', testCssUrl);
+    
+    // Also try alternative paths
+    const alternativeUrl1 = `${baseUrl}/${assetsPath}/bootstrap/css/bootstrap.min.css`;
+    const alternativeUrl2 = `${baseUrl}/${assetsPath}/css/bootstrap.min.css`;
+    
+    console.log('Testing alternative URLs:');
+    console.log('Alternative 1:', alternativeUrl1);
+    console.log('Alternative 2:', alternativeUrl2);
+    
     fetch(testCssUrl).then(response => {
       console.log('CSS file test result:', response.status, response.statusText);
       if (!response.ok) {
         console.error('CSS file not accessible:', testCssUrl);
+        // Test alternatives
+        return fetch(alternativeUrl1);
+      }
+    }).then(response => {
+      if (response && !response.ok) {
+        console.log('Alternative 1 result:', response.status);
+        return fetch(alternativeUrl2);
+      }
+    }).then(response => {
+      if (response) {
+        console.log('Alternative 2 result:', response.status);
       }
     }).catch(error => {
       console.error('Error testing CSS file:', error);
