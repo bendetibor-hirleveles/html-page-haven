@@ -172,11 +172,16 @@ export function StaticPageViewer() {
     }
     
     // Handle Bootstrap CSS and JS from /assets/ paths (most common pattern)
+    // Try without the extra /assets/ prefix first
     const bootstrapCssPattern = /href=["']?\/assets\/bootstrap\/css\//g;
     const beforeBootstrap = processedHtml.match(bootstrapCssPattern);
-    processedHtml = processedHtml.replace(bootstrapCssPattern, `href="${baseUrl}/${assetsPath}/assets/bootstrap/css/`);
+    
+    // First try direct path without extra assets folder
+    processedHtml = processedHtml.replace(bootstrapCssPattern, `href="${baseUrl}/${assetsPath}/bootstrap/css/`);
+    
     if (beforeBootstrap) {
       console.log('Bootstrap CSS links found and replaced:', beforeBootstrap.length);
+      console.log('New Bootstrap path:', `${baseUrl}/${assetsPath}/bootstrap/css/`);
     }
     
     processedHtml = processedHtml.replace(/src=["']?\/assets\/bootstrap\/js\//g, `src="${baseUrl}/${assetsPath}/assets/bootstrap/js/`);
