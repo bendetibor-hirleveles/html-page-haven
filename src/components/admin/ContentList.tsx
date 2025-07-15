@@ -4,7 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { ExternalLink, Trash2, Edit3, Eye, EyeOff, Home, Menu, Navigation, Search, Tag } from "lucide-react";
+import { ExternalLink, Trash2, Edit3, Eye, EyeOff, Home, Menu, Navigation, Search, Tag, Sparkles } from "lucide-react";
 import { format } from "date-fns";
 
 interface StaticPage {
@@ -12,6 +12,7 @@ interface StaticPage {
   title: string;
   slug: string;
   html_file_path: string;
+  html_content: string;
   assets_zip_path: string | null;
   is_homepage: boolean;
   show_in_menu: boolean;
@@ -25,6 +26,7 @@ interface BlogPost {
   title: string;
   slug: string;
   html_file_path: string;
+  html_content: string;
   assets_zip_path: string | null;
   published: boolean;
   show_in_menu?: boolean;
@@ -173,6 +175,33 @@ export function ContentList({ type }: ContentListProps) {
       toast({
         title: "Hiba",
         description: `Nem sikerült frissíteni a ${type === 'static' ? 'oldalt' : 'posztot'}`,
+        variant: "destructive",
+      });
+    }
+  };
+
+  const generateSEO = async (pageId: string, pageType: string, htmlContent: string, title: string) => {
+    try {
+      const { data, error } = await supabase.functions.invoke('generate-seo', {
+        body: {
+          pageId,
+          pageType,
+          htmlContent,
+          currentTitle: title
+        }
+      });
+
+      if (error) throw error;
+
+      toast({
+        title: "SEO generálva!",
+        description: "Az automatikus SEO beállítások sikeresen elkészültek",
+      });
+    } catch (error) {
+      console.error('Error generating SEO:', error);
+      toast({
+        title: "Hiba",
+        description: "Nem sikerült generálni a SEO beállításokat",
         variant: "destructive",
       });
     }
@@ -362,6 +391,16 @@ export function ContentList({ type }: ContentListProps) {
                 >
                   <Search className="h-4 w-4 mr-2" />
                   SEO
+                </Button>
+                
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => generateSEO(item.id, type, item.html_content || '', item.title)}
+                  className="bg-green-50 hover:bg-green-100"
+                >
+                  <Sparkles className="h-4 w-4 mr-2" />
+                  Auto SEO
                 </Button>
                 
                 <Button

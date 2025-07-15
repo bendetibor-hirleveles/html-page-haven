@@ -114,9 +114,9 @@ export function StaticPageViewer() {
     let assetsPath = page?.assets_zip_path;
     
     if (!assetsPath) {
-      // If no assets_zip_path, try to derive from slug for consistent behavior
-      console.log('No assets path found, attempting to process CSS with slug-based path');
-      assetsPath = page?.slug || 'default';
+      // If no assets_zip_path, use a common assets folder
+      console.log('No assets path found, using common assets folder');
+      assetsPath = 'common-assets'; // Alapértelmezett közös assets mappa
     } else {
       // Handle both ZIP-based and folder-based assets
       if (assetsPath.endsWith('.zip')) {
