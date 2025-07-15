@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -19,12 +19,19 @@ export default function Admin() {
   const [activeTab, setActiveTab] = useState("static-pages");
   const [showMFASetup, setShowMFASetup] = useState(false);
   const [hasMFA, setHasMFA] = useState(false);
+  const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const { toast } = useToast();
 
   useEffect(() => {
     checkMFAStatus();
-  }, []);
+    
+    // Handle URL parameters for direct navigation to SEO settings
+    const tab = searchParams.get('tab');
+    if (tab) {
+      setActiveTab(tab);
+    }
+  }, [searchParams]);
 
   const checkMFAStatus = async () => {
     try {

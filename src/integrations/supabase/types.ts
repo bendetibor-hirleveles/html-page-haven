@@ -25,6 +25,7 @@ export type Database = {
           show_in_header: boolean | null
           show_in_menu: boolean | null
           slug: string
+          tags: string[] | null
           title: string
           updated_at: string
         }
@@ -38,6 +39,7 @@ export type Database = {
           show_in_header?: boolean | null
           show_in_menu?: boolean | null
           slug: string
+          tags?: string[] | null
           title: string
           updated_at?: string
         }
@@ -51,6 +53,7 @@ export type Database = {
           show_in_header?: boolean | null
           show_in_menu?: boolean | null
           slug?: string
+          tags?: string[] | null
           title?: string
           updated_at?: string
         }

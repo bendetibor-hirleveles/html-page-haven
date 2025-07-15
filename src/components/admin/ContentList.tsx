@@ -4,7 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { ExternalLink, Trash2, Edit3, Eye, EyeOff, Home, Menu, Navigation } from "lucide-react";
+import { ExternalLink, Trash2, Edit3, Eye, EyeOff, Home, Menu, Navigation, Search, Tag } from "lucide-react";
 import { format } from "date-fns";
 
 interface StaticPage {
@@ -29,6 +29,7 @@ interface BlogPost {
   published: boolean;
   show_in_menu?: boolean;
   show_in_header?: boolean;
+  tags?: string[];
   created_at: string;
   updated_at: string;
 }
@@ -208,6 +209,16 @@ export function ContentList({ type }: ContentListProps) {
                 <p className="text-xs text-muted-foreground mt-1">
                   Created: {format(new Date(item.created_at), 'PPp')}
                 </p>
+                {type === 'blog' && (item as BlogPost).tags && (item as BlogPost).tags!.length > 0 && (
+                  <div className="flex flex-wrap gap-1 mt-2">
+                    {(item as BlogPost).tags!.map((tag, index) => (
+                      <Badge key={index} variant="outline" className="text-xs">
+                        <Tag className="h-2 w-2 mr-1" />
+                        {tag}
+                      </Badge>
+                    ))}
+                  </div>
+                )}
               </div>
               <div className="flex items-center gap-2">
                 {type === 'blog' && (
@@ -342,6 +353,15 @@ export function ContentList({ type }: ContentListProps) {
                 >
                   <Navigation className="h-4 w-4 mr-2" />
                   Fejléc
+                </Button>
+                
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => window.open(`/admin?tab=page-seo&pageId=${item.id}&pageType=${type}`, '_blank')}
+                >
+                  <Search className="h-4 w-4 mr-2" />
+                  SEO
                 </Button>
                 
                 <Button

@@ -5,9 +5,10 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
+import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { Upload, FileText, Archive } from "lucide-react";
+import { Upload, FileText, Archive, Plus, X } from "lucide-react";
 import { BlogPostSEOSettings } from "./BlogPostSEOSettings";
 
 export function BlogPostUpload() {
@@ -18,6 +19,8 @@ export function BlogPostUpload() {
   const [published, setPublished] = useState(false);
   const [showInMenu, setShowInMenu] = useState(true);
   const [showInHeader, setShowInHeader] = useState(true);
+  const [tags, setTags] = useState<string[]>([]);
+  const [newTag, setNewTag] = useState("");
   const [isUploading, setIsUploading] = useState(false);
   const [blogPostId, setBlogPostId] = useState<string | null>(null);
   const { toast } = useToast();
@@ -79,6 +82,7 @@ export function BlogPostUpload() {
           published,
           show_in_menu: showInMenu,
           show_in_header: showInHeader,
+          tags: tags,
         })
         .select()
         .single();
@@ -100,6 +104,8 @@ export function BlogPostUpload() {
       setPublished(false);
       setShowInMenu(true);
       setShowInHeader(true);
+      setTags([]);
+      setNewTag("");
       setBlogPostId(null);
       
     } catch (error) {
@@ -112,6 +118,17 @@ export function BlogPostUpload() {
     } finally {
       setIsUploading(false);
     }
+  };
+
+  const addTag = () => {
+    if (newTag.trim() && !tags.includes(newTag.trim())) {
+      setTags(prev => [...prev, newTag.trim()]);
+      setNewTag("");
+    }
+  };
+
+  const removeTag = (tagToRemove: string) => {
+    setTags(prev => prev.filter(tag => tag !== tagToRemove));
   };
 
   return (
@@ -166,6 +183,36 @@ export function BlogPostUpload() {
             onCheckedChange={setShowInHeader}
           />
           <Label htmlFor="show-in-header">Show in header</Label>
+        </div>
+      </div>
+
+      <div className="space-y-2">
+        <Label htmlFor="tags">Tags</Label>
+        <div className="flex gap-2">
+          <Input
+            placeholder="Add a tag"
+            value={newTag}
+            onChange={(e) => setNewTag(e.target.value)}
+            onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addTag())}
+          />
+          <Button type="button" onClick={addTag} variant="outline" size="sm">
+            <Plus className="h-4 w-4" />
+          </Button>
+        </div>
+        
+        <div className="flex flex-wrap gap-2 mt-2">
+          {tags.map((tag, index) => (
+            <Badge key={index} variant="secondary" className="cursor-pointer">
+              {tag}
+              <button
+                type="button"
+                onClick={() => removeTag(tag)}
+                className="ml-2 text-red-500 hover:text-red-700"
+              >
+                <X className="h-3 w-3" />
+              </button>
+            </Badge>
+          ))}
         </div>
       </div>
 
