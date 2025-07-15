@@ -133,6 +133,18 @@ export function StaticPageViewer() {
     console.log('- assetsPath:', assetsPath);
     console.log('- original assets_zip_path:', page?.assets_zip_path);
     
+    // Test the first CSS URL to check if assets are accessible
+    const testCssUrl = `${baseUrl}/${assetsPath}/assets/bootstrap/css/bootstrap.min.css`;
+    console.log('Test CSS URL:', testCssUrl);
+    fetch(testCssUrl).then(response => {
+      console.log('CSS file test result:', response.status, response.statusText);
+      if (!response.ok) {
+        console.error('CSS file not accessible:', testCssUrl);
+      }
+    }).catch(error => {
+      console.error('Error testing CSS file:', error);
+    });
+    
     // Log some sample CSS links before transformation
     const cssMatches = processedHtml.match(/href=["'][^"']*\.css["']/g);
     if (cssMatches) {
