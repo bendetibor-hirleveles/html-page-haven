@@ -24,9 +24,9 @@ interface PageContent {
 export function StaticPageViewer() {
   const { slug } = useParams<{ slug: string }>();
   const [page, setPage] = useState<PageContent | null>(null);
+  const [processedHtml, setProcessedHtml] = useState<string>("");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  
 
   useEffect(() => {
     const fetchPage = async () => {
@@ -72,10 +72,13 @@ export function StaticPageViewer() {
           return;
         }
 
-        // No need for ZIP extraction - using direct folder assets
+        // Process the HTML content asynchronously
         console.log('Page loaded successfully:', data.title);
-
         setPage(data);
+        
+        // Process HTML content with CSS inlining
+        const processed = await processHtmlContent(data.html_content);
+        setProcessedHtml(processed);
       } catch (err) {
         setError("Hiba történt az oldal betöltésekor");
       } finally {
@@ -87,7 +90,7 @@ export function StaticPageViewer() {
   }, [slug]);
 
   // Process HTML content to handle asset URLs and convert .html links
-  const processHtmlContent = (htmlContent: string) => {
+  const processHtmlContent = async (htmlContent: string) => {
     let processedHtml = htmlContent;
     
     // Convert logo links to point to homepage
@@ -117,17 +120,35 @@ export function StaticPageViewer() {
       assetsPath = assetsPath.replace('.zip', '');
     }
     
-    // Replace all asset URLs - handle both CSS, JS, images, and backgrounds
-    processedHtml = processedHtml.replace(/href=["']\/assets\/([^"']*)["']/g, `href="${baseUrl}/${assetsPath}/$1"`);
+    // Replace CSS links with inline styles to avoid CORS issues
+    const cssLinkRegex = /<link[^>]*href=["']\/assets\/([^"']*\.css)["'][^>]*>/g;
+    let cssMatch;
+    while ((cssMatch = cssLinkRegex.exec(processedHtml)) !== null) {
+      const cssPath = cssMatch[1];
+      const cssUrl = `${baseUrl}/${assetsPath}/${cssPath}`;
+      
+      try {
+        const cssResponse = await fetch(cssUrl);
+        if (cssResponse.ok) {
+          const cssContent = await cssResponse.text();
+          // Replace asset URLs in CSS content
+          const processedCss = cssContent.replace(/url\(["']?\/assets\/([^"')]*)["']?\)/g, `url("${baseUrl}/${assetsPath}/$1")`);
+          const styleTag = `<style type="text/css">${processedCss}</style>`;
+          processedHtml = processedHtml.replace(cssMatch[0], styleTag);
+        }
+      } catch (error) {
+        console.warn('Failed to load CSS:', cssUrl, error);
+        // Keep the original link as fallback
+      }
+    }
+    
+    // Replace image and other asset URLs
     processedHtml = processedHtml.replace(/src=["']\/assets\/([^"']*)["']/g, `src="${baseUrl}/${assetsPath}/$1"`);
     
-    // Handle CSS background images in stylesheets and inline styles
+    // Handle CSS background images in inline styles
     processedHtml = processedHtml.replace(/url\(["']?\/assets\/([^"')]*)["']?\)/g, `url("${baseUrl}/${assetsPath}/$1")`);
     processedHtml = processedHtml.replace(/background-image:\s*url\(["']?\/assets\/([^"')]*)["']?\)/g, `background-image: url("${baseUrl}/${assetsPath}/$1")`);
     processedHtml = processedHtml.replace(/background:\s*url\(["']?\/assets\/([^"')]*)["']?\)/g, `background: url("${baseUrl}/${assetsPath}/$1")`);
-    
-    // Log asset path for debugging
-    console.log('Assets path being used:', `${baseUrl}/${assetsPath}`);
 
     return processedHtml;
   };
@@ -165,7 +186,7 @@ export function StaticPageViewer() {
     <>
       <div 
         className="min-h-screen"
-        dangerouslySetInnerHTML={{ __html: processHtmlContent(page.html_content) }}
+        dangerouslySetInnerHTML={{ __html: processedHtml }}
       />
       <CookieConsent />
     </>
