@@ -33,6 +33,12 @@ export function StaticPageViewer() {
       if (!slug) return;
 
       try {
+        // Fetch all pages for link resolution
+        const [staticPagesResult, blogPostsResult] = await Promise.all([
+          supabase.from("static_pages").select("slug, title"),
+          supabase.from("blog_posts").select("slug, title").eq("published", true)
+        ]);
+
         // Try static_pages first
         let { data, error } = await supabase
           .from("static_pages")
@@ -72,12 +78,29 @@ export function StaticPageViewer() {
           return;
         }
 
+        // Create page mapping for dynamic link resolution
+        const pageMapping = new Map<string, string>();
+        
+        if (staticPagesResult.data) {
+          staticPagesResult.data.forEach(page => {
+            pageMapping.set(page.title.toLowerCase(), page.slug);
+            pageMapping.set(page.slug, page.slug);
+          });
+        }
+        
+        if (blogPostsResult.data) {
+          blogPostsResult.data.forEach(post => {
+            pageMapping.set(post.title.toLowerCase(), post.slug);
+            pageMapping.set(post.slug, post.slug);
+          });
+        }
+
         // Process the HTML content asynchronously
         console.log('Page loaded successfully:', data.title);
         setPage(data);
         
-        // Process HTML content 
-        const processed = processHtmlContent(data.html_content);
+        // Process HTML content with dynamic link resolution
+        const processed = processHtmlContent(data.html_content, pageMapping);
         setProcessedHtml(processed);
       } catch (err) {
         setError("Hiba történt az oldal betöltésekor");
@@ -90,8 +113,33 @@ export function StaticPageViewer() {
   }, [slug]);
 
   // Process HTML content to handle asset URLs and convert .html links
-  const processHtmlContent = (htmlContent: string) => {
+  const processHtmlContent = (htmlContent: string, pageMapping?: Map<string, string>) => {
     let processedHtml = htmlContent;
+    
+    // Dynamic link resolution - replace {{title}} or {{slug}} placeholders
+    if (pageMapping) {
+      processedHtml = processedHtml.replace(/href=["']\{\{([^}]+)\}\}["']/g, (match, identifier) => {
+        const cleanIdentifier = identifier.trim().toLowerCase();
+        const slug = pageMapping.get(cleanIdentifier);
+        if (slug) {
+          console.log(`Resolved dynamic link: {{${identifier}}} -> /${slug}`);
+          return `href="/${slug}"`;
+        }
+        console.warn(`Could not resolve dynamic link: {{${identifier}}}`);
+        return match;
+      });
+      
+      // Also handle data-page attributes for alternative syntax
+      processedHtml = processedHtml.replace(/data-page=["']([^"']+)["']/g, (match, identifier) => {
+        const cleanIdentifier = identifier.trim().toLowerCase();
+        const slug = pageMapping.get(cleanIdentifier);
+        if (slug) {
+          console.log(`Resolved data-page: ${identifier} -> /${slug}`);
+          return `href="/${slug}"`;
+        }
+        return match;
+      });
+    }
     
     // Convert logo links to point to homepage
     processedHtml = processedHtml.replace(
