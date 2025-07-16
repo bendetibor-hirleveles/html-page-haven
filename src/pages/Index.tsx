@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -15,6 +16,7 @@ interface StaticPage {
 const Index = () => {
   const [homePage, setHomePage] = useState<StaticPage | null>(null);
   const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchHomePage = async () => {
@@ -25,17 +27,23 @@ const Index = () => {
           .eq("is_homepage", true)
           .maybeSingle();
 
-        setHomePage(data);
+        if (data) {
+          // Use React Router navigation instead of window.location.href
+          navigate(`/${data.slug}`, { replace: true });
+        } else {
+          setLoading(false);
+        }
       } catch (error) {
         console.error("Error fetching homepage:", error);
-      } finally {
         setLoading(false);
       }
     };
 
     fetchHomePage();
-  }, []);
+  }, [navigate]);
 
+
+  // Loading state while checking for homepage
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
@@ -45,12 +53,6 @@ const Index = () => {
         </div>
       </div>
     );
-  }
-
-  // If there's a homepage set, redirect to it
-  if (homePage) {
-    window.location.href = `/${homePage.slug}`;
-    return null;
   }
 
   return (

@@ -12,6 +12,20 @@ serve(async (req) => {
     return new Response('ok', { headers: corsHeaders })
   }
 
+  // Helper function to determine content type
+  const getContentType = (filePath: string) => {
+    if (filePath.endsWith('.css')) return 'text/css'
+    if (filePath.endsWith('.js')) return 'application/javascript'
+    if (filePath.endsWith('.png')) return 'image/png'
+    if (filePath.endsWith('.jpg') || filePath.endsWith('.jpeg')) return 'image/jpeg'
+    if (filePath.endsWith('.gif')) return 'image/gif'
+    if (filePath.endsWith('.svg')) return 'image/svg+xml'
+    if (filePath.endsWith('.woff') || filePath.endsWith('.woff2')) return 'font/woff2'
+    if (filePath.endsWith('.ttf')) return 'font/ttf'
+    if (filePath.endsWith('.webp')) return 'image/webp'
+    return 'text/plain'
+  }
+
   try {
     const url = new URL(req.url)
     const path = url.pathname.replace('/serve-assets/', '')
@@ -21,20 +35,34 @@ serve(async (req) => {
     const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
     const supabase = createClient(supabaseUrl, supabaseKey)
 
-    // Try to download from common-assets first, then fallback to original path
-    let data, error;
-    
-    // First try common-assets folder
+    // Optimize path resolution - prefer common-assets
     const commonAssetsPath = path.replace(/^[^/]+-assets\//, 'common-assets/');
-    ({ data, error } = await supabase.storage
-      .from('assets')
-      .download(commonAssetsPath));
+    const targetPath = path.includes('common-assets/') ? path : commonAssetsPath;
     
-    // If not found in common-assets, try the original path structure  
-    if (error) {
-      ({ data, error } = await supabase.storage
+    // Single storage query
+    const { data, error } = await supabase.storage
+      .from('assets')
+      .download(targetPath);
+    
+    // Only try fallback if not already trying common-assets
+    if (error && targetPath !== path) {
+      const { data: fallbackData, error: fallbackError } = await supabase.storage
         .from('assets')
-        .download(path));
+        .download(path);
+      
+      if (!fallbackError) {
+        return new Response(fallbackData, {
+          headers: {
+            ...corsHeaders,
+            'Content-Type': getContentType(path),
+            'Cache-Control': 'public, max-age=86400', // 24 hours
+            'Access-Control-Allow-Methods': 'GET',
+            'Access-Control-Allow-Credentials': 'false',
+            'X-Content-Type-Options': 'nosniff',
+            'Cross-Origin-Resource-Policy': 'cross-origin'
+          }
+        });
+      }
     }
 
     if (error) {
@@ -45,32 +73,13 @@ serve(async (req) => {
       })
     }
 
-    // Determine content type based on file extension
-    let contentType = 'text/plain'
-    if (path.endsWith('.css')) {
-      contentType = 'text/css'
-    } else if (path.endsWith('.js')) {
-      contentType = 'application/javascript'
-    } else if (path.endsWith('.png')) {
-      contentType = 'image/png'
-    } else if (path.endsWith('.jpg') || path.endsWith('.jpeg')) {
-      contentType = 'image/jpeg'
-    } else if (path.endsWith('.gif')) {
-      contentType = 'image/gif'
-    } else if (path.endsWith('.svg')) {
-      contentType = 'image/svg+xml'
-    } else if (path.endsWith('.woff') || path.endsWith('.woff2')) {
-      contentType = 'font/woff2'
-    } else if (path.endsWith('.ttf')) {
-      contentType = 'font/ttf'
-    }
 
-    // Return the file with proper headers including CORS and CORB prevention
+    // Return the file with optimized headers
     return new Response(data, {
       headers: {
         ...corsHeaders,
-        'Content-Type': contentType,
-        'Cache-Control': 'public, max-age=3600',
+        'Content-Type': getContentType(path),
+        'Cache-Control': 'public, max-age=86400', // 24 hours
         'Access-Control-Allow-Methods': 'GET',
         'Access-Control-Allow-Credentials': 'false',
         'X-Content-Type-Options': 'nosniff',

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo, useCallback } from "react";
 import { useParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent } from "@/components/ui/card";
@@ -28,17 +28,42 @@ export function StaticPageViewer() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  // Check if HTML contains dynamic links
+  const hasDynamicLinks = useCallback((html: string) => {
+    return /href=["']\{\{[^}]+\}\}["']|data-page=["'][^"']+["']/.test(html);
+  }, []);
+
+  // Fetch page mapping only when needed
+  const fetchPageMapping = useCallback(async () => {
+    const [staticPagesResult, blogPostsResult] = await Promise.all([
+      supabase.from("static_pages").select("slug, title"),
+      supabase.from("blog_posts").select("slug, title").eq("published", true)
+    ]);
+
+    const pageMapping = new Map<string, string>();
+    
+    if (staticPagesResult.data) {
+      staticPagesResult.data.forEach(page => {
+        pageMapping.set(page.title.toLowerCase(), page.slug);
+        pageMapping.set(page.slug, page.slug);
+      });
+    }
+    
+    if (blogPostsResult.data) {
+      blogPostsResult.data.forEach(post => {
+        pageMapping.set(post.title.toLowerCase(), post.slug);
+        pageMapping.set(post.slug, post.slug);
+      });
+    }
+
+    return pageMapping;
+  }, []);
+
   useEffect(() => {
     const fetchPage = async () => {
       if (!slug) return;
 
       try {
-        // Fetch all pages for link resolution
-        const [staticPagesResult, blogPostsResult] = await Promise.all([
-          supabase.from("static_pages").select("slug, title"),
-          supabase.from("blog_posts").select("slug, title").eq("published", true)
-        ]);
-
         // Try static_pages first
         let { data, error } = await supabase
           .from("static_pages")
@@ -78,28 +103,16 @@ export function StaticPageViewer() {
           return;
         }
 
-        // Create page mapping for dynamic link resolution
-        const pageMapping = new Map<string, string>();
-        
-        if (staticPagesResult.data) {
-          staticPagesResult.data.forEach(page => {
-            pageMapping.set(page.title.toLowerCase(), page.slug);
-            pageMapping.set(page.slug, page.slug);
-          });
-        }
-        
-        if (blogPostsResult.data) {
-          blogPostsResult.data.forEach(post => {
-            pageMapping.set(post.title.toLowerCase(), post.slug);
-            pageMapping.set(post.slug, post.slug);
-          });
-        }
-
-        // Process the HTML content asynchronously
         console.log('Page loaded successfully:', data.title);
         setPage(data);
         
-        // Process HTML content with dynamic link resolution
+        // Only fetch page mapping if HTML contains dynamic links
+        let pageMapping: Map<string, string> | undefined;
+        if (hasDynamicLinks(data.html_content)) {
+          pageMapping = await fetchPageMapping();
+        }
+        
+        // Process HTML content
         const processed = processHtmlContent(data.html_content, pageMapping);
         setProcessedHtml(processed);
       } catch (err) {
@@ -110,35 +123,28 @@ export function StaticPageViewer() {
     };
 
     fetchPage();
-  }, [slug]);
+  }, [slug, hasDynamicLinks, fetchPageMapping]);
 
-  // Process HTML content to handle asset URLs and convert .html links
-  const processHtmlContent = (htmlContent: string, pageMapping?: Map<string, string>) => {
+  // Memoized HTML processing for better performance
+  const processHtmlContent = useMemo(() => (htmlContent: string, pageMapping?: Map<string, string>) => {
     let processedHtml = htmlContent;
     
-    // Dynamic link resolution - replace {{title}} or {{slug}} placeholders
+    // Dynamic link resolution - combined regex for better performance
     if (pageMapping) {
-      processedHtml = processedHtml.replace(/href=["']\{\{([^}]+)\}\}["']/g, (match, identifier) => {
-        const cleanIdentifier = identifier.trim().toLowerCase();
-        const slug = pageMapping.get(cleanIdentifier);
-        if (slug) {
-          console.log(`Resolved dynamic link: {{${identifier}}} -> /${slug}`);
-          return `href="/${slug}"`;
+      // Combined regex for both {{}} and data-page patterns
+      processedHtml = processedHtml.replace(
+        /(?:href=["']\{\{([^}]+)\}\}["']|data-page=["']([^"']+)["'])/g, 
+        (match, placeholderContent, dataPageContent) => {
+          const identifier = (placeholderContent || dataPageContent).trim().toLowerCase();
+          const slug = pageMapping.get(identifier);
+          if (slug) {
+            console.log(`Resolved dynamic link: ${identifier} -> /${slug}`);
+            return `href="/${slug}"`;
+          }
+          console.warn(`Could not resolve dynamic link: ${identifier}`);
+          return placeholderContent ? match : 'href="#"';
         }
-        console.warn(`Could not resolve dynamic link: {{${identifier}}}`);
-        return match;
-      });
-      
-      // Also handle data-page attributes for alternative syntax
-      processedHtml = processedHtml.replace(/data-page=["']([^"']+)["']/g, (match, identifier) => {
-        const cleanIdentifier = identifier.trim().toLowerCase();
-        const slug = pageMapping.get(cleanIdentifier);
-        if (slug) {
-          console.log(`Resolved data-page: ${identifier} -> /${slug}`);
-          return `href="/${slug}"`;
-        }
-        return match;
-      });
+      );
     }
     
     // Convert logo links to point to homepage
@@ -193,7 +199,7 @@ export function StaticPageViewer() {
     });
 
     return processedHtml;
-  };
+  }, []);
 
 
   if (loading) {
