@@ -155,6 +155,10 @@ export function StaticPageViewer() {
       }
     );
     
+    // Fix missing assets by replacing with available ones
+    processedHtml = processedHtml.replace(/hirleveles_logo_adsba másolat\.png/g, 'feher_hirleveles_logo__350.png');
+    processedHtml = processedHtml.replace(/hirleveles_logo_adsba%20másolat\.png/g, 'feher_hirleveles_logo__350.png');
+    
     // Convert buttons with data-bs-target to proper anchor links
     processedHtml = processedHtml.replace(/<button([^>]*?)data-bs-target=["']([^"']+)["']([^>]*?)>([^<]+)<\/button>/g, (match, beforeAttr, target, afterAttr, text) => {
       let href = target;
