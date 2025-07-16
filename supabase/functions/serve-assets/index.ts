@@ -65,14 +65,16 @@ serve(async (req) => {
       contentType = 'font/ttf'
     }
 
-    // Return the file with proper headers including CORS
+    // Return the file with proper headers including CORS and CORB prevention
     return new Response(data, {
       headers: {
         ...corsHeaders,
         'Content-Type': contentType,
         'Cache-Control': 'public, max-age=3600',
         'Access-Control-Allow-Methods': 'GET',
-        'Access-Control-Allow-Credentials': 'false'
+        'Access-Control-Allow-Credentials': 'false',
+        'X-Content-Type-Options': 'nosniff',
+        'Cross-Origin-Resource-Policy': 'cross-origin'
       }
     })
 
