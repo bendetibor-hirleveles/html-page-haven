@@ -113,8 +113,8 @@ export function StaticPageViewer() {
     // Get assets path - use edge function for proper CORS headers
     const edgeFunctionUrl = 'https://nabvfsbrrasdsaibnyby.supabase.co/functions/v1/serve-assets';
     
-    // Use existing assets path for now
-    const assetsPath = 'hirleveleshu-8211-az-email-marketing-ceg-email-marketing-hirlevel-szovegiras-megirjuk-a-penzt-assets/assets';
+    // Use common-assets path for all assets
+    const assetsPath = 'common-assets';
     
     console.log('Using assets path:', `${edgeFunctionUrl}/${assetsPath}`);
     
