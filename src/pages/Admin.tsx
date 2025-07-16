@@ -11,6 +11,7 @@ import { GlobalSEOSettings } from "@/components/admin/GlobalSEOSettings";
 import { KeywordAnalysis } from "@/components/admin/KeywordAnalysis";
 import { PageSEOSettings } from "@/components/admin/PageSEOSettings";
 import { RedirectManager } from "@/components/admin/RedirectManager";
+import { AssetExtractor } from "@/components/admin/AssetExtractor";
 import { MFASetup } from "@/components/MFASetup";
 import { FileText, BookOpen, Upload, Globe, Search, Settings, LogOut, Shield, User, Link } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
@@ -99,24 +100,7 @@ export default function Admin() {
         )}
 
         <div className="mb-6">
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Upload className="h-5 w-5" />
-                Assets Kicsomagolás
-              </CardTitle>
-              <CardDescription>
-                ZIP fájlok kicsomagolása és feltöltése a Supabase storage-ba
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <Button asChild className="w-full">
-                <a href="/extract-assets.html" target="_blank" rel="noopener noreferrer">
-                  Assets Kicsomagolás Tool megnyitása
-                </a>
-              </Button>
-            </CardContent>
-          </Card>
+          <AssetExtractor />
         </div>
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
