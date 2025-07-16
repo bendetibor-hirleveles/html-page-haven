@@ -76,8 +76,8 @@ export function StaticPageViewer() {
         console.log('Page loaded successfully:', data.title);
         setPage(data);
         
-        // Process HTML content with CSS inlining
-        const processed = await processHtmlContent(data.html_content);
+        // Process HTML content 
+        const processed = processHtmlContent(data.html_content);
         setProcessedHtml(processed);
       } catch (err) {
         setError("Hiba történt az oldal betöltésekor");
@@ -90,7 +90,7 @@ export function StaticPageViewer() {
   }, [slug]);
 
   // Process HTML content to handle asset URLs and convert .html links
-  const processHtmlContent = async (htmlContent: string) => {
+  const processHtmlContent = (htmlContent: string) => {
     let processedHtml = htmlContent;
     
     // Convert logo links to point to homepage
@@ -113,39 +113,22 @@ export function StaticPageViewer() {
     // Get assets path from storage
     const { data: { publicUrl } } = supabase.storage.from('assets').getPublicUrl('dummy');
     const baseUrl = publicUrl.replace('/dummy', '');
-    let assetsPath = page?.assets_zip_path || 'common-assets';
+    
+    // Use the correct assets path from the page data
+    let assetsPath = page?.assets_zip_path || 'hirleveleshu-megirjuk-a-penzt-assets';
     
     // Remove .zip extension if present
     if (assetsPath.endsWith('.zip')) {
       assetsPath = assetsPath.replace('.zip', '');
     }
     
-    // Replace CSS links with inline styles to avoid CORS issues
-    const cssLinkRegex = /<link[^>]*href=["']\/assets\/([^"']*\.css)["'][^>]*>/g;
-    let cssMatch;
-    while ((cssMatch = cssLinkRegex.exec(processedHtml)) !== null) {
-      const cssPath = cssMatch[1];
-      const cssUrl = `${baseUrl}/${assetsPath}/${cssPath}`;
-      
-      try {
-        const cssResponse = await fetch(cssUrl);
-        if (cssResponse.ok) {
-          const cssContent = await cssResponse.text();
-          // Replace asset URLs in CSS content
-          const processedCss = cssContent.replace(/url\(["']?\/assets\/([^"')]*)["']?\)/g, `url("${baseUrl}/${assetsPath}/$1")`);
-          const styleTag = `<style type="text/css">${processedCss}</style>`;
-          processedHtml = processedHtml.replace(cssMatch[0], styleTag);
-        }
-      } catch (error) {
-        console.warn('Failed to load CSS:', cssUrl, error);
-        // Keep the original link as fallback
-      }
-    }
+    console.log('Using assets path:', `${baseUrl}/${assetsPath}`);
     
-    // Replace image and other asset URLs
+    // Replace all asset URLs - modern approach with proper paths
+    processedHtml = processedHtml.replace(/href=["']\/assets\/([^"']*)["']/g, `href="${baseUrl}/${assetsPath}/$1"`);
     processedHtml = processedHtml.replace(/src=["']\/assets\/([^"']*)["']/g, `src="${baseUrl}/${assetsPath}/$1"`);
     
-    // Handle CSS background images in inline styles
+    // Handle CSS background images in stylesheets and inline styles
     processedHtml = processedHtml.replace(/url\(["']?\/assets\/([^"')]*)["']?\)/g, `url("${baseUrl}/${assetsPath}/$1")`);
     processedHtml = processedHtml.replace(/background-image:\s*url\(["']?\/assets\/([^"')]*)["']?\)/g, `background-image: url("${baseUrl}/${assetsPath}/$1")`);
     processedHtml = processedHtml.replace(/background:\s*url\(["']?\/assets\/([^"')]*)["']?\)/g, `background: url("${baseUrl}/${assetsPath}/$1")`);
