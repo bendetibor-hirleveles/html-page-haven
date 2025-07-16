@@ -11,11 +11,13 @@ export function ContentRefreshButton() {
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
   const [isImporting, setIsImporting] = useState(false);
+  const [isFixingLinks, setIsFixingLinks] = useState(false);
   const [htmlFile, setHtmlFile] = useState<File | null>(null);
   const [importFiles, setImportFiles] = useState<FileList | null>(null);
   const [lastRefresh, setLastRefresh] = useState<Date | null>(null);
   const [lastUpload, setLastUpload] = useState<Date | null>(null);
   const [lastImport, setLastImport] = useState<Date | null>(null);
+  const [lastLinkFix, setLastLinkFix] = useState<Date | null>(null);
   const { toast } = useToast();
 
   const refreshAllContent = async () => {
@@ -195,6 +197,47 @@ export function ContentRefreshButton() {
     }
   };
 
+  const fixBrokenLinks = async () => {
+    setIsFixingLinks(true);
+    
+    try {
+      toast({
+        title: "Link javítás kezdődik...",
+        description: "Hibás linkek javítása folyamatban",
+      });
+
+      // Call the fix-links edge function
+      const { data, error } = await supabase.functions.invoke('fix-links', {
+        body: {}
+      });
+
+      if (error) {
+        throw new Error(`Link javítási hiba: ${error.message}`);
+      }
+
+      if (!data.success) {
+        throw new Error(data.error || 'Ismeretlen hiba történt');
+      }
+
+      setLastLinkFix(new Date());
+      
+      toast({
+        title: "Link javítás befejezve! ✅",
+        description: `${data.fixedStatic} statikus oldal és ${data.fixedBlog} blogposzt javítva`,
+      });
+
+    } catch (error: any) {
+      console.error('Link fix error:', error);
+      toast({
+        title: "Hiba a link javítás során",
+        description: error.message || "Ismeretlen hiba történt",
+        variant: "destructive",
+      });
+    } finally {
+      setIsFixingLinks(false);
+    }
+  };
+
   return (
     <Card className="border-2 border-primary/20 bg-gradient-to-r from-primary/5 to-secondary/5">
       <CardHeader>
@@ -249,6 +292,15 @@ export function ContentRefreshButton() {
             <span className="flex items-center gap-1">
               <CheckCircle className="h-3 w-3 text-purple-600" />
               Import befejezve: {lastImport.toLocaleString('hu-HU')}
+            </span>
+          </div>
+        )}
+
+        {lastLinkFix && (
+          <div className="text-xs text-muted-foreground bg-orange-50 p-2 rounded border">
+            <span className="flex items-center gap-1">
+              <CheckCircle className="h-3 w-3 text-orange-600" />
+              Linkek javítva: {lastLinkFix.toLocaleString('hu-HU')}
             </span>
           </div>
         )}
@@ -349,6 +401,27 @@ export function ContentRefreshButton() {
               Csak új fájlokat ad hozzá, meglévőket nem írja felül.
             </div>
           </div>
+        </div>
+
+        <div className="border-t pt-4 space-y-4">
+          <Button 
+            onClick={fixBrokenLinks}
+            disabled={isFixingLinks}
+            variant="outline"
+            className="w-full"
+          >
+            {isFixingLinks ? (
+              <>
+                <RefreshCcw className="h-4 w-4 mr-2 animate-spin" />
+                Link javítás...
+              </>
+            ) : (
+              <>
+                <CheckCircle className="h-4 w-4 mr-2" />
+                Hibás linkek javítása (comtact → contact)
+              </>
+            )}
+          </Button>
         </div>
 
         <div className="text-xs text-muted-foreground flex items-center gap-1">

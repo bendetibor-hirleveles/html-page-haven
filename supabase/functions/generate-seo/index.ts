@@ -33,22 +33,34 @@ serve(async (req) => {
 
     const prompt = `
 Elemezd az alábbi weboldalak tartalmát és generálj SEO-optimalizált meta adatokat magyar nyelven. 
-A válaszod JSON formátumban legyen, pontosan az alábbi mezőkkel:
 
 Oldal címe: ${currentTitle}
 Oldal tartalma: ${textContent}
 
-Generáld a következőket:
+A válaszod JSON formátumban legyen, pontosan az alábbi mezőkkel:
 - meta_title: SEO-optimalizált címsor (max 60 karakter)
 - meta_description: SEO leírás (150-160 karakter között)
 - meta_keywords: Kulcsszavak vesszővel elválasztva (5-10 db)
-- focus_keywords: Legfontosabb kulcsszavak tömbben (3-5 db)
+- focus_keywords: Legfontosabb kulcsszavak tömbben JSON array formátumban (3-5 db)
 - og_title: Open Graph címsor
 - og_description: Open Graph leírás
-- twitter_title: Twitter kártya címsor
+- twitter_title: Twitter kártya címsor  
 - twitter_description: Twitter kártya leírás
 
-A tartalom alapján határozd meg a legfontosabb kulcsszavakat és optimalizálj a keresőmotorok számára.
+FONTOS: A focus_keywords mezőt MINDIG array formátumban add meg!
+
+Példa válasz:
+{
+  "meta_title": "Email Marketing - Hírlevélküldés | Hirleveles.hu",
+  "meta_description": "Professzionális email marketing szolgáltatások. Növeld bevételeid hírlevél kampányokkal. Kosárelhagyó automata, feliratkozó gyűjtés és több.",
+  "meta_keywords": "email marketing, hírlevél, kosárelhagyó, automatizálás, hirdetés",
+  "focus_keywords": ["email marketing", "hírlevél", "kosárelhagyó"],
+  "og_title": "Email Marketing - Hírlevélküldés | Hirleveles.hu",
+  "og_description": "Professzionális email marketing szolgáltatások. Növeld bevételeid hírlevél kampányokkal.",
+  "twitter_title": "Email Marketing - Hírlevélküldés",
+  "twitter_description": "Professzionális email marketing szolgáltatások és automatizálás."
+}
+
 Válaszolj csak JSON-nal, más szöveget ne írj:`;
 
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
@@ -74,10 +86,20 @@ Válaszolj csak JSON-nal, más szöveget ne írj:`;
     // Parse the JSON response
     let seoData;
     try {
-      seoData = JSON.parse(generatedText);
+      // Clean the response - remove any markdown formatting
+      const cleanedResponse = generatedText.replace(/```json\n?|```\n?/g, '').trim();
+      seoData = JSON.parse(cleanedResponse);
+      
+      // Ensure focus_keywords is an array
+      if (typeof seoData.focus_keywords === 'string') {
+        seoData.focus_keywords = seoData.focus_keywords.split(',').map(k => k.trim());
+      }
+      
+      console.log('Parsed SEO data:', seoData);
     } catch (parseError) {
       console.error('Failed to parse AI response:', generatedText);
-      throw new Error('Invalid AI response format');
+      console.error('Parse error:', parseError);
+      throw new Error(`Invalid AI response format: ${parseError.message}`);
     }
 
     // Initialize Supabase client
