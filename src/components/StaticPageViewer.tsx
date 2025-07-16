@@ -126,6 +126,14 @@ export function StaticPageViewer() {
     processedHtml = processedHtml.replace(/url\(["']?\/assets\/([^"')]*)["']?\)/g, `url("${edgeFunctionUrl}/${assetsPath}/$1")`);
     processedHtml = processedHtml.replace(/background-image:\s*url\(["']?\/assets\/([^"')]*)["']?\)/g, `background-image: url("${edgeFunctionUrl}/${assetsPath}/$1")`);
     processedHtml = processedHtml.replace(/background:\s*url\(["']?\/assets\/([^"')]*)["']?\)/g, `background: url("${edgeFunctionUrl}/${assetsPath}/$1")`);
+    
+    // Replace font URLs and other direct Supabase storage URLs to go through serve-assets function
+    processedHtml = processedHtml.replace(/https:\/\/nabvfsbrrasdsaibnyby\.supabase\.co\/assets\/([^"'\s)]*)/g, `${edgeFunctionUrl}/${assetsPath}/$1`);
+    
+    // Handle @font-face and other CSS font declarations
+    processedHtml = processedHtml.replace(/@font-face\s*{[^}]*url\(["']?https:\/\/nabvfsbrrasdsaibnyby\.supabase\.co\/assets\/([^"'\s)]+)["']?\)[^}]*}/g, (match, fontPath) => {
+      return match.replace(`https://nabvfsbrrasdsaibnyby.supabase.co/assets/${fontPath}`, `${edgeFunctionUrl}/${assetsPath}/${fontPath}`);
+    });
 
     return processedHtml;
   };
