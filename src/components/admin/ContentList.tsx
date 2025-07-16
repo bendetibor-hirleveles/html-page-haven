@@ -2,9 +2,12 @@ import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { ExternalLink, Trash2, Edit3, Eye, EyeOff, Home, Menu, Navigation, Search, Tag, Sparkles } from "lucide-react";
+import { ExternalLink, Trash2, Edit3, Eye, EyeOff, Home, Menu, Navigation, Search, Tag, Sparkles, Save } from "lucide-react";
 import { format } from "date-fns";
 
 interface StaticPage {
@@ -43,6 +46,10 @@ interface ContentListProps {
 export function ContentList({ type }: ContentListProps) {
   const [items, setItems] = useState<(StaticPage | BlogPost)[]>([]);
   const [loading, setLoading] = useState(true);
+  const [editingItem, setEditingItem] = useState<(StaticPage | BlogPost) | null>(null);
+  const [editTitle, setEditTitle] = useState("");
+  const [editSlug, setEditSlug] = useState("");
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const { toast } = useToast();
 
   const fetchItems = async () => {
@@ -175,6 +182,48 @@ export function ContentList({ type }: ContentListProps) {
       toast({
         title: "Hiba",
         description: `Nem sikerült frissíteni a ${type === 'static' ? 'oldalt' : 'posztot'}`,
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleEdit = (item: StaticPage | BlogPost) => {
+    setEditingItem(item);
+    setEditTitle(item.title);
+    setEditSlug(item.slug);
+    setIsEditDialogOpen(true);
+  };
+
+  const saveEdit = async () => {
+    if (!editingItem) return;
+
+    try {
+      const table = type === 'static' ? 'static_pages' : 'blog_posts';
+      const { error } = await supabase
+        .from(table)
+        .update({ 
+          title: editTitle.trim(),
+          slug: editSlug.trim()
+        })
+        .eq('id', editingItem.id);
+
+      if (error) throw error;
+
+      toast({
+        title: "Sikeres módosítás",
+        description: "Az oldal adatai sikeresen frissítve",
+      });
+
+      setIsEditDialogOpen(false);
+      setEditingItem(null);
+      setEditTitle("");
+      setEditSlug("");
+      fetchItems();
+    } catch (error) {
+      console.error('Error updating item:', error);
+      toast({
+        title: "Hiba",
+        description: "Nem sikerült frissíteni az oldal adatait",
         variant: "destructive",
       });
     }
@@ -317,6 +366,15 @@ export function ContentList({ type }: ContentListProps) {
               </div>
 
               <div className="flex gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => handleEdit(item)}
+                >
+                  <Edit3 className="h-4 w-4 mr-2" />
+                  Szerkesztés
+                </Button>
+
                 {type === 'blog' && (
                   <Button
                     variant="outline"
@@ -415,6 +473,52 @@ export function ContentList({ type }: ContentListProps) {
           </CardContent>
         </Card>
       ))}
+
+      <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Oldal szerkesztése</DialogTitle>
+            <DialogDescription>
+              Módosíthatod az oldal címét és slug-ját (URL-jét).
+            </DialogDescription>
+          </DialogHeader>
+          <div className="grid gap-4 py-4">
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="edit-title" className="text-right">
+                Cím
+              </Label>
+              <Input
+                id="edit-title"
+                value={editTitle}
+                onChange={(e) => setEditTitle(e.target.value)}
+                className="col-span-3"
+                placeholder="Oldal címe"
+              />
+            </div>
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="edit-slug" className="text-right">
+                Slug
+              </Label>
+              <Input
+                id="edit-slug"
+                value={editSlug}
+                onChange={(e) => setEditSlug(e.target.value)}
+                className="col-span-3"
+                placeholder="url-slug"
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsEditDialogOpen(false)}>
+              Mégse
+            </Button>
+            <Button onClick={saveEdit}>
+              <Save className="h-4 w-4 mr-2" />
+              Mentés
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
