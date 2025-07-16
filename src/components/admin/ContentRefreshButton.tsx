@@ -3,16 +3,19 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { RefreshCcw, CheckCircle, AlertCircle, Upload, FileText } from "lucide-react";
+import { RefreshCcw, CheckCircle, AlertCircle, Upload, FileText, Plus } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
 export function ContentRefreshButton() {
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
+  const [isImporting, setIsImporting] = useState(false);
   const [htmlFile, setHtmlFile] = useState<File | null>(null);
+  const [importFiles, setImportFiles] = useState<FileList | null>(null);
   const [lastRefresh, setLastRefresh] = useState<Date | null>(null);
   const [lastUpload, setLastUpload] = useState<Date | null>(null);
+  const [lastImport, setLastImport] = useState<Date | null>(null);
   const { toast } = useToast();
 
   const refreshAllContent = async () => {
@@ -123,6 +126,75 @@ export function ContentRefreshButton() {
     }
   };
 
+  const importNewContent = async () => {
+    if (!importFiles || importFiles.length === 0) {
+      toast({
+        title: "Nincsenek fájlok kiválasztva",
+        description: "Kérjük válasszon ki HTML fájlokat importáláshoz",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsImporting(true);
+    
+    try {
+      toast({
+        title: "Import kezdődik...",
+        description: `${importFiles.length} HTML fájl importálása folyamatban`,
+      });
+
+      // Read all HTML files
+      const htmlFiles = [];
+      for (let i = 0; i < importFiles.length; i++) {
+        const file = importFiles[i];
+        const buffer = await file.arrayBuffer();
+        const decoder = new TextDecoder('utf-8');
+        const htmlContent = decoder.decode(buffer);
+        
+        htmlFiles.push({
+          fileName: file.name,
+          htmlContent
+        });
+      }
+
+      // Call the import-new-content edge function
+      const { data, error } = await supabase.functions.invoke('import-new-content', {
+        body: { htmlFiles }
+      });
+
+      if (error) {
+        throw new Error(`Import hiba: ${error.message}`);
+      }
+
+      if (!data.success) {
+        throw new Error(data.error || 'Ismeretlen hiba történt');
+      }
+
+      setLastImport(new Date());
+      
+      toast({
+        title: "Import befejezve! ✅",
+        description: `${data.summary.imported} új blogposzt importálva, ${data.summary.skipped} kihagyva, ${data.summary.errors} hiba`,
+      });
+
+      // Clear the file input
+      setImportFiles(null);
+      const fileInput = document.getElementById('import-files') as HTMLInputElement;
+      if (fileInput) fileInput.value = '';
+
+    } catch (error: any) {
+      console.error('Import error:', error);
+      toast({
+        title: "Hiba az import során",
+        description: error.message || "Ismeretlen hiba történt",
+        variant: "destructive",
+      });
+    } finally {
+      setIsImporting(false);
+    }
+  };
+
   return (
     <Card className="border-2 border-primary/20 bg-gradient-to-r from-primary/5 to-secondary/5">
       <CardHeader>
@@ -168,6 +240,15 @@ export function ContentRefreshButton() {
             <span className="flex items-center gap-1">
               <CheckCircle className="h-3 w-3 text-blue-600" />
               HTML frissítve: {lastUpload.toLocaleString('hu-HU')}
+            </span>
+          </div>
+        )}
+
+        {lastImport && (
+          <div className="text-xs text-muted-foreground bg-purple-50 p-2 rounded border">
+            <span className="flex items-center gap-1">
+              <CheckCircle className="h-3 w-3 text-purple-600" />
+              Import befejezve: {lastImport.toLocaleString('hu-HU')}
             </span>
           </div>
         )}
@@ -224,6 +305,48 @@ export function ContentRefreshButton() {
             </div>
             <div className="text-xs text-muted-foreground">
               A fájlnév alapján keresi meg a megfelelő oldalt (pl. hirleveleshu-megirjuk-a-penzt.html)
+            </div>
+          </div>
+        </div>
+
+        <div className="border-t pt-4 space-y-4">
+          <div className="text-sm font-medium flex items-center gap-2">
+            <Plus className="h-4 w-4" />
+            Új blogposztok importálása
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="import-files">Több HTML fájl egyszerre (ékezet nélküli slugok)</Label>
+            <div className="flex items-center gap-2">
+              <Input
+                id="import-files"
+                type="file"
+                accept=".html,.htm"
+                multiple
+                onChange={(e) => setImportFiles(e.target.files)}
+                className="flex-1"
+              />
+              <Button
+                onClick={importNewContent}
+                disabled={isImporting || !importFiles || importFiles.length === 0}
+                variant="default"
+                size="sm"
+              >
+                {isImporting ? (
+                  <>
+                    <Plus className="h-4 w-4 mr-2 animate-spin" />
+                    Import...
+                  </>
+                ) : (
+                  <>
+                    <Plus className="h-4 w-4 mr-2" />
+                    Importál
+                  </>
+                )}
+              </Button>
+            </div>
+            <div className="text-xs text-muted-foreground">
+              Automatikusan létrehozza a slug-okat a fájlnevek alapján és kinyeri a címeket. 
+              Csak új fájlokat ad hozzá, meglévőket nem írja felül.
             </div>
           </div>
         </div>
