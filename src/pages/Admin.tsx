@@ -98,6 +98,27 @@ export default function Admin() {
           </div>
         )}
 
+        <div className="mb-6">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Upload className="h-5 w-5" />
+                Assets Kicsomagolás
+              </CardTitle>
+              <CardDescription>
+                ZIP fájlok kicsomagolása és feltöltése a Supabase storage-ba
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Button asChild className="w-full">
+                <a href="/extract-assets.html" target="_blank" rel="noopener noreferrer">
+                  Assets Kicsomagolás Tool megnyitása
+                </a>
+              </Button>
+            </CardContent>
+          </Card>
+        </div>
+
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
           <TabsList className="grid w-full grid-cols-6">
             <TabsTrigger value="static-pages" className="flex items-center gap-2">
