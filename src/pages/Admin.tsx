@@ -11,6 +11,7 @@ import { GlobalSEOSettings } from "@/components/admin/GlobalSEOSettings";
 import { KeywordAnalysis } from "@/components/admin/KeywordAnalysis";
 import { PageSEOSettings } from "@/components/admin/PageSEOSettings";
 import { RedirectManager } from "@/components/admin/RedirectManager";
+import { ContentRefreshButton } from "@/components/admin/ContentRefreshButton";
 import { AssetExtractor } from "@/components/admin/AssetExtractor";
 import { MFASetup } from "@/components/MFASetup";
 import { FileText, BookOpen, Upload, Globe, Search, Settings, LogOut, Shield, User, Link } from "lucide-react";
@@ -98,6 +99,10 @@ export default function Admin() {
             }} />
           </div>
         )}
+
+        <div className="mb-6">
+          <ContentRefreshButton />
+        </div>
 
         <div className="mb-6">
           <AssetExtractor />

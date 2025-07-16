@@ -39,3 +39,6 @@ verify_jwt = false
 
 [functions.serve-assets]
 verify_jwt = false
+
+[functions.refresh-content]
+verify_jwt = false
