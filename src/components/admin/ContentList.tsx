@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/client";
@@ -49,6 +50,8 @@ export function ContentList({ type }: ContentListProps) {
   const [editingItem, setEditingItem] = useState<(StaticPage | BlogPost) | null>(null);
   const [editTitle, setEditTitle] = useState("");
   const [editSlug, setEditSlug] = useState("");
+  const [editMetaDescription, setEditMetaDescription] = useState("");
+  const [editMetaKeywords, setEditMetaKeywords] = useState("");
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const { toast } = useToast();
 
@@ -187,10 +190,33 @@ export function ContentList({ type }: ContentListProps) {
     }
   };
 
-  const handleEdit = (item: StaticPage | BlogPost) => {
+  const handleEdit = async (item: StaticPage | BlogPost) => {
     setEditingItem(item);
     setEditTitle(item.title);
     setEditSlug(item.slug);
+    
+    // Betöltjük a meglévő SEO beállításokat
+    try {
+      const { data: seoData } = await supabase
+        .from('page_seo_settings')
+        .select('meta_description, meta_keywords')
+        .eq('page_id', item.id)
+        .eq('page_type', type)
+        .single();
+
+      if (seoData) {
+        setEditMetaDescription(seoData.meta_description || "");
+        setEditMetaKeywords(seoData.meta_keywords || "");
+      } else {
+        setEditMetaDescription("");
+        setEditMetaKeywords("");
+      }
+    } catch (error) {
+      // Ha nincs SEO adat, üresen hagyjuk
+      setEditMetaDescription("");
+      setEditMetaKeywords("");
+    }
+    
     setIsEditDialogOpen(true);
   };
 
@@ -198,8 +224,9 @@ export function ContentList({ type }: ContentListProps) {
     if (!editingItem) return;
 
     try {
+      // Frissítjük az oldal alapadatait
       const table = type === 'static' ? 'static_pages' : 'blog_posts';
-      const { error } = await supabase
+      const { error: pageError } = await supabase
         .from(table)
         .update({ 
           title: editTitle.trim(),
@@ -207,17 +234,54 @@ export function ContentList({ type }: ContentListProps) {
         })
         .eq('id', editingItem.id);
 
-      if (error) throw error;
+      if (pageError) throw pageError;
+
+      // Frissítjük/létrehozzuk a SEO beállításokat
+      const { data: existingSeo } = await supabase
+        .from('page_seo_settings')
+        .select('id')
+        .eq('page_id', editingItem.id)
+        .eq('page_type', type)
+        .single();
+
+      if (existingSeo) {
+        // Frissítjük a meglévő SEO adatokat
+        const { error: seoError } = await supabase
+          .from('page_seo_settings')
+          .update({
+            meta_description: editMetaDescription.trim() || null,
+            meta_keywords: editMetaKeywords.trim() || null,
+            meta_title: editTitle.trim()
+          })
+          .eq('id', existingSeo.id);
+
+        if (seoError) throw seoError;
+      } else {
+        // Létrehozzuk az új SEO adatokat
+        const { error: seoError } = await supabase
+          .from('page_seo_settings')
+          .insert({
+            page_id: editingItem.id,
+            page_type: type,
+            meta_title: editTitle.trim(),
+            meta_description: editMetaDescription.trim() || null,
+            meta_keywords: editMetaKeywords.trim() || null
+          });
+
+        if (seoError) throw seoError;
+      }
 
       toast({
         title: "Sikeres módosítás",
-        description: "Az oldal adatai sikeresen frissítve",
+        description: "Az oldal és SEO adatok sikeresen frissítve",
       });
 
       setIsEditDialogOpen(false);
       setEditingItem(null);
       setEditTitle("");
       setEditSlug("");
+      setEditMetaDescription("");
+      setEditMetaKeywords("");
       fetchItems();
     } catch (error) {
       console.error('Error updating item:', error);
@@ -479,7 +543,7 @@ export function ContentList({ type }: ContentListProps) {
           <DialogHeader>
             <DialogTitle>Oldal szerkesztése</DialogTitle>
             <DialogDescription>
-              Módosíthatod az oldal címét és slug-ját (URL-jét).
+              Módosíthatod az oldal címét, slug-ját (URL-jét) és SEO beállításait.
             </DialogDescription>
           </DialogHeader>
           <div className="grid gap-4 py-4">
@@ -505,6 +569,31 @@ export function ContentList({ type }: ContentListProps) {
                 onChange={(e) => setEditSlug(e.target.value)}
                 className="col-span-3"
                 placeholder="url-slug"
+              />
+            </div>
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="edit-meta-description" className="text-right">
+                Metaleírás
+              </Label>
+              <Textarea
+                id="edit-meta-description"
+                value={editMetaDescription}
+                onChange={(e) => setEditMetaDescription(e.target.value)}
+                className="col-span-3"
+                placeholder="SEO metaleírás (max. 160 karakter)"
+                rows={3}
+              />
+            </div>
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="edit-meta-keywords" className="text-right">
+                Kulcsszavak
+              </Label>
+              <Input
+                id="edit-meta-keywords"
+                value={editMetaKeywords}
+                onChange={(e) => setEditMetaKeywords(e.target.value)}
+                className="col-span-3"
+                placeholder="Kulcsszavak vesszővel elválasztva"
               />
             </div>
           </div>
