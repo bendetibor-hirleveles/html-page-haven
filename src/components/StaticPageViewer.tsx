@@ -42,20 +42,66 @@ export function StaticPageViewer() {
 
     const pageMapping = new Map<string, string>();
     
+    // Helper function to normalize text for mapping
+    const normalizeText = (text: string) => {
+      return text
+        .toLowerCase()
+        .replace(/[áàâäã]/g, 'a')
+        .replace(/[éèêë]/g, 'e')
+        .replace(/[íìîï]/g, 'i')
+        .replace(/[óòôöõ]/g, 'o')
+        .replace(/[úùûü]/g, 'u')
+        .replace(/[ö]/g, 'o')
+        .replace(/[ü]/g, 'u')
+        .replace(/[ő]/g, 'o')
+        .replace(/[ű]/g, 'u')
+        .replace(/[ç]/g, 'c')
+        .replace(/[ñ]/g, 'n')
+        .replace(/\s+/g, ' ')
+        .trim();
+    };
+    
     if (staticPagesResult.data) {
       staticPagesResult.data.forEach(page => {
+        // Add multiple mappings for each page
         pageMapping.set(page.title.toLowerCase(), page.slug);
+        pageMapping.set(normalizeText(page.title), page.slug);
         pageMapping.set(page.slug, page.slug);
+        pageMapping.set(page.slug.toLowerCase(), page.slug);
       });
     }
     
     if (blogPostsResult.data) {
       blogPostsResult.data.forEach(post => {
+        // Add multiple mappings for each post
         pageMapping.set(post.title.toLowerCase(), post.slug);
+        pageMapping.set(normalizeText(post.title), post.slug);
         pageMapping.set(post.slug, post.slug);
+        pageMapping.set(post.slug.toLowerCase(), post.slug);
       });
     }
 
+    // Add common old->new mappings
+    const oldToNewMappings = {
+      'contacts': 'contact',
+      'contact': 'contact',
+      'comtact': 'contact',
+      'hirlevel-konzultacio': 'konzultacio',
+      'konzultacio': 'konzultacio',
+      'hirleveleskozultacio': 'konzultacio'
+    };
+
+    // Apply old->new mappings
+    Object.entries(oldToNewMappings).forEach(([oldName, newName]) => {
+      const targetSlug = pageMapping.get(newName);
+      if (targetSlug) {
+        pageMapping.set(oldName, targetSlug);
+        pageMapping.set(oldName.toLowerCase(), targetSlug);
+        pageMapping.set(normalizeText(oldName), targetSlug);
+      }
+    });
+
+    console.log('Created page mapping with entries:', Array.from(pageMapping.entries()));
     return pageMapping;
   }, []);
 
