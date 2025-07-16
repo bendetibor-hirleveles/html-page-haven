@@ -90,153 +90,43 @@ export function StaticPageViewer() {
   const processHtmlContent = (htmlContent: string) => {
     let processedHtml = htmlContent;
     
-    // Convert logo links to point to homepage (/)
-    // This handles links that typically point to index.html or the homepage
-    processedHtml = processedHtml.replace(/href=["'](\.\/)?(index\.html|\/)?["']/g, 'href="/"');
-    console.log('Logo links converted to point to homepage');
+    // Convert logo links to point to homepage
+    processedHtml = processedHtml.replace(
+      /<a[^>]*href=["'][^"']*["'][^>]*><img[^>]*src=["'][^"']*logo[^"']*["'][^>]*><\/a>/gi,
+      (match) => {
+        return match.replace(/href=["'][^"']*["']/, 'href="/"');
+      }
+    );
     
     // Convert .html links to relative links (remove .html extension)
     processedHtml = processedHtml.replace(/href=["']([^"']*\.html)["']/g, (match, url) => {
-      // Only process internal links (not starting with http:// or https://)
-      if (!url.startsWith('http://') && !url.startsWith('https://') && !url.startsWith('//') && url !== 'index.html') {
-        const relativePath = url.replace(/\.html$/, '');
-        console.log(`Converting link: ${url} -> ${relativePath}`);
-        return `href="${relativePath}"`;
+      if (!url.startsWith('http://') && !url.startsWith('https://') && !url.startsWith('//')) {
+        const relativePath = url.replace(/\.html$/, '').replace(/^\//, '');
+        return `href="/${relativePath}"`;
       }
       return match;
     });
 
-    // Get the public URL for the assets from the correct bucket
+    // Replace Bootstrap CSS with CDN (more reliable than storage)
+    processedHtml = processedHtml.replace(
+      /href=["']\/assets\/bootstrap\/css\/bootstrap\.min\.css["']/g,
+      'href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"'
+    );
+
+    // Get assets path
     const { data: { publicUrl } } = supabase.storage.from('assets').getPublicUrl('dummy');
     const baseUrl = publicUrl.replace('/dummy', '');
+    let assetsPath = page?.assets_zip_path || 'common-assets';
     
-    // Try to determine assets path
-    let assetsPath = page?.assets_zip_path;
-    
-    if (!assetsPath) {
-      // If no assets_zip_path, use a common assets folder
-      console.log('No assets path found, using common assets folder');
-      assetsPath = 'common-assets'; // Alapértelmezett közös assets mappa
-    } else {
-      // Handle both ZIP-based and folder-based assets
-      if (assetsPath.endsWith('.zip')) {
-        // Legacy ZIP-based: remove .zip extension
-        assetsPath = assetsPath.replace('.zip', '');
-      }
+    // Remove .zip extension if present
+    if (assetsPath.endsWith('.zip')) {
+      assetsPath = assetsPath.replace('.zip', '');
     }
     
-    // Remove any leading/trailing slashes for consistency
-    assetsPath = assetsPath.replace(/^\/+|\/+$/g, '');
-    
-    console.log('Processing HTML content:');
-    console.log('- baseUrl:', baseUrl);
-    console.log('- assetsPath:', assetsPath);
-    console.log('- original assets_zip_path:', page?.assets_zip_path);
-    
-    // Test the first CSS URL to check if assets are accessible
-    const testCssUrl = `${baseUrl}/${assetsPath}/assets/bootstrap/css/bootstrap.min.css`;
-    console.log('Test CSS URL:', testCssUrl);
-    
-    // Also try alternative paths
-    const alternativeUrl1 = `${baseUrl}/${assetsPath}/bootstrap/css/bootstrap.min.css`;
-    const alternativeUrl2 = `${baseUrl}/${assetsPath}/css/bootstrap.min.css`;
-    
-    console.log('Testing alternative URLs:');
-    console.log('Alternative 1:', alternativeUrl1);
-    console.log('Alternative 2:', alternativeUrl2);
-    
-    fetch(testCssUrl).then(response => {
-      console.log('CSS file test result:', response.status, response.statusText);
-      if (!response.ok) {
-        console.error('CSS file not accessible:', testCssUrl);
-        // Test alternatives
-        return fetch(alternativeUrl1);
-      }
-    }).then(response => {
-      if (response && !response.ok) {
-        console.log('Alternative 1 result:', response.status);
-        return fetch(alternativeUrl2);
-      }
-    }).then(response => {
-      if (response) {
-        console.log('Alternative 2 result:', response.status);
-      }
-    }).catch(error => {
-      console.error('Error testing CSS file:', error);
-    });
-    
-    // Log some sample CSS links before transformation
-    const cssMatches = processedHtml.match(/href=["'][^"']*\.css["']/g);
-    if (cssMatches) {
-      console.log('CSS links before transformation:', cssMatches.slice(0, 3));
-    }
-    
-    // Handle Bootstrap CSS and JS from /assets/ paths (most common pattern)
-    // Try without the extra /assets/ prefix first
-    const bootstrapCssPattern = /href=["']?\/assets\/bootstrap\/css\//g;
-    const beforeBootstrap = processedHtml.match(bootstrapCssPattern);
-    
-    // First try direct path without extra assets folder
-    processedHtml = processedHtml.replace(bootstrapCssPattern, `href="${baseUrl}/${assetsPath}/bootstrap/css/`);
-    
-    if (beforeBootstrap) {
-      console.log('Bootstrap CSS links found and replaced:', beforeBootstrap.length);
-      console.log('New Bootstrap path:', `${baseUrl}/${assetsPath}/bootstrap/css/`);
-    }
-    
-    processedHtml = processedHtml.replace(/src=["']?\/assets\/bootstrap\/js\//g, `src="${baseUrl}/${assetsPath}/assets/bootstrap/js/`);
-    processedHtml = processedHtml.replace(/src=["']?\/assets\/js\//g, `src="${baseUrl}/${assetsPath}/assets/js/`);
-    processedHtml = processedHtml.replace(/href=["']?\/assets\/css\//g, `href="${baseUrl}/${assetsPath}/assets/css/`);
-    processedHtml = processedHtml.replace(/href=["']?\/assets\/fonts\//g, `href="${baseUrl}/${assetsPath}/assets/fonts/`);
-    
-    // Handle CSS files - multiple patterns and direct CSS file references
-    processedHtml = processedHtml.replace(/href=["']?\.\/css\//g, `href="${baseUrl}/${assetsPath}/css/`);
-    processedHtml = processedHtml.replace(/href=["']?css\//g, `href="${baseUrl}/${assetsPath}/css/`);
-    processedHtml = processedHtml.replace(/href=["']?\/css\//g, `href="${baseUrl}/${assetsPath}/css/`);
-    processedHtml = processedHtml.replace(/href=["']?\.\/style/g, `href="${baseUrl}/${assetsPath}/style`);
-    processedHtml = processedHtml.replace(/href=["']?style/g, `href="${baseUrl}/${assetsPath}/style`);
-    
-    // Handle direct CSS file references (like styles.min.css, bootstrap.min.css)
-    processedHtml = processedHtml.replace(/href=["']?([^"'\/]+\.css)["']?/g, `href="${baseUrl}/${assetsPath}/$1"`);
-    processedHtml = processedHtml.replace(/href=["']?\.\/([^"'\/]+\.css)["']?/g, `href="${baseUrl}/${assetsPath}/$1"`);
-    
-    // Handle JS files
-    processedHtml = processedHtml.replace(/src=["']?\.\/js\//g, `src="${baseUrl}/${assetsPath}/js/`);
-    processedHtml = processedHtml.replace(/src=["']?js\//g, `src="${baseUrl}/${assetsPath}/js/`);
-    processedHtml = processedHtml.replace(/src=["']?\/js\//g, `src="${baseUrl}/${assetsPath}/js/`);
-    
-    // Handle images from /assets/img/
-    processedHtml = processedHtml.replace(/src=["']?\/assets\/img\//g, `src="${baseUrl}/${assetsPath}/assets/img/`);
-    
-    // Handle generic assets
-    processedHtml = processedHtml.replace(/href=["']?\.\/assets\//g, `href="${baseUrl}/${assetsPath}/assets/`);
-    processedHtml = processedHtml.replace(/src=["']?\.\/assets\//g, `src="${baseUrl}/${assetsPath}/assets/`);
-    processedHtml = processedHtml.replace(/href=["']?\/assets\//g, `href="${baseUrl}/${assetsPath}/assets/`);
-    processedHtml = processedHtml.replace(/src=["']?\/assets\//g, `src="${baseUrl}/${assetsPath}/assets/`);
-    processedHtml = processedHtml.replace(/url\(["']?\/assets\//g, `url("${baseUrl}/${assetsPath}/assets/`);
-    processedHtml = processedHtml.replace(/url\(["']?\.\/assets\//g, `url("${baseUrl}/${assetsPath}/assets/`);
-    
-    // Handle relative paths for images
-    processedHtml = processedHtml.replace(/src=["']?\.\/images\//g, `src="${baseUrl}/${assetsPath}/images/`);
-    processedHtml = processedHtml.replace(/src=["']?images\//g, `src="${baseUrl}/${assetsPath}/images/`);
-    processedHtml = processedHtml.replace(/src=["']?\/images\//g, `src="${baseUrl}/${assetsPath}/images/`);
-    
-    // Handle generic relative paths (last resort)
-    processedHtml = processedHtml.replace(/href=["']?\.\//g, `href="${baseUrl}/${assetsPath}/`);
-    processedHtml = processedHtml.replace(/src=["']?\.\//g, `src="${baseUrl}/${assetsPath}/`);
-    
-    // Log some example transformations
-    const exampleBootstrapLink = processedHtml.match(/href="[^"]*bootstrap[^"]*"/);
-    if (exampleBootstrapLink) {
-      console.log('Example transformed Bootstrap link:', exampleBootstrapLink[0]);
-    }
-    
-    // Log CSS links after transformation
-    const cssMatchesAfter = processedHtml.match(/href=["'][^"']*\.css["']/g);
-    if (cssMatchesAfter) {
-      console.log('CSS links after transformation:', cssMatchesAfter.slice(0, 3));
-    }
-    
+    // Replace other asset URLs - use proper paths
+    processedHtml = processedHtml.replace(/href=["']\/assets\/([^"']*)["']/g, `href="${baseUrl}/${assetsPath}/$1"`);
+    processedHtml = processedHtml.replace(/src=["']\/assets\/([^"']*)["']/g, `src="${baseUrl}/${assetsPath}/$1"`);
+
     return processedHtml;
   };
 
