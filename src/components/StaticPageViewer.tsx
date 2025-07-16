@@ -123,9 +123,16 @@ export function StaticPageViewer() {
       assetsPath = assetsPath.replace('.zip', '');
     }
     
-    // Replace other asset URLs - use proper paths
+    // Replace asset URLs (images, CSS, JS, backgrounds)
     processedHtml = processedHtml.replace(/href=["']\/assets\/([^"']*)["']/g, `href="${baseUrl}/${assetsPath}/$1"`);
     processedHtml = processedHtml.replace(/src=["']\/assets\/([^"']*)["']/g, `src="${baseUrl}/${assetsPath}/$1"`);
+    
+    // Handle CSS background images
+    processedHtml = processedHtml.replace(/url\(["']?\/assets\/([^"')]*)["']?\)/g, `url("${baseUrl}/${assetsPath}/$1")`);
+    
+    // Handle inline style background images
+    processedHtml = processedHtml.replace(/background-image:\s*url\(["']?\/assets\/([^"')]*)["']?\)/g, `background-image: url("${baseUrl}/${assetsPath}/$1")`);
+    processedHtml = processedHtml.replace(/background:\s*url\(["']?\/assets\/([^"')]*)["']?\)/g, `background: url("${baseUrl}/${assetsPath}/$1")`);
 
     return processedHtml;
   };
