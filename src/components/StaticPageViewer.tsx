@@ -142,6 +142,14 @@ export function StaticPageViewer() {
             return `href="/${slug}"`;
           }
           console.warn(`Could not resolve dynamic link: ${identifier}`);
+          // Special case for common typos
+          if (identifier === 'comtact') {
+            const correctSlug = pageMapping.get('contact');
+            if (correctSlug) {
+              console.log(`Fixed typo: comtact -> contact -> /${correctSlug}`);
+              return `href="/${correctSlug}"`;
+            }
+          }
           return placeholderContent ? match : 'href="#"';
         }
       );
