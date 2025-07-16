@@ -110,6 +110,15 @@ export function StaticPageViewer() {
       return match;
     });
 
+    // Convert any relative links without extensions to proper React routes
+    processedHtml = processedHtml.replace(/href=["']([^"'#]*[^"'\/.#])["']/g, (match, url) => {
+      if (!url.startsWith('http://') && !url.startsWith('https://') && !url.startsWith('//') && !url.startsWith('#') && !url.startsWith('mailto:') && !url.startsWith('tel:')) {
+        const cleanPath = url.replace(/^\//, '');
+        return `href="/${cleanPath}"`;
+      }
+      return match;
+    });
+
     // Get assets path - use edge function for proper CORS headers
     const edgeFunctionUrl = 'https://nabvfsbrrasdsaibnyby.supabase.co/functions/v1/serve-assets';
     
