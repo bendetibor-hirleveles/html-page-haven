@@ -110,9 +110,8 @@ export function StaticPageViewer() {
       return match;
     });
 
-    // Get assets path from storage
-    const { data: { publicUrl } } = supabase.storage.from('assets').getPublicUrl('dummy');
-    const baseUrl = publicUrl.replace('/dummy', '');
+    // Get assets path - use edge function for proper CORS headers
+    const edgeFunctionUrl = 'https://nabvfsbrrasdsaibnyby.supabase.co/functions/v1/serve-assets';
     
     // Use the correct assets path from the page data
     let assetsPath = page?.assets_zip_path || 'hirleveleshu-megirjuk-a-penzt-assets';
@@ -122,16 +121,16 @@ export function StaticPageViewer() {
       assetsPath = assetsPath.replace('.zip', '');
     }
     
-    console.log('Using assets path:', `${baseUrl}/${assetsPath}`);
+    console.log('Using assets path:', `${edgeFunctionUrl}/${assetsPath}`);
     
-    // Replace all asset URLs - modern approach with proper paths
-    processedHtml = processedHtml.replace(/href=["']\/assets\/([^"']*)["']/g, `href="${baseUrl}/${assetsPath}/$1"`);
-    processedHtml = processedHtml.replace(/src=["']\/assets\/([^"']*)["']/g, `src="${baseUrl}/${assetsPath}/$1"`);
+    // Replace all asset URLs - use edge function for proper CORS headers
+    processedHtml = processedHtml.replace(/href=["']\/assets\/([^"']*)["']/g, `href="${edgeFunctionUrl}/${assetsPath}/$1"`);
+    processedHtml = processedHtml.replace(/src=["']\/assets\/([^"']*)["']/g, `src="${edgeFunctionUrl}/${assetsPath}/$1"`);
     
     // Handle CSS background images in stylesheets and inline styles
-    processedHtml = processedHtml.replace(/url\(["']?\/assets\/([^"')]*)["']?\)/g, `url("${baseUrl}/${assetsPath}/$1")`);
-    processedHtml = processedHtml.replace(/background-image:\s*url\(["']?\/assets\/([^"')]*)["']?\)/g, `background-image: url("${baseUrl}/${assetsPath}/$1")`);
-    processedHtml = processedHtml.replace(/background:\s*url\(["']?\/assets\/([^"')]*)["']?\)/g, `background: url("${baseUrl}/${assetsPath}/$1")`);
+    processedHtml = processedHtml.replace(/url\(["']?\/assets\/([^"')]*)["']?\)/g, `url("${edgeFunctionUrl}/${assetsPath}/$1")`);
+    processedHtml = processedHtml.replace(/background-image:\s*url\(["']?\/assets\/([^"')]*)["']?\)/g, `background-image: url("${edgeFunctionUrl}/${assetsPath}/$1")`);
+    processedHtml = processedHtml.replace(/background:\s*url\(["']?\/assets\/([^"')]*)["']?\)/g, `background: url("${edgeFunctionUrl}/${assetsPath}/$1")`);
 
     return processedHtml;
   };
