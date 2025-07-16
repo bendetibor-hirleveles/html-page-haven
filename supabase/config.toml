@@ -36,3 +36,6 @@ security_captcha_enabled = false
 
 [functions.generate-seo]
 verify_jwt = false
+
+[functions.serve-assets]
+verify_jwt = false
