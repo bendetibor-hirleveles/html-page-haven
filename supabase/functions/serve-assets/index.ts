@@ -59,14 +59,20 @@ serve(async (req) => {
       contentType = 'image/gif'
     } else if (path.endsWith('.svg')) {
       contentType = 'image/svg+xml'
+    } else if (path.endsWith('.woff') || path.endsWith('.woff2')) {
+      contentType = 'font/woff2'
+    } else if (path.endsWith('.ttf')) {
+      contentType = 'font/ttf'
     }
 
-    // Return the file with proper headers
+    // Return the file with proper headers including CORS
     return new Response(data, {
       headers: {
         ...corsHeaders,
         'Content-Type': contentType,
-        'Cache-Control': 'public, max-age=3600'
+        'Cache-Control': 'public, max-age=3600',
+        'Access-Control-Allow-Methods': 'GET',
+        'Access-Control-Allow-Credentials': 'false'
       }
     })
 
