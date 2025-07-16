@@ -19,14 +19,17 @@ Deno.serve(async (req) => {
 
     console.log('Starting content refresh process...');
 
-    // 1. Frissíti az összes /assets/ hivatkozást /common-assets/-ra
+    // 1. Frissíti az asset hivatkozásokat serve-assets URL-re
     console.log('Step 1: Updating asset paths...');
+    
+    const supabaseUrl = Deno.env.get('SUPABASE_URL');
+    const baseUrl = `${supabaseUrl}/functions/v1/serve-assets`;
     
     // Get all static pages that need asset path updates
     const { data: staticPagesAssets, error: staticPagesAssetsError } = await supabase
       .from('static_pages')
       .select('id, html_content')
-      .or('html_content.like.%/assets/%,html_content.like.%src="assets/%,html_content.like.%href="assets/%');
+      .or('html_content.like.%/assets/%,html_content.like.%src="assets/%,html_content.like.%href="assets/%,html_content.like.%/common-assets/%,html_content.like.%src="common-assets/%,html_content.like.%href="common-assets/%');
 
     if (staticPagesAssetsError) {
       throw staticPagesAssetsError;
@@ -34,9 +37,16 @@ Deno.serve(async (req) => {
 
     for (const page of staticPagesAssets || []) {
       let updatedContent = page.html_content;
-      updatedContent = updatedContent.replace(/\/assets\//g, '/common-assets/');
-      updatedContent = updatedContent.replace(/src="assets\//g, 'src="/common-assets/');
-      updatedContent = updatedContent.replace(/href="assets\//g, 'href="/common-assets/');
+      
+      // Replace all asset references with serve-assets URLs
+      updatedContent = updatedContent.replace(/href="\/common-assets\//g, `href="${baseUrl}/common-assets/`);
+      updatedContent = updatedContent.replace(/src="\/common-assets\//g, `src="${baseUrl}/common-assets/`);
+      updatedContent = updatedContent.replace(/href="\/assets\//g, `href="${baseUrl}/common-assets/`);
+      updatedContent = updatedContent.replace(/src="\/assets\//g, `src="${baseUrl}/common-assets/`);
+      updatedContent = updatedContent.replace(/href="common-assets\//g, `href="${baseUrl}/common-assets/`);
+      updatedContent = updatedContent.replace(/src="common-assets\//g, `src="${baseUrl}/common-assets/`);
+      updatedContent = updatedContent.replace(/href="assets\//g, `href="${baseUrl}/common-assets/`);
+      updatedContent = updatedContent.replace(/src="assets\//g, `src="${baseUrl}/common-assets/`);
 
       const { error: updateError } = await supabase
         .from('static_pages')
@@ -55,7 +65,7 @@ Deno.serve(async (req) => {
     const { data: blogPostsAssets, error: blogPostsAssetsError } = await supabase
       .from('blog_posts')
       .select('id, html_content')
-      .or('html_content.like.%/assets/%,html_content.like.%src="assets/%,html_content.like.%href="assets/%');
+      .or('html_content.like.%/assets/%,html_content.like.%src="assets/%,html_content.like.%href="assets/%,html_content.like.%/common-assets/%,html_content.like.%src="common-assets/%,html_content.like.%href="common-assets/%');
 
     if (blogPostsAssetsError) {
       throw blogPostsAssetsError;
@@ -63,9 +73,16 @@ Deno.serve(async (req) => {
 
     for (const post of blogPostsAssets || []) {
       let updatedContent = post.html_content;
-      updatedContent = updatedContent.replace(/\/assets\//g, '/common-assets/');
-      updatedContent = updatedContent.replace(/src="assets\//g, 'src="/common-assets/');
-      updatedContent = updatedContent.replace(/href="assets\//g, 'href="/common-assets/');
+      
+      // Replace all asset references with serve-assets URLs
+      updatedContent = updatedContent.replace(/href="\/common-assets\//g, `href="${baseUrl}/common-assets/`);
+      updatedContent = updatedContent.replace(/src="\/common-assets\//g, `src="${baseUrl}/common-assets/`);
+      updatedContent = updatedContent.replace(/href="\/assets\//g, `href="${baseUrl}/common-assets/`);
+      updatedContent = updatedContent.replace(/src="\/assets\//g, `src="${baseUrl}/common-assets/`);
+      updatedContent = updatedContent.replace(/href="common-assets\//g, `href="${baseUrl}/common-assets/`);
+      updatedContent = updatedContent.replace(/src="common-assets\//g, `src="${baseUrl}/common-assets/`);
+      updatedContent = updatedContent.replace(/href="assets\//g, `href="${baseUrl}/common-assets/`);
+      updatedContent = updatedContent.replace(/src="assets\//g, `src="${baseUrl}/common-assets/`);
 
       const { error: updateError } = await supabase
         .from('blog_posts')
