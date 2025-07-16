@@ -191,11 +191,24 @@ export function StaticPageViewer() {
     processedHtml = processedHtml.replace(/background:\s*url\(["']?\/assets\/([^"')]*)["']?\)/g, `background: url("${edgeFunctionUrl}/${assetsPath}/$1")`);
     
     // Replace font URLs and other direct Supabase storage URLs to go through serve-assets function
-    processedHtml = processedHtml.replace(/https:\/\/nabvfsbrrasdsaibnyby\.supabase\.co\/assets\/([^"'\s)]*)/g, `${edgeFunctionUrl}/${assetsPath}/$1`);
+    // More comprehensive regex to catch all storage URLs
+    processedHtml = processedHtml.replace(/https:\/\/nabvfsbrrasdsaibnyby\.supabase\.co\/storage\/v1\/object\/public\/assets\/([^"'\s)]+)/g, `${edgeFunctionUrl}/${assetsPath}/$1`);
+    processedHtml = processedHtml.replace(/https:\/\/nabvfsbrrasdsaibnyby\.supabase\.co\/assets\/([^"'\s)]+)/g, `${edgeFunctionUrl}/${assetsPath}/$1`);
     
-    // Handle @font-face and other CSS font declarations
-    processedHtml = processedHtml.replace(/@font-face\s*{[^}]*url\(["']?https:\/\/nabvfsbrrasdsaibnyby\.supabase\.co\/assets\/([^"'\s)]+)["']?\)[^}]*}/g, (match, fontPath) => {
-      return match.replace(`https://nabvfsbrrasdsaibnyby.supabase.co/assets/${fontPath}`, `${edgeFunctionUrl}/${assetsPath}/${fontPath}`);
+    // Handle @font-face and other CSS font declarations more comprehensively
+    processedHtml = processedHtml.replace(/@font-face\s*{[^}]*url\(["']?https:\/\/nabvfsbrrasdsaibnyby\.supabase\.co\/(?:storage\/v1\/object\/public\/)?assets\/([^"'\s)]+)["']?\)[^}]*}/g, (match, fontPath) => {
+      return match.replace(/https:\/\/nabvfsbrrasdsaibnyby\.supabase\.co\/(?:storage\/v1\/object\/public\/)?assets\/[^"'\s)]+/g, `${edgeFunctionUrl}/${assetsPath}/${fontPath}`);
+    });
+    
+    // Handle inline CSS font URLs in style attributes
+    processedHtml = processedHtml.replace(/style=["']([^"']*font[^"']*)["']/g, (match, styleContent) => {
+      const updatedStyle = styleContent.replace(/url\(["']?https:\/\/nabvfsbrrasdsaibnyby\.supabase\.co\/(?:storage\/v1\/object\/public\/)?assets\/([^"'\s)]+)["']?\)/g, `url("${edgeFunctionUrl}/${assetsPath}/$1")`);
+      return `style="${updatedStyle}"`;
+    });
+    
+    // Handle font URLs in CSS link tags
+    processedHtml = processedHtml.replace(/<link[^>]*href=["']https:\/\/nabvfsbrrasdsaibnyby\.supabase\.co\/(?:storage\/v1\/object\/public\/)?assets\/([^"']+)["'][^>]*>/g, (match, assetPath) => {
+      return match.replace(/https:\/\/nabvfsbrrasdsaibnyby\.supabase\.co\/(?:storage\/v1\/object\/public\/)?assets\/[^"']+/g, `${edgeFunctionUrl}/${assetsPath}/${assetPath}`);
     });
 
     return processedHtml;

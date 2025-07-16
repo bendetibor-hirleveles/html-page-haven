@@ -20,9 +20,13 @@ serve(async (req) => {
     if (filePath.endsWith('.jpg') || filePath.endsWith('.jpeg')) return 'image/jpeg'
     if (filePath.endsWith('.gif')) return 'image/gif'
     if (filePath.endsWith('.svg')) return 'image/svg+xml'
-    if (filePath.endsWith('.woff') || filePath.endsWith('.woff2')) return 'font/woff2'
-    if (filePath.endsWith('.ttf')) return 'font/ttf'
     if (filePath.endsWith('.webp')) return 'image/webp'
+    // Font files
+    if (filePath.endsWith('.woff2')) return 'font/woff2'
+    if (filePath.endsWith('.woff')) return 'font/woff'
+    if (filePath.endsWith('.ttf')) return 'font/ttf'
+    if (filePath.endsWith('.otf')) return 'font/otf'
+    if (filePath.endsWith('.eot')) return 'application/vnd.ms-fontobject'
     return 'text/plain'
   }
 
