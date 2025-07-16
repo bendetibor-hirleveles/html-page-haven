@@ -113,15 +113,10 @@ export function StaticPageViewer() {
     // Get assets path - use edge function for proper CORS headers
     const edgeFunctionUrl = 'https://nabvfsbrrasdsaibnyby.supabase.co/functions/v1/serve-assets';
     
-    // Use the correct assets path from the page data
-    let assetsPath = page?.assets_zip_path || 'hirleveleshu-megirjuk-a-penzt-assets';
+    // All assets are now in common-assets folder
+    const assetsPath = 'common-assets';
     
-    // Remove .zip extension if present
-    if (assetsPath.endsWith('.zip')) {
-      assetsPath = assetsPath.replace('.zip', '');
-    }
-    
-    console.log('Using assets path:', `${edgeFunctionUrl}/${assetsPath}`);
+    console.log('Using common assets path:', `${edgeFunctionUrl}/${assetsPath}`);
     
     // Replace all asset URLs - use edge function for proper CORS headers
     processedHtml = processedHtml.replace(/href=["']\/assets\/([^"']*)["']/g, `href="${edgeFunctionUrl}/${assetsPath}/$1"`);

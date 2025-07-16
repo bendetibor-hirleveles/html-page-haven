@@ -122,14 +122,15 @@ export function StaticPageUpload() {
 
       let assetsZipPath = null;
       
-      // Upload assets (ZIP or folder)
+      // Upload assets (ZIP or folder) to common assets folder
       if (useFolder && assetsFolder) {
-        // Upload folder files individually
-        const folderPath = `${slug}/`;
+        // Upload folder files individually to common assets folder
         for (let i = 0; i < assetsFolder.length; i++) {
           const file = assetsFolder[i];
           const relativePath = file.webkitRelativePath || file.name;
-          const filePath = `${folderPath}${relativePath}`;
+          // Extract filename from relative path and put in common assets folder
+          const fileName = relativePath.split('/').pop() || file.name;
+          const filePath = `common-assets/${fileName}`;
           
           const { error: fileError } = await supabase.storage
             .from('assets')
@@ -139,14 +140,12 @@ export function StaticPageUpload() {
           
           if (fileError) throw fileError;
         }
-        assetsZipPath = folderPath;
+        assetsZipPath = 'common-assets';
       } else if (!useFolder && assetsZip) {
-        // Extract and upload ZIP file contents to a folder
-        const folderPath = `${slug}-assets/`;
-        
+        // Upload ZIP file to common assets folder
         try {
-          // First upload the ZIP file
-          const zipFileName = `${slug}-assets.zip`;
+          // Upload the ZIP file to common assets folder
+          const zipFileName = `common-assets/${slug}-assets.zip`;
           const { error: zipError } = await supabase.storage
             .from('assets')
             .upload(zipFileName, assetsZip, {
@@ -156,10 +155,10 @@ export function StaticPageUpload() {
 
           if (zipError) throw zipError;
           
-          // Store folder path instead of ZIP path for better asset loading
-          assetsZipPath = folderPath.slice(0, -1); // Remove trailing slash
+          // Store common assets path
+          assetsZipPath = 'common-assets';
           
-          console.log('ZIP uploaded and folder path set:', assetsZipPath);
+          console.log('ZIP uploaded to common assets folder:', assetsZipPath);
         } catch (error) {
           console.error('Error uploading ZIP:', error);
           throw error;

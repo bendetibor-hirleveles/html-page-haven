@@ -56,9 +56,9 @@ export function BlogPostUpload() {
 
       let assetsZipPath = null;
       
-      // Upload assets ZIP if provided
+      // Upload assets ZIP to common assets folder if provided
       if (assetsZip) {
-        const zipFileName = `${slug}-assets.zip`;
+        const zipFileName = `common-assets/${slug}-assets.zip`;
         const { error: zipError } = await supabase.storage
           .from('assets')
           .upload(zipFileName, assetsZip, {
@@ -67,7 +67,7 @@ export function BlogPostUpload() {
           });
 
         if (zipError) throw zipError;
-        assetsZipPath = zipFileName;
+        assetsZipPath = 'common-assets';
       }
 
       // Insert into database
