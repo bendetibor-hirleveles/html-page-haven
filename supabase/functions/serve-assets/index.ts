@@ -21,13 +21,24 @@ serve(async (req) => {
     const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
     const supabase = createClient(supabaseUrl, supabaseKey)
 
-    // Download the file from storage
-    const { data, error } = await supabase.storage
+    // Try to download from common-assets first, then fallback to original path
+    let data, error;
+    
+    // First try common-assets folder
+    const commonAssetsPath = path.replace(/^[^/]+-assets\//, 'common-assets/');
+    ({ data, error } = await supabase.storage
       .from('assets')
-      .download(path)
+      .download(commonAssetsPath));
+    
+    // If not found in common-assets, try the original path structure  
+    if (error) {
+      ({ data, error } = await supabase.storage
+        .from('assets')
+        .download(path));
+    }
 
     if (error) {
-      console.error('Storage error:', error)
+      console.error('Storage error for path:', path, 'and common path:', commonAssetsPath, 'Error:', error)
       return new Response('File not found', { 
         status: 404,
         headers: corsHeaders 
