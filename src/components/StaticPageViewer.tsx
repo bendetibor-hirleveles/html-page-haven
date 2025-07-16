@@ -107,13 +107,7 @@ export function StaticPageViewer() {
       return match;
     });
 
-    // Replace Bootstrap CSS with CDN (more reliable than storage)
-    processedHtml = processedHtml.replace(
-      /href=["']\/assets\/bootstrap\/css\/bootstrap\.min\.css["']/g,
-      'href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"'
-    );
-
-    // Get assets path
+    // Get assets path from storage
     const { data: { publicUrl } } = supabase.storage.from('assets').getPublicUrl('dummy');
     const baseUrl = publicUrl.replace('/dummy', '');
     let assetsPath = page?.assets_zip_path || 'common-assets';
@@ -123,16 +117,17 @@ export function StaticPageViewer() {
       assetsPath = assetsPath.replace('.zip', '');
     }
     
-    // Replace asset URLs (images, CSS, JS, backgrounds)
+    // Replace all asset URLs - handle both CSS, JS, images, and backgrounds
     processedHtml = processedHtml.replace(/href=["']\/assets\/([^"']*)["']/g, `href="${baseUrl}/${assetsPath}/$1"`);
     processedHtml = processedHtml.replace(/src=["']\/assets\/([^"']*)["']/g, `src="${baseUrl}/${assetsPath}/$1"`);
     
-    // Handle CSS background images
+    // Handle CSS background images in stylesheets and inline styles
     processedHtml = processedHtml.replace(/url\(["']?\/assets\/([^"')]*)["']?\)/g, `url("${baseUrl}/${assetsPath}/$1")`);
-    
-    // Handle inline style background images
     processedHtml = processedHtml.replace(/background-image:\s*url\(["']?\/assets\/([^"')]*)["']?\)/g, `background-image: url("${baseUrl}/${assetsPath}/$1")`);
     processedHtml = processedHtml.replace(/background:\s*url\(["']?\/assets\/([^"')]*)["']?\)/g, `background: url("${baseUrl}/${assetsPath}/$1")`);
+    
+    // Log asset path for debugging
+    console.log('Assets path being used:', `${baseUrl}/${assetsPath}`);
 
     return processedHtml;
   };
