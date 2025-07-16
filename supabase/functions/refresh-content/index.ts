@@ -47,6 +47,12 @@ Deno.serve(async (req) => {
       updatedContent = updatedContent.replace(/src="common-assets\//g, `src="${baseUrl}/common-assets/`);
       updatedContent = updatedContent.replace(/href="assets\//g, `href="${baseUrl}/common-assets/`);
       updatedContent = updatedContent.replace(/src="assets\//g, `src="${baseUrl}/common-assets/`);
+      
+      // Fix font URLs in CSS - replace storage URLs with serve-assets URLs
+      updatedContent = updatedContent.replace(
+        new RegExp(`${supabaseUrl}/assets/fonts/`, 'g'),
+        `${baseUrl}/common-assets/fonts/`
+      );
 
       const { error: updateError } = await supabase
         .from('static_pages')
@@ -83,6 +89,12 @@ Deno.serve(async (req) => {
       updatedContent = updatedContent.replace(/src="common-assets\//g, `src="${baseUrl}/common-assets/`);
       updatedContent = updatedContent.replace(/href="assets\//g, `href="${baseUrl}/common-assets/`);
       updatedContent = updatedContent.replace(/src="assets\//g, `src="${baseUrl}/common-assets/`);
+      
+      // Fix font URLs in CSS - replace storage URLs with serve-assets URLs
+      updatedContent = updatedContent.replace(
+        new RegExp(`${supabaseUrl}/assets/fonts/`, 'g'),
+        `${baseUrl}/common-assets/fonts/`
+      );
 
       const { error: updateError } = await supabase
         .from('blog_posts')
