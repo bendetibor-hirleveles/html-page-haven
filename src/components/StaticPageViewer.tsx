@@ -155,6 +155,27 @@ export function StaticPageViewer() {
       }
     );
     
+    // Convert buttons with data-bs-target to proper anchor links
+    processedHtml = processedHtml.replace(/<button([^>]*?)data-bs-target=["']([^"']+)["']([^>]*?)>([^<]+)<\/button>/g, (match, beforeAttr, target, afterAttr, text) => {
+      let href = target;
+      // Process the target URL the same way as other links
+      if (target.includes('.html')) {
+        if (!target.startsWith('http://') && !target.startsWith('https://') && !target.startsWith('//')) {
+          const relativePath = target.replace(/\.html$/, '').replace(/^\//, '');
+          href = `/${relativePath}`;
+        } else {
+          // For external URLs, extract the path part
+          const urlParts = target.split('/');
+          const fileName = urlParts[urlParts.length - 1];
+          if (fileName.includes('.html')) {
+            const relativePath = fileName.replace(/\.html$/, '');
+            href = `/${relativePath}`;
+          }
+        }
+      }
+      return `<a href="${href}"${beforeAttr}${afterAttr} class="btn btn-primary active">${text}</a>`;
+    });
+
     // Convert .html links to relative links (remove .html extension)
     processedHtml = processedHtml.replace(/href=["']([^"']*\.html)["']/g, (match, url) => {
       if (!url.startsWith('http://') && !url.startsWith('https://') && !url.startsWith('//')) {
