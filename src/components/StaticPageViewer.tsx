@@ -160,6 +160,12 @@ export function StaticPageViewer() {
     processedHtml = processedHtml.replace(/hirleveles_logo_adsba%20másolat\.png/g, 'feher_hirleveles_logo__350.png');
     processedHtml = processedHtml.replace(/hirleveles_logo_adsba%20m%C3%A1solat\.png/g, 'feher_hirleveles_logo__350.png');
     
+    // Fix missing team images with available ones
+    processedHtml = processedHtml.replace(/N%C3%A9vtelen%20terv%20\(10\)\.png/g, 'avatar2.jpg');
+    processedHtml = processedHtml.replace(/N%C3%A9vtelen%20terv%20\(8\)\.webp/g, 'avatar4.jpg');
+    processedHtml = processedHtml.replace(/Névtelen terv \(10\)\.png/g, 'avatar2.jpg');
+    processedHtml = processedHtml.replace(/Névtelen terv \(8\)\.webp/g, 'avatar4.jpg');
+    
     // Clear browser cache for assets by adding timestamp to CSS/JS files
     processedHtml = processedHtml.replace(/href="(\/assets\/[^"]+\.css)"/g, `href="$1?v=${Date.now()}"`);
     processedHtml = processedHtml.replace(/src="(\/assets\/[^"]+\.js)"/g, `src="$1?v=${Date.now()}"`);
