@@ -46,8 +46,13 @@ export function AssetExtractor() {
       for (const filename of files) {
         const fileData = await contents.files[filename].async('blob');
         
-        // Ensure UTF-8 encoding for file paths
-        const targetPath = `common-assets/${filename.replace('assets/', '')}`;
+        // Sanitize file path to avoid special characters
+        const sanitizedPath = filename.replace('assets/', '')
+          .replace(/[^\w\-_.\/]/g, '_')  // Replace special chars with underscore
+          .replace(/_{2,}/g, '_')         // Replace multiple underscores with single
+          .replace(/^_|_$/g, '');        // Remove leading/trailing underscores
+        
+        const targetPath = `common-assets/${sanitizedPath}`;
         
         // Determine content type based on file extension
         const extension = filename.split('.').pop()?.toLowerCase();
@@ -73,12 +78,18 @@ export function AssetExtractor() {
           });
 
         if (error) {
-          console.error('Upload error:', error, 'File:', targetPath);
+          console.error('Upload error:', error, 'Original filename:', filename, 'Target path:', targetPath);
+          toast({
+            title: "Feltöltési hiba",
+            description: `Hiba a ${filename} fájlnál: ${error.message}`,
+            variant: "destructive",
+          });
         } else {
           uploaded++;
           const progressPercent = Math.round((uploaded / files.length) * 100);
           setProgress(progressPercent);
           setStatus(`Feltöltve: ${uploaded}/${files.length}`);
+          console.log('Successfully uploaded:', filename, 'to', targetPath);
         }
       }
 
