@@ -119,13 +119,6 @@ export function StaticPageViewer() {
         return;
       }
       
-      // Skip reserved routes - these should be handled by specific route components
-      if (['auth', 'admin', 'blog'].includes(slug)) {
-        console.log('StaticPageViewer: Skipping reserved route:', slug);
-        setLoading(false);
-        setError("Ez az oldal nem található");
-        return;
-      }
       
 
       try {
