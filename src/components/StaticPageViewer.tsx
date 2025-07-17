@@ -116,6 +116,15 @@ export function StaticPageViewer() {
     const fetchPage = async () => {
       if (!slug) return;
       
+      // Debug: Log what slug we're trying to fetch
+      console.log('StaticPageViewer: Attempting to fetch slug:', slug);
+      
+      // Skip reserved routes - these should be handled by specific route components
+      if (['auth', 'admin', 'blog'].includes(slug)) {
+        console.log('StaticPageViewer: Skipping reserved route:', slug);
+        return;
+      }
+      
 
       try {
         // Try static_pages first
