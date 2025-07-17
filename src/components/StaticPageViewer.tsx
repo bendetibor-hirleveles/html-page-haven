@@ -116,12 +116,6 @@ export function StaticPageViewer() {
     const fetchPage = async () => {
       if (!slug) return;
       
-      // Skip reserved routes - these should be handled by specific route components
-      if (['auth', 'admin', 'blog'].includes(slug)) {
-        setError("Oldal nem található");
-        setLoading(false);
-        return;
-      }
 
       try {
         // Try static_pages first
