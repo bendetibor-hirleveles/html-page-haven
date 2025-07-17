@@ -88,7 +88,14 @@ export function StaticPageViewer() {
       'comtact': 'contact',
       'hirlevel-konzultacio': 'konzultacio',
       'konzultacio': 'konzultacio',
-      'hirleveleskozultacio': 'konzultacio'
+      'hirleveleskozultacio': 'konzultacio',
+      'automat': 'automat',
+      'kurzus': 'kurzus',
+      'pricing': 'pricing',
+      'authors': 'authors',
+      'aszf': 'aszf',
+      'privacy': 'privacy',
+      'adatbekero': 'adatbekero'
     };
 
     // Apply old->new mappings
@@ -261,6 +268,17 @@ export function StaticPageViewer() {
       'class="$1bg-gradient-dark$2" style="background: linear-gradient(135deg, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0.9) 100%);"'
     );
     
+    // Fix homepage gradient background specifically
+    processedHtml = processedHtml.replace(
+      /<div([^>]*class="[^"]*hero[^"]*"[^>]*)>/g,
+      (match, attrs) => {
+        if (!attrs.includes('style=') && !attrs.includes('background:')) {
+          return match.replace('>', ' style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">');
+        }
+        return match;
+      }
+    );
+    
     // Fix missing assets by replacing with available ones from storage
     processedHtml = processedHtml.replace(/hirleveles_logo_adsba másolat\.png/g, 'feher_hirleveles_logo__350.png');
     processedHtml = processedHtml.replace(/hirleveles_logo_adsba%20másolat\.png/g, 'feher_hirleveles_logo__350.png');
@@ -270,13 +288,15 @@ export function StaticPageViewer() {
     processedHtml = processedHtml.replace(/N%C3%A9vtelen%20terv%20\(10\)\.png/g, 'avatar2.jpg');
     processedHtml = processedHtml.replace(/N%C3%A9vtelen%20terv%20\(8\)\.webp/g, 'avatar4.jpg');
     processedHtml = processedHtml.replace(/Névtelen terv \(10\)\.png/g, 'avatar2.jpg');
-    
-    // Fix team member images without accents
-    processedHtml = processedHtml.replace(/tamas\.png/g, 'tamas.png');
-    processedHtml = processedHtml.replace(/tama%CC%81s\.png/g, 'tamas.png');
-    processedHtml = processedHtml.replace(/bianka\.webp/g, 'bianka.webp');
-    processedHtml = processedHtml.replace(/tibi\.webp/g, 'tibi.webp');
     processedHtml = processedHtml.replace(/Névtelen terv \(8\)\.webp/g, 'avatar4.jpg');
+    
+    // Fix specific missing team member images
+    processedHtml = processedHtml.replace(/bia\.jpg/g, 'avatar1.jpg');
+    processedHtml = processedHtml.replace(/tibi\.jpg/g, 'avatar3.jpg');
+    processedHtml = processedHtml.replace(/tamas\.jpg/g, 'avatar5.jpg');
+    processedHtml = processedHtml.replace(/tama%CC%81s\.jpg/g, 'avatar5.jpg');
+    processedHtml = processedHtml.replace(/bianka\.webp/g, 'avatar1.jpg');
+    processedHtml = processedHtml.replace(/tibi\.webp/g, 'avatar3.jpg');
     
     // Clear browser cache for assets by adding timestamp to CSS/JS files
     processedHtml = processedHtml.replace(/href="(\/assets\/[^"]+\.css)"/g, `href="$1?v=${Date.now()}"`);
