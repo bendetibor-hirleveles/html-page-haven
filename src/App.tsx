@@ -24,7 +24,6 @@ const App = () => (
           <Route path="/auth" element={<Auth />} />
           <Route path="/admin" element={<AdminRoute><Admin /></AdminRoute>} />
           <Route path="/blog" element={<Blog />} />
-          <Route path="/:slug" element={<StaticPageViewer />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
