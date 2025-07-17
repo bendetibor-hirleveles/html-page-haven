@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -17,8 +17,15 @@ const Index = () => {
   const [homePage, setHomePage] = useState<StaticPage | null>(null);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
+  const location = useLocation();
 
   useEffect(() => {
+    // Only redirect to homepage if we're actually on the root path
+    if (location.pathname !== '/') {
+      setLoading(false);
+      return;
+    }
+
     const fetchHomePage = async () => {
       try {
         const { data } = await supabase
@@ -40,7 +47,7 @@ const Index = () => {
     };
 
     fetchHomePage();
-  }, [navigate]);
+  }, [navigate, location.pathname]);
 
 
   // Loading state while checking for homepage
