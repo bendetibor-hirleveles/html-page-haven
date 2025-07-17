@@ -112,13 +112,15 @@ export function StaticPageViewer() {
     return pageMapping;
   }, []);
 
-  // Skip reserved routes entirely - they should never reach StaticPageViewer
-  if (['auth', 'admin', 'blog'].includes(slug)) {
-    console.log('StaticPageViewer: BLOKKOLOM ezt az útvonalt:', slug);
-    return null; // Don't render anything, let React Router handle it
+  // This code should never execute for protected routes now, since they have their own route definitions
+  // But just to be extra safe, we'll still check
+  if (slug && ['auth', 'admin', 'blog'].includes(slug)) {
+    console.log('StaticPageViewer: Skipping reserved route:', slug);
+    window.location.href = `/${slug}`; // Force full navigation to the route
+    return null;
   }
 
-  console.log('StaticPageViewer: Feldolgozom ezt a slug-ot:', slug);
+  console.log('StaticPageViewer: Processing slug:', slug);
 
   useEffect(() => {
     const fetchPage = async () => {

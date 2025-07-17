@@ -24,6 +24,7 @@ const App = () => (
           <Route path="/auth" element={<Auth />} />
           <Route path="/admin" element={<AdminRoute><Admin /></AdminRoute>} />
           <Route path="/blog" element={<Blog />} />
+          {/* Use specific route for StaticPageViewer - AFTER the explicit routes but BEFORE the catch-all */}
           <Route path="/:slug" element={<StaticPageViewer />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
