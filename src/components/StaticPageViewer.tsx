@@ -112,17 +112,17 @@ export function StaticPageViewer() {
     return pageMapping;
   }, []);
 
+  // Skip reserved routes entirely - they should never reach StaticPageViewer
+  if (['auth', 'admin', 'blog'].includes(slug)) {
+    console.log('StaticPageViewer: Detected reserved route, returning null:', slug);
+    return null; // Don't render anything, let React Router handle it
+  }
+
   useEffect(() => {
     const fetchPage = async () => {
       if (!slug) {
         setLoading(false);
         return;
-      }
-      
-      // Skip reserved routes entirely - they should never reach StaticPageViewer
-      if (['auth', 'admin', 'blog'].includes(slug)) {
-        console.log('StaticPageViewer: Detected reserved route, doing nothing:', slug);
-        return; // Don't render anything, let React Router handle it
       }
 
       try {
