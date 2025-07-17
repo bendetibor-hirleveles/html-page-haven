@@ -114,14 +114,16 @@ export function StaticPageViewer() {
 
   useEffect(() => {
     const fetchPage = async () => {
-      if (!slug) return;
-      
-      // Debug: Log what slug we're trying to fetch
-      console.log('StaticPageViewer: Attempting to fetch slug:', slug);
+      if (!slug) {
+        setLoading(false);
+        return;
+      }
       
       // Skip reserved routes - these should be handled by specific route components
       if (['auth', 'admin', 'blog'].includes(slug)) {
         console.log('StaticPageViewer: Skipping reserved route:', slug);
+        setLoading(false);
+        setError("Ez az oldal nem található");
         return;
       }
       
