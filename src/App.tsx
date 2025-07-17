@@ -20,10 +20,10 @@ const App = () => (
       <Sonner />
       <BrowserRouter>
         <Routes>
+          <Route path="/" element={<Index />} />
           <Route path="/auth" element={<Auth />} />
           <Route path="/admin" element={<AdminRoute><Admin /></AdminRoute>} />
           <Route path="/blog" element={<Blog />} />
-          <Route path="/" element={<Index />} />
           <Route path="/:slug" element={<StaticPageViewer />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
