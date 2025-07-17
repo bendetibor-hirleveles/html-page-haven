@@ -114,9 +114,11 @@ export function StaticPageViewer() {
 
   // Skip reserved routes entirely - they should never reach StaticPageViewer
   if (['auth', 'admin', 'blog'].includes(slug)) {
-    console.log('StaticPageViewer: Detected reserved route, returning null:', slug);
+    console.log('StaticPageViewer: BLOKKOLOM ezt az útvonalt:', slug);
     return null; // Don't render anything, let React Router handle it
   }
+
+  console.log('StaticPageViewer: Feldolgozom ezt a slug-ot:', slug);
 
   useEffect(() => {
     const fetchPage = async () => {
