@@ -119,7 +119,11 @@ export function StaticPageViewer() {
         return;
       }
       
-      
+      // Skip reserved routes entirely - they should never reach StaticPageViewer
+      if (['auth', 'admin', 'blog'].includes(slug)) {
+        console.log('StaticPageViewer: Detected reserved route, doing nothing:', slug);
+        return; // Don't render anything, let React Router handle it
+      }
 
       try {
         // Try static_pages first
