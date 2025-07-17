@@ -20,12 +20,15 @@ const App = () => (
       <Sonner />
       <BrowserRouter>
         <Routes>
-          <Route path="/" element={<Index />} />
+          {/* Explicit routes with highest priority */}
           <Route path="/auth" element={<Auth />} />
           <Route path="/admin" element={<AdminRoute><Admin /></AdminRoute>} />
           <Route path="/blog" element={<Blog />} />
-          {/* Use specific route for StaticPageViewer - AFTER the explicit routes but BEFORE the catch-all */}
+          {/* Home route */}
+          <Route path="/" element={<Index />} />
+          {/* Dynamic routes - use StaticPageViewer for slugs */}
           <Route path="/:slug" element={<StaticPageViewer />} />
+          {/* Catch-all route for 404s */}
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>

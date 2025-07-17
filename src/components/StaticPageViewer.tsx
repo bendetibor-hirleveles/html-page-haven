@@ -1,5 +1,5 @@
 import { useEffect, useState, useMemo, useCallback } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, Navigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent } from "@/components/ui/card";
 import { CookieConsent } from "@/components/CookieConsent";
@@ -116,8 +116,8 @@ export function StaticPageViewer() {
   // But just to be extra safe, we'll still check
   if (slug && ['auth', 'admin', 'blog'].includes(slug)) {
     console.log('StaticPageViewer: Skipping reserved route:', slug);
-    window.location.href = `/${slug}`; // Force full navigation to the route
-    return null;
+    // Use Navigate component instead of window.location to avoid full page reload
+    return <Navigate to={`/${slug}`} replace />;
   }
 
   console.log('StaticPageViewer: Processing slug:', slug);
