@@ -112,12 +112,8 @@ export function StaticPageViewer() {
     return pageMapping;
   }, []);
 
-  // This code should never execute for protected routes now, since they have their own route definitions
-  // Return null for reserved routes - they should be handled by explicit routes
-  if (slug && ['auth', 'admin', 'blog'].includes(slug)) {
-    console.log('StaticPageViewer: Skipping reserved route:', slug);
-    return null;
-  }
+  // This component should only handle static pages and blog posts
+  // Explicit routes for /auth, /admin, /blog are handled before this component
 
   console.log('StaticPageViewer: Processing slug:', slug);
 
