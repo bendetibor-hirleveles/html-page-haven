@@ -113,11 +113,10 @@ export function StaticPageViewer() {
   }, []);
 
   // This code should never execute for protected routes now, since they have their own route definitions
-  // But just to be extra safe, we'll still check
+  // Return null for reserved routes - they should be handled by explicit routes
   if (slug && ['auth', 'admin', 'blog'].includes(slug)) {
     console.log('StaticPageViewer: Skipping reserved route:', slug);
-    // Use Navigate component instead of window.location to avoid full page reload
-    return <Navigate to={`/${slug}`} replace />;
+    return null;
   }
 
   console.log('StaticPageViewer: Processing slug:', slug);
