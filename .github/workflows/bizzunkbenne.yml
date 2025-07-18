@@ -1,0 +1,103 @@
+name: Build and Deploy to FTP
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+
+      - name: Install root dependencies
+        run: npm install
+
+      - name: Build main project
+        run: npm run build
+
+      - name: Add extra static files to dist
+        run: |
+          mkdir -p dist
+          echo "✔ Másolás a dist mappába..."
+          find . -maxdepth 1 -name '*.html' -exec cp -v {} dist/ \;
+          [ -d blog ] && mkdir -p dist/blog && cp -vr blog/* dist/blog/ || echo "⚠️ blog mappa nem található"
+          [ -d assets ] && cp -vr assets dist/assets || echo "⚠️ assets mappa nem található"
+          [ -d images ] && cp -vr images dist/images || echo "⚠️ images mappa nem található"
+          [ -d bootstrap ] && cp -vr bootstrap dist/bootstrap || echo "⚠️ bootstrap mappa nem található"
+          [ -f english.php.txt ] && cp -v english.php.txt dist/ || echo "⚠️ english.php.txt nem található"
+          [ -f .htaccess ] && cp -v .htaccess dist/ || echo "⚠️ .htaccess nem található"
+          [ -f favicon.ico ] && cp -v favicon.ico dist/ || echo "⚠️ favicon.ico nem található"
+          [ -f robots.txt ] && cp -v robots.txt dist/ || echo "⚠️ robots.txt nem található"
+          [ -f placeholder.svg ] && cp -v placeholder.svg dist/ || echo "⚠️ placeholder.svg nem található"
+
+      - name: Ellenőrzés: mi van a dist mappában?
+        run: ls -R dist/
+
+      - name: Build admin app if exists
+        run: |
+          if [ -d "admin" ]; then
+            cd admin
+            npm install
+            npm run build
+            cd ..
+          else
+            echo "admin mappa nem található, kihagyva"
+          fi
+
+      - name: Build auth app if exists
+        run: |
+          if [ -d "auth" ]; then
+            cd auth
+            npm install
+            npm run build
+            cd ..
+          else
+            echo "auth mappa nem található, kihagyva"
+          fi
+
+      - name: Upload main site via FTP
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          server: ${{ secrets.FTP_SERVER }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          server-dir: /public_html/
+          local-dir: dist/
+          passive: true
+          dangerous-clean-slate: false
+          exclude: |
+            **/.git*
+            **/.DS_Store
+
+      - name: Upload admin app via FTP if built
+        if: ${{ exists('admin/build') }}
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          server: ${{ secrets.FTP_SERVER }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          server-dir: /public_html/admin/
+          local-dir: admin/build/
+          passive: true
+          dangerous-clean-slate: false
+
+      - name: Upload auth app via FTP if built
+        if: ${{ exists('auth/build') }}
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          server: ${{ secrets.FTP_SERVER }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          server-dir: /public_html/auth/
+          local-dir: auth/build/
+          passive: true
+          dangerous-clean-slate: false
