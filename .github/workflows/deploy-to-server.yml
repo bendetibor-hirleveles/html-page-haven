@@ -26,17 +26,11 @@ jobs:
 
       - name: Copy extra static HTML files to dist
         run: |
-          cp aszf.html dist/
-          cp contact.html dist/
-          cp pricing.html dist/
-          cp privacy.html dist/
-          cp adatbekero.html dist/
-          cp blog.html dist/
-          cp kurzus.html dist/
-          cp authors.html dist/
-          cp english.php.txt dist/
-          cp .htaccess dist/
-          cp -r blog dist/
+          mkdir -p dist
+          find . -maxdepth 1 -name '*.html' -exec cp {} dist/ \;
+          cp -r blog dist/ || echo "blog mappa nem található"
+          cp english.php.txt dist/ || echo "english.php.txt nem található"
+          cp .htaccess dist/ || echo ".htaccess nem található"
 
       - name: Upload via FTP
         uses: SamKirkland/FTP-Deploy-Action@v4.3.5
