@@ -288,23 +288,23 @@ export function StaticPageViewer() {
     );
     
     // Fix missing assets by replacing with available ones from storage
-    processedHtml = processedHtml.replace(/hirleveles_logo_adsba másolat\.png/g, 'feher_hirleveles_logo__350.png');
-    processedHtml = processedHtml.replace(/hirleveles_logo_adsba%20másolat\.png/g, 'feher_hirleveles_logo__350.png');
-    processedHtml = processedHtml.replace(/hirleveles_logo_adsba%20m%C3%A1solat\.png/g, 'feher_hirleveles_logo__350.png');
+    //processedHtml = processedHtml.replace(/hirleveles_logo_adsba másolat\.png/g, 'feher_hirleveles_logo__350.png');
+    //processedHtml = processedHtml.replace(/hirleveles_logo_adsba%20másolat\.png/g, 'feher_hirleveles_logo__350.png');
+    //processedHtml = processedHtml.replace(/hirleveles_logo_adsba%20m%C3%A1solat\.png/g, 'feher_hirleveles_logo__350.png');
     
     // Fix missing team images with available ones (remove accents from filenames)
-    processedHtml = processedHtml.replace(/N%C3%A9vtelen%20terv%20\(10\)\.png/g, 'avatar2.jpg');
-    processedHtml = processedHtml.replace(/N%C3%A9vtelen%20terv%20\(8\)\.webp/g, 'avatar4.jpg');
-    processedHtml = processedHtml.replace(/Névtelen terv \(10\)\.png/g, 'avatar2.jpg');
-    processedHtml = processedHtml.replace(/Névtelen terv \(8\)\.webp/g, 'avatar4.jpg');
+    //processedHtml = processedHtml.replace(/N%C3%A9vtelen%20terv%20\(10\)\.png/g, 'avatar2.jpg');
+    //processedHtml = processedHtml.replace(/N%C3%A9vtelen%20terv%20\(8\)\.webp/g, 'avatar4.jpg');
+    //processedHtml = processedHtml.replace(/Névtelen terv \(10\)\.png/g, 'avatar2.jpg');
+    //processedHtml = processedHtml.replace(/Névtelen terv \(8\)\.webp/g, 'avatar4.jpg');
     
     // Fix specific missing team member images
-    processedHtml = processedHtml.replace(/bia\.jpg/g, 'avatar1.jpg');
-    processedHtml = processedHtml.replace(/tibi\.jpg/g, 'avatar3.jpg');
-    processedHtml = processedHtml.replace(/tamas\.jpg/g, 'avatar5.jpg');
-    processedHtml = processedHtml.replace(/tama%CC%81s\.jpg/g, 'avatar5.jpg');
-    processedHtml = processedHtml.replace(/bianka\.webp/g, 'avatar1.jpg');
-    processedHtml = processedHtml.replace(/tibi\.webp/g, 'avatar3.jpg');
+    //processedHtml = processedHtml.replace(/bia\.jpg/g, 'avatar1.jpg');
+    //processedHtml = processedHtml.replace(/tibi\.jpg/g, 'avatar3.jpg');
+    //processedHtml = processedHtml.replace(/tamas\.jpg/g, 'avatar5.jpg');
+    //processedHtml = processedHtml.replace(/tama%CC%81s\.jpg/g, 'avatar5.jpg');
+    //processedHtml = processedHtml.replace(/bianka\.webp/g, 'avatar1.jpg');
+    //processedHtml = processedHtml.replace(/tibi\.webp/g, 'avatar3.jpg');
     
     // Clear browser cache for assets by adding timestamp to CSS/JS files
     processedHtml = processedHtml.replace(/href="(\/assets\/[^"]+\.css)"/g, `href="$1?v=${Date.now()}"`);
