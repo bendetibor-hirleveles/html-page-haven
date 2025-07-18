@@ -24,6 +24,20 @@ jobs:
       - name: Build project
         run: npm run build
 
+      - name: Copy extra static HTML files to dist
+        run: |
+          cp aszf.html dist/
+          cp contact.html dist/
+          cp pricing.html dist/
+          cp privacy.html dist/
+          cp adatbekero.html dist/
+          cp blog.html dist/
+          cp kurzus.html dist/
+          cp authors.html dist/
+          cp english.php.txt dist/
+          cp .htaccess dist/
+          cp -r blog dist/
+
       - name: Upload via FTP
         uses: SamKirkland/FTP-Deploy-Action@v4.3.5
         with:
@@ -32,4 +46,5 @@ jobs:
           password: ${{ secrets.FTP_PASSWORD }}
           server-dir: /public_html/
           local-dir: dist/
-          log-level: standard
+          passive: true
+          dangerous-clean-slate: false
