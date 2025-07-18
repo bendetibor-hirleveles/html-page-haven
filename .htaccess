@@ -7,17 +7,17 @@ Header always set X-Content-Type-Options nosniff
 Header always set X-XSS-Protection "1; mode=block"
 Header always set Referrer-Policy "strict-origin-when-cross-origin"
 
-# ✅ Csak az admin és auth aloldalakra alkalmazzuk az SPA logikát
+# 🚧 Ne robbanjon le, ha az admin vagy auth fájl hiányzik
 RewriteEngine On
 
 # ADMIN
 RewriteCond %{REQUEST_URI} ^/admin
-RewriteCond %{REQUEST_FILENAME} !-f
-RewriteCond %{REQUEST_FILENAME} !-d
+RewriteCond %{DOCUMENT_ROOT}/admin%{REQUEST_URI} !-f
+RewriteCond %{DOCUMENT_ROOT}/admin%{REQUEST_URI} !-d
 RewriteRule ^admin(/.*)?$ /admin/index.html [L]
 
 # AUTH
 RewriteCond %{REQUEST_URI} ^/auth
-RewriteCond %{REQUEST_FILENAME} !-f
-RewriteCond %{REQUEST_FILENAME} !-d
+RewriteCond %{DOCUMENT_ROOT}/auth%{REQUEST_URI} !-f
+RewriteCond %{DOCUMENT_ROOT}/auth%{REQUEST_URI} !-d
 RewriteRule ^auth(/.*)?$ /auth/index.html [L]
