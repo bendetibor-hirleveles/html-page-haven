@@ -1,0 +1,78 @@
+name: Build and Deploy to FTP
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+
+      - name: Install root dependencies
+        run: npm install
+
+      - name: Build main project
+        run: npm run build
+
+      - name: Copy extra static HTML files to dist
+        run: |
+          mkdir -p dist
+          find . -maxdepth 1 -name '*.html' -exec cp {} dist/ \;
+          cp -r blog dist/ || echo "blog mappa nem található"
+          cp english.php.txt dist/ || echo "english.php.txt nem található"
+          cp .htaccess dist/ || echo ".htaccess nem található"
+
+      - name: Build admin app
+        run: |
+          cd admin
+          npm install
+          npm run build
+
+      - name: Build auth app
+        run: |
+          cd auth
+          npm install
+          npm run build
+
+      - name: Upload main site via FTP
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          server: ${{ secrets.FTP_SERVER }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          server-dir: /public_html/
+          local-dir: dist/
+          passive: true
+          dangerous-clean-slate: false
+
+      - name: Upload admin app via FTP
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          server: ${{ secrets.FTP_SERVER }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          server-dir: /public_html/admin/
+          local-dir: admin/build/
+          passive: true
+          dangerous-clean-slate: false
+
+      - name: Upload auth app via FTP
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          server: ${{ secrets.FTP_SERVER }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          server-dir: /public_html/auth/
+          local-dir: auth/build/
+          passive: true
+          dangerous-clean-slate: false
