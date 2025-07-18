@@ -19,13 +19,13 @@ const App = () => (
       <Sonner />
       <BrowserRouter>
         <Routes>
+          {/* Home route - must be first to avoid conflict with /:slug */}
+          <Route path="/" element={<Index />} />
           {/* Explicit routes with highest priority */}
           <Route path="/auth" element={<Auth />} />
           <Route path="/admin" element={<AdminRoute />} />
           <Route path="/blog" element={<Blog />} />
-          {/* Home route */}
-          <Route path="/" element={<Index />} />
-          {/* Dynamic routes - use StaticPageViewer for slugs */}
+          {/* Dynamic routes - use StaticPageViewer for slugs - MUST BE LAST */}
           <Route path="/:slug" element={<StaticPageViewer />} />
           {/* Catch-all route for 404s */}
           <Route path="*" element={<NotFound />} />
