@@ -24,6 +24,14 @@ jobs:
       - name: Build project
         run: npm run build
 
+      - name: Copy extra static files to dist
+        run: |
+          mkdir -p dist
+          find . -maxdepth 1 -name '*.html' -exec cp {} dist/ \;
+          [ -d blog ] && cp -r blog dist/ || echo "blog mappa nem található"
+          [ -f english.php.txt ] && cp english.php.txt dist/ || echo "english.php.txt nem található"
+          [ -f .htaccess ] && cp .htaccess dist/ || echo ".htaccess nem található"
+
       - name: Upload via FTP
         uses: SamKirkland/FTP-Deploy-Action@v4.3.5
         with:
@@ -32,4 +40,5 @@ jobs:
           password: ${{ secrets.FTP_PASSWORD }}
           server-dir: /public_html/
           local-dir: dist/
-          log-level: standard
+          passive: true
+          dangerous-clean-slate: false
