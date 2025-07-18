@@ -14,10 +14,10 @@ RewriteEngine On
 RewriteCond %{REQUEST_URI} ^/admin
 RewriteCond %{DOCUMENT_ROOT}/admin%{REQUEST_URI} !-f
 RewriteCond %{DOCUMENT_ROOT}/admin%{REQUEST_URI} !-d
-RewriteRule ^admin(/.*)?$ /admin/index.html [L]
+RewriteRule ^admin(/.*)?$ /admin [L]
 
 # AUTH
 RewriteCond %{REQUEST_URI} ^/auth
 RewriteCond %{DOCUMENT_ROOT}/auth%{REQUEST_URI} !-f
 RewriteCond %{DOCUMENT_ROOT}/auth%{REQUEST_URI} !-d
-RewriteRule ^auth(/.*)?$ /auth/index.html [L]
+RewriteRule ^auth(/.*)?$ /auth [L]
