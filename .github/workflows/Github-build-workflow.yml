@@ -64,6 +64,6 @@ jobs:
           local-dir: dist/
           passive: true
           dangerous-clean-slate: false
-          exclude: |
-            **/.git*
-            **/.DS_Store
+          exclude:
+            - '**/.git*'
+            - '**/.DS_Store'
