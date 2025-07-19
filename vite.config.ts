@@ -9,6 +9,10 @@ export default defineConfig(({ mode }) => ({
     host: "::",
     port: 8080,
   },
+  build: {
+    outDir: "dist", // 👈 ezt add hozzá!
+    emptyOutDir: true, // (nem kötelező, de tisztán tartja a buildet)
+  },
   plugins: [
     react(),
     mode === 'development' &&
