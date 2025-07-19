@@ -1,0 +1,50 @@
+name: Build Admin + Deploy All
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+
+      - name: Install admin dependencies
+        working-directory: ./admin
+        run: npm ci
+
+      - name: Build admin
+        working-directory: ./admin
+        run: npm run build
+
+      - name: Copy built admin to root
+        run: |
+          mkdir -p built_upload/admin
+          cp -r admin/build/* built_upload/admin/
+
+      - name: Copy public folders
+        run: |
+          mkdir -p built_upload
+          cp -r index.html built_upload/
+          cp -r assets built_upload/assets
+          cp -r blog built_upload/blog
+          cp -r public built_upload/public
+          cp -r supabase built_upload/supabase
+
+      - name: Deploy all via FTP (passive mode)
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          server: ${{ secrets.FTP_HOST }}
+          username: ${{ secrets.FTP_USER }}
+          password: ${{ secrets.FTP_PASS }}
+          local-dir: built_upload
+          server-dir: /public_html/
