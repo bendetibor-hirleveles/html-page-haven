@@ -33,7 +33,18 @@ jobs:
           cp -r assets deploy_upload/assets
           cp -r blog deploy_upload/blog
           cp -r supabase deploy_upload/supabase
-          cp ./*.html deploy_upload/ || true
+          cp index.html deploy_upload/ || true
+          cp contact.html deploy_upload/ || true
+          cp adatbekero.html deploy_upload/ || true
+          cp aszf.html deploy_upload/ || true
+          cp author.html deploy_upload/ || true
+          cp automat.html deploy_upload/ || true
+          cp blog.html deploy_upload/ || true
+          cp konzultacio.html deploy_upload/ || true
+          cp kurzus.html deploy_upload/ || true
+          cp priving.html deploy_upload/ || true
+          cp privacy.html deploy_upload/ || true
+
 
 
       - name: Deploy via FTP (passive mode)
