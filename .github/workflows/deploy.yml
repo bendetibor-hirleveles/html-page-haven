@@ -68,4 +68,5 @@ jobs:
           password: ${{ secrets.FTP_PASSWORD }}
           local-dir: deploy_upload/
           server-dir: /public_html/
+          dangerous-clean-slate: true
 
