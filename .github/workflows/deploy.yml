@@ -27,11 +27,14 @@ jobs:
       - name: Prepare upload folder
         run: |
           mkdir deploy_upload
-          cp -r dist/* deploy_upload/
-          cp -r assets deploy_upload/assets/
-          cp -r blog deploy_upload/blog/
-          cp -r supabase deploy_upload/supabase/
-          cp ./*.html deploy_upload/
+          cp -r build/* deploy_upload/
+          cp -r assets deploy_upload/assets
+          cp -r blog deploy_upload/blog
+          cp -r supabase deploy_upload/supabase
+          cp -r public deploy_upload/public
+          cp -r src deploy_upload/src
+          cp ./*.html deploy_upload/ || true
+
 
       - name: Deploy via FTP (passive mode)
         uses: SamKirkland/FTP-Deploy-Action@v4.3.5
