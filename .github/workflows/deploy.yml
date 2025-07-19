@@ -21,44 +21,38 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Build the app
+      - name: Build the app (React + Vite)
         run: npm run build
 
-      - name: Masolas blog mappa
+      - name: Prepare upload folder (clean and copy)
         run: |
-          mkdir -p deploy_upload/blog
-          cp -rv blog/* deploy_upload/blog/ || echo "No blog files to copy"
-          echo ">>> Blog tartalom a deploy_upload/blog mappában:"
-          ls -l deploy_upload/blog || echo "nincs fájl"
-
-      - name: Másolás gyökér .html fájlok
-        run: |
-          find . -maxdepth 1 -name "*.html" -exec cp -v {} deploy_upload/ \;
-          echo ">>> deploy_upload tartalma:"
-          ls -l deploy_upload
-    
-
-
-      - name: Prepare upload folder
-        run: |
+          rm -rf deploy_upload
           mkdir -p deploy_upload
-          cp -r dist/* deploy_upload/
 
+          # Másoljuk a buildelt dist fájlokat
+          cp -rv dist/* deploy_upload/
+
+          # Másoljuk az asseteket
           mkdir -p deploy_upload/assets
-          cp -rv assets/* deploy_upload/assets/ || echo "No assets to copy"
+          cp -rv assets/* deploy_upload/assets/ || echo "No assets"
 
+          # Blog fájlok
+          mkdir -p deploy_upload/blog
+          cp -rv blog/* deploy_upload/blog/ || echo "No blog files"
+
+          # Supabase (ha kell runtime-hoz)
           mkdir -p deploy_upload/supabase
-          cp -rv supabase/* deploy_upload/supabase/ || echo "No supabase files to copy"
+          cp -rv supabase/* deploy_upload/supabase/ || echo "No supabase files"
 
+          # Public tartalom (ha van)
           mkdir -p deploy_upload/public
-          cp -rv public/* deploy_upload/public/ || echo "No public files to copy"
+          cp -rv public/* deploy_upload/public/ || echo "No public files"
 
-          mkdir -p deploy_upload/src
-          cp -rv src/* deploy_upload/src/ || echo "No src files to copy"
+          # Gyökér .html fájlok (statikus oldalak)
+          find . -maxdepth 1 -name "*.html" -exec cp -v {} deploy_upload/ \;
 
-
-      - name: Debug – list HTML files in root
-        run: ls -l *.html || echo "No HTML files found"
+          # .htaccess is kell a SPA működéshez
+          cp -v .htaccess deploy_upload/.htaccess || echo ".htaccess missing"
 
       - name: Deploy via FTP (passive mode)
         uses: SamKirkland/FTP-Deploy-Action@v4.3.5
@@ -66,10 +60,9 @@ jobs:
           server: ${{ secrets.FTP_SERVER }}
           username: ${{ secrets.FTP_USERNAME }}
           password: ${{ secrets.FTP_PASSWORD }}
-          local-dir: dist/
+          local-dir: deploy_upload/
           server-dir: /public_html/
           dry-run: false
           dangerous-clean-slate: false
           delete: false
           include-dotfiles: true
-
