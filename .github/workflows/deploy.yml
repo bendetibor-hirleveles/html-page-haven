@@ -68,8 +68,8 @@ jobs:
           password: ${{ secrets.FTP_PASSWORD }}
           local-dir: deploy_upload/
           server-dir: /public_html/
-          exclude: .git*
           dry-run: false
           dangerous-clean-slate: false
           delete: false
+          include-dotfiles: true
 
