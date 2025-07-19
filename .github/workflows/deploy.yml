@@ -28,9 +28,9 @@ jobs:
         run: |
           mkdir deploy_upload
           cp -r dist/* deploy_upload/
-          cp -r assets deploy_upload/assets
-          cp -r blog deploy_upload/blog
-          cp -r supabase deploy_upload/supabase
+          cp -r assets deploy_upload/assets/
+          cp -r blog deploy_upload/blog/
+          cp -r supabase deploy_upload/supabase/
           cp ./*.html deploy_upload/
 
       - name: Deploy via FTP (passive mode)
@@ -39,6 +39,6 @@ jobs:
           server: ${{ secrets.FTP_SERVER }}
           username: ${{ secrets.FTP_USERNAME }}
           password: ${{ secrets.FTP_PASSWORD }}
-          local-dir: deploy_upload
+          local-dir: deploy_upload/
           server-dir: /public_html/
 
