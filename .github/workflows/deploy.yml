@@ -28,11 +28,11 @@ jobs:
         run: |
           mkdir deploy_upload
           cp -r dist/* deploy_upload/
+          cp -r src deploy_upload/src
+          cp -r public deploy_upload/public
           cp -r assets deploy_upload/assets
           cp -r blog deploy_upload/blog
           cp -r supabase deploy_upload/supabase
-          cp -r public deploy_upload/public
-          cp -r src deploy_upload/src
           cp ./*.html deploy_upload/ || true
 
 
