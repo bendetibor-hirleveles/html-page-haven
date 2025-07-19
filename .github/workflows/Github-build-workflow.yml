@@ -62,7 +62,6 @@ jobs:
           password: ${{ secrets.FTP_PASSWORD }}
           server-dir: /public_html/
           local-dir: dist/
-          passive: true
           dangerous-clean-slate: false
           exclude:
             - '**/.git*'
