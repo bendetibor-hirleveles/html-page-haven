@@ -49,10 +49,7 @@ jobs:
             fi
           done
 
-      - name: Ellenőrzés: mi van a dist mappában?
-        run: ls -R dist/
-
-      - name: Upload main site via FTP
+     - name: Upload main site via FTP
         uses: SamKirkland/FTP-Deploy-Action@v4.3.5
         with:
           server: ${{ secrets.FTP_SERVER }}
@@ -62,6 +59,6 @@ jobs:
           local-dir: dist/
           passive: true
           dangerous-clean-slate: false
-          exclude: |
-            **/.git*
-            **/.DS_Store
+          exclude:
+            - '**/.git*'
+            - '**/.DS_Store'
