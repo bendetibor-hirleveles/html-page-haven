@@ -45,7 +45,8 @@ jobs:
           cp priving.html deploy_upload/ || true
           cp privacy.html deploy_upload/ || true
 
-
+      - name: Debug – list HTML files in root
+        run: ls -l *.html || echo "No HTML files found"
 
       - name: Deploy via FTP (passive mode)
         uses: SamKirkland/FTP-Deploy-Action@v4.3.5
