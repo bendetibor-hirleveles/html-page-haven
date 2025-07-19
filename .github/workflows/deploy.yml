@@ -36,7 +36,7 @@ jobs:
       - name: Deploy via FTP (passive mode)
         uses: SamKirkland/FTP-Deploy-Action@v4.3.5
         with:
-          server: ${{ secrets.FTP_HOST }}
+          server: ${{ secrets.SERVER_NAME }}
           username: ${{ secrets.FTP_USER }}
           password: ${{ secrets.FTP_PASS }}
           local-dir: deploy_upload
