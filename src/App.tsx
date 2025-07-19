@@ -7,6 +7,7 @@ import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import Blog from "./pages/Blog";
 import NotFound from "./pages/NotFound";
+import AdminPage from "@/pages/AdminPage"; // ha még nem tetted
 import { StaticPageViewer } from "./components/StaticPageViewer";
 import { AdminRoute } from "./components/AdminRoute";
 
@@ -23,7 +24,7 @@ const App = () => (
           <Route path="/" element={<Index />} />
           {/* Explicit routes with highest priority */}
           <Route path="/auth" element={<Auth />} />
-          <Route path="/admin" element={<AdminRoute />} />
+          <Route path="/admin" element={<AdminRoute><AdminPage /></AdminRoute>} />
           <Route path="/blog" element={<Blog />} />
           {/* Dynamic routes - use StaticPageViewer for slugs - MUST BE LAST */}
           <Route path="/:slug" element={<StaticPageViewer />} />
