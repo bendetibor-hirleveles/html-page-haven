@@ -24,14 +24,14 @@ jobs:
       - name: Build the app
         run: npm run build
 
-      - name: Másolás: blog mappa fájlai
+      - name: Masolas blog mappa
         run: |
           mkdir -p deploy_upload/blog
           cp -rv blog/* deploy_upload/blog/ || echo "No blog files to copy"
           echo ">>> Blog tartalom a deploy_upload/blog mappában:"
           ls -l deploy_upload/blog || echo "nincs fájl"
 
-      - name: Másolás: gyökér .html fájlok
+      - name: Másolás gyökér .html fájlok
         run: |
           find . -maxdepth 1 -name "*.html" -exec cp -v {} deploy_upload/ \;
           echo ">>> deploy_upload tartalma:"
