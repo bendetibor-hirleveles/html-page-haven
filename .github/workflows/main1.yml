@@ -1,0 +1,67 @@
+name: Build and Deploy to FTP
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+
+      - name: Install root dependencies
+        run: npm install
+
+      - name: Build main project
+        run: npm run build
+
+      - name: Add extra static files to dist
+        run: |
+          mkdir -p dist
+          echo "✔ Másolás a dist mappába..."
+          find . -maxdepth 1 -name '*.html' -exec cp -v {} dist/ \;
+
+          for dir in blog assets images bootstrap public src supabase; do
+            if [ -d "$dir" ]; then
+              echo "📁 Másolás: $dir → dist/$dir"
+              mkdir -p "dist/$dir"
+              cp -a "$dir/." "dist/$dir/"
+            else
+              echo "⚠️ Mappa nem található: $dir"
+            fi
+          done
+
+          for file in english.php.txt .htaccess favicon.ico robots.txt placeholder.svg; do
+            if [ -f "$file" ]; then
+              echo "📄 Másolás: $file → dist/"
+              cp -v "$file" dist/
+            else
+              echo "⚠️ Fájl nem található: $file"
+            fi
+          done
+
+      - name: Ellenőrzés: mi van a dist mappában?
+        run: ls -R dist/
+
+      - name: Upload main site via FTP
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          server: ${{ secrets.FTP_SERVER }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          server-dir: /public_html/
+          local-dir: dist/
+          passive: true
+          dangerous-clean-slate: false
+          exclude: |
+            **/.git*
+            **/.DS_Store
