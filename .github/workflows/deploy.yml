@@ -26,24 +26,27 @@ jobs:
 
       - name: Prepare upload folder
         run: |
-          mkdir deploy_upload
+          mkdir -p deploy_upload
           cp -r dist/* deploy_upload/
-          cp -r src deploy_upload/src
-          cp -r public deploy_upload/public
-          cp -r assets deploy_upload/assets
-          cp -r blog deploy_upload/blog
-          cp -r supabase deploy_upload/supabase
-          cp index.html deploy_upload/ || true
-          cp contact.html deploy_upload/ || true
-          cp adatbekero.html deploy_upload/ || true
-          cp aszf.html deploy_upload/ || true
-          cp author.html deploy_upload/ || true
-          cp automat.html deploy_upload/ || true
-          cp blog.html deploy_upload/ || true
-          cp konzultacio.html deploy_upload/ || true
-          cp kurzus.html deploy_upload/ || true
-          cp priving.html deploy_upload/ || true
-          cp privacy.html deploy_upload/ || true
+
+          mkdir -p deploy_upload/assets
+          cp -rv assets/* deploy_upload/assets/ || echo "No assets to copy"
+
+          mkdir -p deploy_upload/blog
+          cp -rv blog/* deploy_upload/blog/ || echo "No blog files to copy"
+
+          mkdir -p deploy_upload/supabase
+          cp -rv supabase/* deploy_upload/supabase/ || echo "No supabase files to copy"
+
+          mkdir -p deploy_upload/public
+          cp -rv public/* deploy_upload/public/ || echo "No public files to copy"
+
+          mkdir -p deploy_upload/src
+          cp -rv src/* deploy_upload/src/ || echo "No src files to copy"
+
+          # HTML fájlok másolása megbízható módon
+          find . -maxdepth 1 -name "*.html" -exec cp -v {} deploy_upload/ \;
+
 
       - name: Debug – list HTML files in root
         run: ls -l *.html || echo "No HTML files found"
