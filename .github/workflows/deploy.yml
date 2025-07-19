@@ -27,7 +27,7 @@ jobs:
       - name: Prepare upload folder
         run: |
           mkdir deploy_upload
-          cp -r build/* deploy_upload/
+          cp -r dist/* deploy_upload/
           cp -r assets deploy_upload/assets
           cp -r blog deploy_upload/blog
           cp -r supabase deploy_upload/supabase
