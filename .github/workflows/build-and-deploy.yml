@@ -36,7 +36,9 @@ jobs:
           find . -maxdepth 1 -name "*.html" -exec cp -v {} deploy_upload/ \;
 
           # Teljes mappák
-          cp -rv assets deploy_upload/assets || echo "⚠️ assets nem található"
+          mkdir -p deploy_upload/assets
+          cp -rv assets/* deploy_upload/assets/ || echo "⚠️ assets mappa nem létezik vagy üres"
+
           cp -rv blog deploy_upload/blog || echo "⚠️ blog nem található vagy üres"
           cp -rv supabase deploy_upload/supabase || echo "⚠️ supabase nem található vagy üres"
           cp -rv public deploy_upload/public || echo "⚠️ public nem található vagy üres"
