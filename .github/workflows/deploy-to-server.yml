@@ -18,27 +18,20 @@ jobs:
         with:
           node-version: 18
 
-      - name: Install dependencies
+      - name: Install root dependencies
         run: npm install
 
-      - name: Build project
+      - name: Build main project
         run: npm run build
 
-      - name: Copy extra static HTML files to dist
+      - name: Add extra static files to dist
         run: |
           mkdir -p dist
-          find . -maxdepth 1 -name '*.html' -exec cp {} dist/ \;
-          cp -r blog dist/ || echo "blog mappa nem található"
-          cp english.php.txt dist/ || echo "english.php.txt nem található"
-          cp .htaccess dist/ || echo ".htaccess nem található"
-
-      - name: Upload via FTP
-        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
-        with:
-          server: ${{ secrets.FTP_SERVER }}
-          username: ${{ secrets.FTP_USERNAME }}
-          password: ${{ secrets.FTP_PASSWORD }}
-          server-dir: /public_html/
-          local-dir: dist/
-          passive: true
-          dangerous-clean-slate: false
+          echo "✔ Másolás a dist mappába..."
+          find . -maxdepth 1 -name '*.html' -exec cp -v {} dist/ \;
+          [ -d blog ] && mkdir -p dist/blog && cp -a blog/. dist/blog/ || echo "⚠️ blog mappa nem található"
+          [ -d assets ] && mkdir -p dist/assets && cp -a assets/. dist/assets/ || echo "⚠️ assets mappa nem található"
+          [ -d images ] && mkdir -p dist/images && cp -a images/. dist/images/ || echo "⚠️ images mappa nem található"
+          [ -d bootstrap ] && mkdir -p dist/bootstrap && cp -a bootstrap/. dist/bootstrap/ || echo "⚠️ bootstrap mappa nem található"
+          mkdir -p dist/public && cp -a public/. dist/public/ || echo "⚠️ public mappa nem másolható"
+          mkdir -p dist/src && cp -a sr
