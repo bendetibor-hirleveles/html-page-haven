@@ -21,3 +21,8 @@ RewriteCond %{REQUEST_URI} ^/auth
 RewriteCond %{DOCUMENT_ROOT}/auth%{REQUEST_URI} !-f
 RewriteCond %{DOCUMENT_ROOT}/auth%{REQUEST_URI} !-d
 RewriteRule ^auth(/.*)?$ /auth [L]
+
+# ➕ React Router SPA fallback
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^ index.html [L]
