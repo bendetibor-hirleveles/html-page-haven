@@ -24,6 +24,21 @@ jobs:
       - name: Build the app
         run: npm run build
 
+      - name: Másolás: blog mappa fájlai
+        run: |
+          mkdir -p deploy_upload/blog
+          cp -rv blog/* deploy_upload/blog/ || echo "No blog files to copy"
+          echo ">>> Blog tartalom a deploy_upload/blog mappában:"
+          ls -l deploy_upload/blog || echo "nincs fájl"
+
+      - name: Másolás: gyökér .html fájlok
+        run: |
+          find . -maxdepth 1 -name "*.html" -exec cp -v {} deploy_upload/ \;
+          echo ">>> deploy_upload tartalma:"
+          ls -l deploy_upload
+    
+
+
       - name: Prepare upload folder
         run: |
           mkdir -p deploy_upload
@@ -31,9 +46,6 @@ jobs:
 
           mkdir -p deploy_upload/assets
           cp -rv assets/* deploy_upload/assets/ || echo "No assets to copy"
-
-          mkdir -p deploy_upload/blog
-          cp -rv blog/* deploy_upload/blog/ || echo "No blog files to copy"
 
           mkdir -p deploy_upload/supabase
           cp -rv supabase/* deploy_upload/supabase/ || echo "No supabase files to copy"
@@ -43,9 +55,6 @@ jobs:
 
           mkdir -p deploy_upload/src
           cp -rv src/* deploy_upload/src/ || echo "No src files to copy"
-
-          # HTML fájlok másolása megbízható módon
-          find . -maxdepth 1 -name "*.html" -exec cp -v {} deploy_upload/ \;
 
 
       - name: Debug – list HTML files in root
