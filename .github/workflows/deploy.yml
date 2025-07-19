@@ -1,4 +1,4 @@
-name: Build Admin + Deploy All
+name: Build and Deploy to FTP
 
 on:
   push:
@@ -18,33 +18,27 @@ jobs:
         with:
           node-version: '18'
 
-      - name: Install admin dependencies
-        working-directory: ./admin
+      - name: Install dependencies
         run: npm ci
 
-      - name: Build admin
-        working-directory: ./admin
+      - name: Build the app
         run: npm run build
 
-      - name: Copy built admin to root
+      - name: Prepare upload folder
         run: |
-          mkdir -p built_upload/admin
-          cp -r admin/build/* built_upload/admin/
+          mkdir deploy_upload
+          cp -r build/* deploy_upload/
+          cp -r assets deploy_upload/assets
+          cp -r blog deploy_upload/blog
+          cp -r supabase deploy_upload/supabase
+          cp ./*.html deploy_upload/
 
-      - name: Copy public folders
-        run: |
-          mkdir -p built_upload
-          cp -r index.html built_upload/
-          cp -r assets built_upload/assets
-          cp -r blog built_upload/blog
-          cp -r public built_upload/public
-          cp -r supabase built_upload/supabase
-
-      - name: Deploy all via FTP (passive mode)
+      - name: Deploy via FTP (passive mode)
         uses: SamKirkland/FTP-Deploy-Action@v4.3.5
         with:
           server: ${{ secrets.FTP_HOST }}
           username: ${{ secrets.FTP_USER }}
           password: ${{ secrets.FTP_PASS }}
-          local-dir: built_upload
+          local-dir: deploy_upload
           server-dir: /public_html/
+
