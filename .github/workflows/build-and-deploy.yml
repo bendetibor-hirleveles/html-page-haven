@@ -61,4 +61,5 @@ jobs:
           include-dotfiles: true
           dangerous-clean-slate: false
           delete: false
+          passive: true
 
