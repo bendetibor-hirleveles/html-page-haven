@@ -7,25 +7,11 @@ import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import Blog from "./pages/Blog";
 import NotFound from "./pages/NotFound";
-import AdminPage from "@/pages/AdminPage"; // ha még nem tetted
+import AdminPage from "@/pages/AdminPage";
 import { StaticPageViewer } from "./components/StaticPageViewer";
 import { AdminRoute } from "./components/AdminRoute";
-import { Header } from "@/components/Header"; // új komponens
+import { Header } from "@/components/Header";
 
-const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <BrowserRouter>
-        <Header /> {/* <<< IDE! */}
-        <Routes>
-          {/* útvonalak */}
-        </Routes>
-      </BrowserRouter>
-    </TooltipProvider>
-  </QueryClientProvider>
-);
 const queryClient = new QueryClient();
 
 const App = () => (
@@ -34,16 +20,13 @@ const App = () => (
       <Toaster />
       <Sonner />
       <BrowserRouter>
+        <Header />
         <Routes>
-          {/* Home route - must be first to avoid conflict with /:slug */}
           <Route path="/" element={<Index />} />
-          {/* Explicit routes with highest priority */}
           <Route path="/auth" element={<Auth />} />
           <Route path="/admin" element={<AdminRoute><AdminPage /></AdminRoute>} />
           <Route path="/blog" element={<Blog />} />
-          {/* Dynamic routes - use StaticPageViewer for slugs - MUST BE LAST */}
           <Route path="/:slug" element={<StaticPageViewer />} />
-          {/* Catch-all route for 404s */}
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
