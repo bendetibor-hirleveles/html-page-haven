@@ -10,7 +10,7 @@ import Blog from "./pages/Blog";
 import NotFound from "./pages/NotFound";
 import { StaticPageViewer } from "./components/StaticPageViewer";
 import { AdminRoute } from "./components/AdminRoute";
-// import { Header } from "@/components/ui/header"; // 🟡 Kikommentelve
+import { Header } from "@/components/ui/header";
 
 const queryClient = new QueryClient();
 
@@ -20,8 +20,8 @@ const App = () => (
       <Toaster />
       <Sonner />
       <BrowserRouter>
-        {/* <Header /> */} {/* 🟡 Menü ideiglenesen kikommentelve */}
-        <Routes>
+        <Header />
+          <Routes>
           <Route path="/" element={<Index />} />
           <Route path="/auth" element={<Auth />} />
           <Route path="/blog" element={<Blog />} />
