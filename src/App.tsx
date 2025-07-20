@@ -10,7 +10,7 @@ import Blog from "./pages/Blog";
 import NotFound from "./pages/NotFound";
 import { StaticPageViewer } from "./components/StaticPageViewer";
 import { AdminRoute } from "./components/AdminRoute";
-import { Header } from "@/components/ui/header";
+// import { Header } from "@/components/ui/header"; // 🟡 Kikommentelve
 
 const queryClient = new QueryClient();
 
@@ -20,7 +20,7 @@ const App = () => (
       <Toaster />
       <Sonner />
       <BrowserRouter>
-        <Header /> {/* ✅ EZ MOST JÓ HELYEN VAN */}
+        {/* <Header /> */} {/* 🟡 Menü ideiglenesen kikommentelve */}
         <Routes>
           <Route path="/" element={<Index />} />
           <Route path="/auth" element={<Auth />} />
