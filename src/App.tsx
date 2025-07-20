@@ -7,7 +7,8 @@ import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import Blog from "./pages/Blog";
 import NotFound from "./pages/NotFound";
-import AdminPage from "@/pages/AdminPage";
+import AdminPage from "@/components/admin/AdminPage"; // ✅ helyes útvonal
+
 import { StaticPageViewer } from "./components/StaticPageViewer";
 import { AdminRoute } from "./components/AdminRoute";
 import { Header } from "@/components/Header";
