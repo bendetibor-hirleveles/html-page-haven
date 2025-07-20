@@ -10,7 +10,22 @@ import NotFound from "./pages/NotFound";
 import AdminPage from "@/pages/AdminPage"; // ha még nem tetted
 import { StaticPageViewer } from "./components/StaticPageViewer";
 import { AdminRoute } from "./components/AdminRoute";
+import { Header } from "@/components/Header"; // új komponens
 
+const App = () => (
+  <QueryClientProvider client={queryClient}>
+    <TooltipProvider>
+      <Toaster />
+      <Sonner />
+      <BrowserRouter>
+        <Header /> {/* <<< IDE! */}
+        <Routes>
+          {/* útvonalak */}
+        </Routes>
+      </BrowserRouter>
+    </TooltipProvider>
+  </QueryClientProvider>
+);
 const queryClient = new QueryClient();
 
 const App = () => (
