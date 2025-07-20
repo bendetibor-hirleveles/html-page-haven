@@ -10,7 +10,7 @@ import Blog from "./pages/Blog";
 import NotFound from "./pages/NotFound";
 import { StaticPageViewer } from "./components/StaticPageViewer";
 import { AdminRoute } from "./components/AdminRoute";
-
+import { Header } from "@/components/ui/header";
 const queryClient = new QueryClient();
 
 const App = () => (
@@ -28,6 +28,18 @@ const App = () => (
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
+        <BrowserRouter>
+  <Header /> {/* <<< EZ HIÁNYZOTT */}
+  <Routes>
+    <Route path="/" element={<Index />} />
+    <Route path="/auth" element={<Auth />} />
+    <Route path="/blog" element={<Blog />} />
+    <Route path="/admin" element={<AdminRoute><Admin /></AdminRoute>} />
+    <Route path="/:slug" element={<StaticPageViewer />} />
+    <Route path="*" element={<NotFound />} />
+  </Routes>
+</BrowserRouter>
+
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>
