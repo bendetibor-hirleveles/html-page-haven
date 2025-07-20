@@ -1,60 +1,47 @@
-name: Build and Deploy to FTP
+name: Build and Deploy
 
 on:
   push:
-    branches:
-      - main
+    branches: [main]
+  workflow_dispatch:
 
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
+      - name: 🔽 Repo klónozása
+        uses: actions/checkout@v4
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v3
+      - name: 🟢 Node.js környezet beállítása
+        uses: actions/setup-node@v4
         with:
-          node-version: '18'
+          node-version: 18
 
-      - name: Install dependencies
-        run: npm ci
+      - name: 📦 Függőségek telepítése
+        run: npm install
 
-      - name: Build the app (React + Vite)
+      - name: 🛠 React app buildelése
         run: npm run build
 
-      - name: Prepare upload folder (clean and copy)
+      - name: 📁 Fájlok előkészítése feltöltéshez
         run: |
-          rm -rf deploy_upload
           mkdir -p deploy_upload
 
-          # Másoljuk a buildelt dist fájlokat
-          cp -rv dist/* deploy_upload/
+          # Build fájlok
+          cp -r dist/* deploy_upload/
 
-          # Másoljuk az asseteket
-          mkdir -p deploy_upload/assets
-          cp -rv assets/* deploy_upload/assets/ || echo "No assets"
-
-          # Blog fájlok
-          mkdir -p deploy_upload/blog
-          cp -rv blog/* deploy_upload/blog/ || echo "No blog files"
-
-          # Supabase (ha kell runtime-hoz)
-          mkdir -p deploy_upload/supabase
-          cp -rv supabase/* deploy_upload/supabase/ || echo "No supabase files"
-
-          # Public tartalom (ha van)
-          mkdir -p deploy_upload/public
-          cp -rv public/* deploy_upload/public/ || echo "No public files"
-
-          # Gyökér .html fájlok (statikus oldalak)
+          # Gyökér HTML fájlok
           find . -maxdepth 1 -name "*.html" -exec cp -v {} deploy_upload/ \;
 
-          # .htaccess is kell a SPA működéshez
-          cp -v .htaccess deploy_upload/.htaccess || echo ".htaccess missing"
+          # Statikus mappák
+          [ -d assets ] && cp -r assets deploy_upload/assets || echo "⚠️ Nincs assets mappa"
+          [ -d blog ] && cp -r blog deploy_upload/blog || echo "⚠️ Nincs blog mappa"
 
-      - name: Deploy via FTP (passive mode)
+          # .htaccess
+          [ -f .htaccess ] && cp .htaccess deploy_upload/ || echo "⚠️ Nincs .htaccess fájl"
+
+      - name: 🚀 Fájlok feltöltése FTP-n (passzív mód)
         uses: SamKirkland/FTP-Deploy-Action@v4.3.5
         with:
           server: ${{ secrets.FTP_SERVER }}
@@ -62,7 +49,9 @@ jobs:
           password: ${{ secrets.FTP_PASSWORD }}
           local-dir: deploy_upload/
           server-dir: /public_html/
-          dry-run: false
-          dangerous-clean-slate: false
           delete: false
           include-dotfiles: true
+          dry-run: false
+          protocol: ftp
+          passive: true
+          dangerous-clean-slate: false
