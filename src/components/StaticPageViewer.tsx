@@ -1,5 +1,5 @@
 import { useEffect, useState, useMemo, useCallback } from "react";
-import { useParams, Navigate } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent } from "@/components/ui/card";
 import { CookieConsent } from "@/components/CookieConsent";
@@ -88,14 +88,7 @@ export function StaticPageViewer() {
       'comtact': 'contact',
       'hirlevel-konzultacio': 'konzultacio',
       'konzultacio': 'konzultacio',
-      'hirleveleskozultacio': 'konzultacio',
-      'automat': 'automat',
-      'kurzus': 'kurzus',
-      'pricing': 'pricing',
-      'authors': 'authors',
-      'aszf': 'aszf',
-      'privacy': 'privacy',
-      'adatbekero': 'adatbekero'
+      'hirleveleskozultacio': 'konzultacio'
     };
 
     // Apply old->new mappings
@@ -112,17 +105,9 @@ export function StaticPageViewer() {
     return pageMapping;
   }, []);
 
-  // This component should only handle static pages and blog posts
-  // Explicit routes for /auth, /admin, /blog are handled before this component
-
-  console.log('StaticPageViewer: Processing slug:', slug);
-
   useEffect(() => {
     const fetchPage = async () => {
-      if (!slug) {
-        setLoading(false);
-        return;
-      }
+      if (!slug) return;
 
       try {
         // Try static_pages first
@@ -190,58 +175,9 @@ export function StaticPageViewer() {
   const processHtmlContent = useMemo(() => (htmlContent: string, pageMapping?: Map<string, string>) => {
     let processedHtml = htmlContent;
     
-    // Fix all href attributes that contain page names instead of paths
+    // Dynamic link resolution - combined regex for better performance
     if (pageMapping) {
-      // Process all href attributes
-      processedHtml = processedHtml.replace(
-        /href=["']([^"']+)["']/g,
-        (match, href) => {
-          // Skip external links, anchors, and already correct paths
-          if (href.startsWith('http') || href.startsWith('mailto:') || href.startsWith('tel:') || href.startsWith('#') || href.startsWith('/')) {
-            return match;
-          }
-          
-          // Clean and normalize the href value for mapping lookup
-          const cleanHref = href.trim().toLowerCase()
-            .replace(/\.html?$/, '') // Remove file extensions
-            .replace(/[áàâäã]/g, 'a')
-            .replace(/[éèêë]/g, 'e')
-            .replace(/[íìîï]/g, 'i')
-            .replace(/[óòôöõ]/g, 'o')
-            .replace(/[úùûü]/g, 'u')
-            .replace(/[ö]/g, 'o')
-            .replace(/[ü]/g, 'u')
-            .replace(/[ő]/g, 'o')
-            .replace(/[ű]/g, 'u');
-          
-          // Try to find the correct slug
-          const slug = pageMapping.get(cleanHref);
-          if (slug) {
-            console.log(`Fixed link: ${href} -> /${slug}`);
-            return `href="/${slug}"`;
-          }
-          
-          // If not found, return original but warn
-          console.warn(`Could not resolve link: ${href}`);
-          return match;
-        }
-      );
-      
-    // Handle buttons with data-bs-target attributes
-      processedHtml = processedHtml.replace(
-        /data-bs-target=["']\{\{([^}]+)\}\}["']/g,
-        (match, identifier) => {
-          const cleanId = identifier.trim().toLowerCase();
-          const slug = pageMapping.get(cleanId);
-          if (slug) {
-            console.log(`Fixed button target: ${identifier} -> /${slug}`);
-            return `onclick="window.location.href='/${slug}'"`;
-          }
-          return 'onclick="window.location.href=\'#\'"';
-        }
-      );
-      
-      // Also handle dynamic placeholders {{}} and data-page attributes
+      // Combined regex for both {{}} and data-page patterns
       processedHtml = processedHtml.replace(
         /(?:href=["']\{\{([^}]+)\}\}["']|data-page=["']([^"']+)["'])/g, 
         (match, placeholderContent, dataPageContent) => {
@@ -252,7 +188,15 @@ export function StaticPageViewer() {
             return `href="/${slug}"`;
           }
           console.warn(`Could not resolve dynamic link: ${identifier}`);
-          return 'href="#"';
+          // Special case for common typos
+          if (identifier === 'comtact') {
+            const correctSlug = pageMapping.get('contact');
+            if (correctSlug) {
+              console.log(`Fixed typo: comtact -> contact -> /${correctSlug}`);
+              return `href="/${correctSlug}"`;
+            }
+          }
+          return placeholderContent ? match : 'href="#"';
         }
       );
     }
@@ -265,46 +209,16 @@ export function StaticPageViewer() {
       }
     );
     
-    // Ensure gradients are properly handled - add bg-gradient classes if missing
-    processedHtml = processedHtml.replace(
-      /class="bg-gradient-body"/g,
-      'class="bg-gradient-body" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);"'
-    );
-    
-    processedHtml = processedHtml.replace(
-      /class="([^"]*?)bg-gradient-dark([^"]*?)"/g,
-      'class="$1bg-gradient-dark$2" style="background: linear-gradient(135deg, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0.9) 100%);"'
-    );
-    
-    // Fix homepage gradient background specifically
-    processedHtml = processedHtml.replace(
-      /<div([^>]*class="[^"]*hero[^"]*"[^>]*)>/g,
-      (match, attrs) => {
-        if (!attrs.includes('style=') && !attrs.includes('background:')) {
-          return match.replace('>', ' style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">');
-        }
-        return match;
-      }
-    );
-    
     // Fix missing assets by replacing with available ones from storage
-    //processedHtml = processedHtml.replace(/hirleveles_logo_adsba másolat\.png/g, 'feher_hirleveles_logo__350.png');
-    //processedHtml = processedHtml.replace(/hirleveles_logo_adsba%20másolat\.png/g, 'feher_hirleveles_logo__350.png');
-    //processedHtml = processedHtml.replace(/hirleveles_logo_adsba%20m%C3%A1solat\.png/g, 'feher_hirleveles_logo__350.png');
+    processedHtml = processedHtml.replace(/hirleveles_logo_adsba másolat\.png/g, 'feher_hirleveles_logo__350.png');
+    processedHtml = processedHtml.replace(/hirleveles_logo_adsba%20másolat\.png/g, 'feher_hirleveles_logo__350.png');
+    processedHtml = processedHtml.replace(/hirleveles_logo_adsba%20m%C3%A1solat\.png/g, 'feher_hirleveles_logo__350.png');
     
-    // Fix missing team images with available ones (remove accents from filenames)
-    //processedHtml = processedHtml.replace(/N%C3%A9vtelen%20terv%20\(10\)\.png/g, 'avatar2.jpg');
-    //processedHtml = processedHtml.replace(/N%C3%A9vtelen%20terv%20\(8\)\.webp/g, 'avatar4.jpg');
-    //processedHtml = processedHtml.replace(/Névtelen terv \(10\)\.png/g, 'avatar2.jpg');
-    //processedHtml = processedHtml.replace(/Névtelen terv \(8\)\.webp/g, 'avatar4.jpg');
-    
-    // Fix specific missing team member images
-    //processedHtml = processedHtml.replace(/bia\.jpg/g, 'avatar1.jpg');
-    //processedHtml = processedHtml.replace(/tibi\.jpg/g, 'avatar3.jpg');
-    //processedHtml = processedHtml.replace(/tamas\.jpg/g, 'avatar5.jpg');
-    //processedHtml = processedHtml.replace(/tama%CC%81s\.jpg/g, 'avatar5.jpg');
-    //processedHtml = processedHtml.replace(/bianka\.webp/g, 'avatar1.jpg');
-    //processedHtml = processedHtml.replace(/tibi\.webp/g, 'avatar3.jpg');
+    // Fix missing team images with available ones
+    processedHtml = processedHtml.replace(/N%C3%A9vtelen%20terv%20\(10\)\.png/g, 'avatar2.jpg');
+    processedHtml = processedHtml.replace(/N%C3%A9vtelen%20terv%20\(8\)\.webp/g, 'avatar4.jpg');
+    processedHtml = processedHtml.replace(/Névtelen terv \(10\)\.png/g, 'avatar2.jpg');
+    processedHtml = processedHtml.replace(/Névtelen terv \(8\)\.webp/g, 'avatar4.jpg');
     
     // Clear browser cache for assets by adding timestamp to CSS/JS files
     processedHtml = processedHtml.replace(/href="(\/assets\/[^"]+\.css)"/g, `href="$1?v=${Date.now()}"`);

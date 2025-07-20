@@ -203,7 +203,7 @@ export function ContentRefreshButton() {
     try {
       toast({
         title: "Link javítás kezdődik...",
-        description: "A {{contact}} és hasonló template változók javítása",
+        description: "Hibás linkek javítása folyamatban",
       });
 
       // Call the fix-links edge function
@@ -223,13 +223,8 @@ export function ContentRefreshButton() {
       
       toast({
         title: "Link javítás befejezve! ✅",
-        description: `${data.fixedStatic} statikus oldal és ${data.fixedBlog} blogposzt javítva. A {{contact}} linkek most működnek!`,
+        description: `${data.fixedStatic} statikus oldal és ${data.fixedBlog} blogposzt javítva`,
       });
-
-      // Auto-trigger content refresh after link fixing
-      setTimeout(() => {
-        refreshAllContent();
-      }, 2000);
 
     } catch (error: any) {
       console.error('Link fix error:', error);

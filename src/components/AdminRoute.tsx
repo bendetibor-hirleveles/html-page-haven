@@ -3,13 +3,12 @@ import { Navigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { User, Session } from "@supabase/supabase-js";
 import { Loader, Shield } from "lucide-react";
-import Admin from "../pages/Admin";
 
 interface AdminRouteProps {
-  children?: React.ReactNode;
+  children: React.ReactNode;
 }
 
-export function AdminRoute() {
+export function AdminRoute({ children }: AdminRouteProps) {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
@@ -109,5 +108,5 @@ export function AdminRoute() {
     );
   }
 
-  return <Admin />;
+  return <>{children}</>;
 }

@@ -1,57 +1,39 @@
-name: Build and Deploy
+name: Build and Deploy to FTP
 
 on:
   push:
-    branches: [main]
-  workflow_dispatch:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
 
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
-
+    
     steps:
-      - name: 🔽 Repo klónozása
-        uses: actions/checkout@v4
-
-      - name: 🟢 Node.js környezet beállítása
-        uses: actions/setup-node@v4
-        with:
-          node-version: 18
-
-      - name: 📦 Függőségek telepítése
-        run: npm install
-
-      - name: 🛠 React app buildelése
-        run: npm run build
-
-      - name: 📁 Fájlok előkészítése feltöltéshez
-        run: |
-          mkdir -p deploy_upload
-
-          # Build fájlok
-          cp -r dist/* deploy_upload/
-
-          # Gyökér HTML fájlok
-          find . -maxdepth 1 -name "*.html" -exec cp -v {} deploy_upload/ \;
-
-          # Statikus mappák
-          [ -d assets ] && cp -r assets deploy_upload/assets || echo "⚠️ Nincs assets mappa"
-          [ -d blog ] && cp -r blog deploy_upload/blog || echo "⚠️ Nincs blog mappa"
-
-          # .htaccess
-          [ -f .htaccess ] && cp .htaccess deploy_upload/ || echo "⚠️ Nincs .htaccess fájl"
-
-      - name: 🚀 Fájlok feltöltése FTP-n (passzív mód)
-        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
-        with:
-          server: ${{ secrets.FTP_SERVER }}
-          username: ${{ secrets.FTP_USERNAME }}
-          password: ${{ secrets.FTP_PASSWORD }}
-          local-dir: deploy_upload/
-          server-dir: /public_html/
-          delete: false
-          include-dotfiles: true
-          dry-run: false
-          protocol: ftp
-          passive: true
-          dangerous-clean-slate: false
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+        
+    - name: Install dependencies
+      run: npm ci
+      
+    - name: Build project
+      run: npm run build
+      
+    - name: Deploy to FTP
+      uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+      with:
+        server: ftp.tibby.hu
+        port: 21
+        username: ${{ secrets.FTP_USERNAME }}
+        password: ${{ secrets.FTP_PASSWORD }}
+        server-dir: ./public_html/
+        security: loose
+        passive: true
+        local-dir: ./dist/
