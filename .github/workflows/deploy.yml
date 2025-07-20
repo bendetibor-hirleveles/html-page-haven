@@ -33,7 +33,12 @@ jobs:
         port: 21
         username: ${{ secrets.FTP_USERNAME }}
         password: ${{ secrets.FTP_PASSWORD }}
-        server-dir: ./public_html/
+        server-dir: /public_html/
         security: loose
         passive: true
         local-dir: ./dist/
+        delete: false
+        include-dotfiles: true
+        dry-run: false
+        protocol: ftp
+        dangerous-clean-slate: false
