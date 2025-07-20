@@ -5,18 +5,14 @@ import { componentTagger } from "lovable-tagger";
 
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => ({
+  base: '/', // <- FONTOS: buildelt assetek relatív hivatkozásának alapja
   server: {
     host: "::",
     port: 8080,
   },
-  build: {
-    outDir: "dist", // 👈 ezt add hozzá!
-    emptyOutDir: true, // (nem kötelező, de tisztán tartja a buildet)
-  },
   plugins: [
     react(),
-    mode === 'development' &&
-    componentTagger(),
+    mode === 'development' && componentTagger(),
   ].filter(Boolean),
   resolve: {
     alias: {
