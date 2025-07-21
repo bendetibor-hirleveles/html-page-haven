@@ -11,6 +11,7 @@ import NotFound from "./pages/NotFound";
 import { StaticPageViewer } from "./components/StaticPageViewer";
 import { AdminRoute } from "./components/AdminRoute";
 import { Header } from "@/components/ui/header";
+import BlogList from "@/pages/BlogList"
 
 const queryClient = new QueryClient();
 
