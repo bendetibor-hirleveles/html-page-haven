@@ -25,7 +25,6 @@ const App = () => (
           <Routes>
           <Route path="/" element={<Index />} />
           <Route path="/auth" element={<Auth />} />
-          <Route path="/blog" element={<Blog />} />
           <Route path="/admin" element={<AdminRoute><Admin /></AdminRoute>} />
           <Route path="/:slug" element={<StaticPageViewer />} />
           <Route path="*" element={<NotFound />} />
