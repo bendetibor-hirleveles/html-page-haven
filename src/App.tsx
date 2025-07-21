@@ -28,6 +28,8 @@ const App = () => (
           <Route path="/admin" element={<AdminRoute><Admin /></AdminRoute>} />
           <Route path="/:slug" element={<StaticPageViewer />} />
           <Route path="*" element={<NotFound />} />
+          <Route path="/blog" element={<BlogList />} />
+          <Route path="/blog/:slug" element={<BlogPost />} />
         </Routes>
       </BrowserRouter>
     </TooltipProvider>
