@@ -20,17 +20,17 @@ const App = () => (
     <TooltipProvider>
       <Toaster />
       <Sonner />
-      <BrowserRouter>
+     <BrowserRouter>
         <Header />
-          <Routes>
+        <Routes>
           <Route path="/" element={<Index />} />
           <Route path="/auth" element={<Auth />} />
           <Route path="/admin" element={<AdminRoute><Admin /></AdminRoute>} />
-          <Route path="/:slug" element={<StaticPageViewer />} />
-          <Route path="*" element={<NotFound />} />
           <Route path="/blog" element={<BlogList />} />
           <Route path="/blog/:slug" element={<BlogPost />} />
-        </Routes>
+          <Route path="/:slug" element={<StaticPageViewer />} />
+          <Route path="*" element={<NotFound />} />
+      </Routes>
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>
