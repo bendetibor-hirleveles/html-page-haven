@@ -30,6 +30,7 @@ const App = () => (
           <Route path="/blog/:slug" element={<BlogPost />} />
           <Route path="/:slug" element={<StaticPageViewer />} />
           <Route path="*" element={<NotFound />} />
+          <Route path="/:slug" element={<StaticPageViewer />} />
       </Routes>
       </BrowserRouter>
     </TooltipProvider>
