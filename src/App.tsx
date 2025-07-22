@@ -21,17 +21,29 @@ const App = () => (
       <Toaster />
       <Sonner />
      <BrowserRouter>
-        <Header />
-        <Routes>
-          <Route path="/" element={<Index />} />
-          <Route path="/auth" element={<Auth />} />
-          <Route path="/admin" element={<AdminRoute><Admin /></AdminRoute>} />
-          <Route path="/blog" element={<BlogList />} />
-          <Route path="/blog/:slug" element={<BlogPost />} />
-          <Route path="/:slug" element={<StaticPageViewer />} />
-          <Route path="*" element={<NotFound />} />
-          <Route path="/:slug" element={<StaticPageViewer />} />
-      </Routes>
+      <Header />
+      <Routes>
+        <Route path="/" element={<Index />} />
+
+        {/* Autentikációs oldalak */}
+        <Route path="/auth" element={<Auth />} />
+        <Route path="/auth/*" element={<AuthRoute><Auth /></AuthRoute>} />
+
+        {/* Admin felület és aloldalai */}
+        <Route path="/admin" element={<AdminRoute><Admin /></AdminRoute>} />
+        <Route path="/admin/*" element={<AdminRoute><Admin /></AdminRoute>} />
+
+        {/* Blog */}
+        <Route path="/blog" element={<BlogList />} />
+        <Route path="/blog/:slug" element={<BlogPost />} />
+
+        {/* Statikus oldalak JSON-ből */}
+        <Route path="/:slug" element={<StaticPageViewer />} />
+
+        {/* 404 */}
+        <Route path="*" element={<NotFound />} />
+  </Routes>
+</BrowserRouter>
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>
