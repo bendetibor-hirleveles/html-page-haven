@@ -44,39 +44,3 @@ export function Header() {
     </header>
   );
 }
-
-// StaticPageViewer.tsx – statikus oldal betöltése JSON alapján
-
-import React, { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
-
-interface Page {
-  slug: string;
-  content: string;
-  title: string;
-}
-
-export function StaticPageViewer() {
-  const { slug } = useParams();
-  const [page, setPage] = useState<Page | null>(null);
-
-  useEffect(() => {
-    fetch("/pages.json")
-      .then((res) => res.json())
-      .then((data: Page[]) => {
-        const found = data.find((p) => p.slug === slug);
-        if (found) setPage(found);
-        else setPage(null);
-      })
-      .catch((err) => console.error("Nem sikerült betölteni az oldalt:", err));
-  }, [slug]);
-
-  if (!page) return <div className="container mx-auto p-6">Az oldal nem található.</div>;
-
-  return (
-    <div className="container mx-auto p-6">
-      <h1 className="text-3xl font-bold mb-4">{page.title}</h1>
-      <div dangerouslySetInnerHTML={{ __html: page.content }} />
-    </div>
-  );
-}
