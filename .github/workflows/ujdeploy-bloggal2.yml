@@ -11,57 +11,37 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: ⬇️ Checkout repository
+      - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: 🧰 Setup Node.js
+      - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '18'
           cache: 'npm'
 
-      - name: 📦 Install dependencies
+      - name: Install dependencies
         run: npm ci
 
-      - name: ➕ Install Supabase exporter deps
-        run: npm install tsx dotenv @supabase/supabase-js
-
-      - name: 🧠 Export pages.json from Supabase
-        run: npx tsx src/exportPages.ts
-
-      - name: 🛠 Build the project
+      - name: Build project
         run: npm run build
 
-      - name: 🚀 Deploy dist/ → public_html/
+      - name: Copy static folders to dist/
+        run: |
+          mkdir -p dist/blog
+          cp -r blog/* dist/blog || echo "No blog folder found"
+
+      - name: Deploy to FTP (includes /dist + /blog)
         uses: SamKirkland/FTP-Deploy-Action@v4.3.5
         with:
           server: ftp.tibby.hu
-          port: 21
           username: ${{ secrets.FTP_USERNAME }}
           password: ${{ secrets.FTP_PASSWORD }}
+          server-dir: /public_html/
           protocol: ftp
           security: loose
           passive: true
-          server-dir: /public_html/
           local-dir: ./dist/
           delete: false
           include-dotfiles: true
           dry-run: false
-          dangerous-clean-slate: false
-
-      - name: 🚀 Deploy blog/ → public_html/blog/
-        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
-        with:
-          server: ftp.tibby.hu
-          port: 21
-          username: ${{ secrets.FTP_USERNAME }}
-          password: ${{ secrets.FTP_PASSWORD }}
-          protocol: ftp
-          security: loose
-          passive: true
-          server-dir: /public_html/blog/
-          local-dir: ./blog/
-          delete: false
-          include-dotfiles: true
-          dry-run: false
-          dangerous-clean-slate: false
