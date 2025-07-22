@@ -28,7 +28,7 @@ export function StaticPageViewer() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const edgeFunctionUrl = "/serve-assets"; // Feltételezett URL
+// const edgeFunctionUrl = "/serve-assets"; // Feltételezett URL
   const assetsPath = "assets"; // Lokális mappa vagy struktúra
 
   const normalizeText = (text: string) =>
