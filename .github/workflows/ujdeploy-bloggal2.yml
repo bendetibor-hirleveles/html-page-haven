@@ -23,7 +23,7 @@ jobs:
       - name: 📦 Install dependencies
         run: npm ci
 
-      - name: ⚙️ Install build tools
+      - name: ⚙️ Install additional tools (tsx, dotenv, supabase-js)
         run: npm install tsx dotenv @supabase/supabase-js
 
       - name: 🧠 Export pages.json from Supabase
@@ -32,12 +32,8 @@ jobs:
       - name: 🛠 Build project
         run: npm run build
 
-      - name: 📁 Ellenőrzés: dist és blog mappák listázása
-        run: |
-          echo "🗂 Tartalom a dist/ könyvtárban:"
-          ls -laR dist
-          echo "🗂 Tartalom a blog/ könyvtárban:"
-          ls -laR blog
+      - name: 📁 Ellenőrzés: dist mappa tartalma
+        run: ls -laR dist
 
       - name: 🚀 Deploy dist/ → public_html/
         uses: SamKirkland/FTP-Deploy-Action@v4.3.5
@@ -52,26 +48,6 @@ jobs:
           security: loose
           passive: true
           include-dotfiles: true
-          delete: false
-          dangerous-clean-slate: true
           dry-run: false
-
-      - name: 🚀 Deploy blog/ → public_html/blog/
-        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
-        with:
-          server: ftp.tibby.hu
-          port: 21
-          username: ${{ secrets.FTP_USERNAME }}
-          password: ${{ secrets.FTP_PASSWORD }}
-          server-dir: /public_html/blog/
-          local-dir: blog/
-          protocol: ftp
-          security: loose
-          passive: true
-          include: |
-            **/*.html
-            **/*.md
-          include-dotfiles: true
-          delete: false
+          delete: false               # <-- Nem töröl semmit
           dangerous-clean-slate: false
-          dry-run: false
