@@ -28,8 +28,8 @@ export function StaticPageViewer() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-// const edgeFunctionUrl = "/serve-assets"; // Feltételezett URL
-  const assetsPath = "assets"; // Lokális mappa vagy struktúra
+  // const edgeFunctionUrl = "/serve-assets"; // kikommentelve, jelenleg nem használjuk
+  const assetsPath = "assets";
 
   const normalizeText = (text: string) =>
     text
@@ -56,7 +56,6 @@ export function StaticPageViewer() {
         mapping.set(normalizeText(p.title), p);
       });
 
-      // Kézi aliasok
       const alias: Record<string, string> = {
         contacts: "contact",
         comtact: "contact",
@@ -75,10 +74,9 @@ export function StaticPageViewer() {
 
       let html = found.html_content;
 
-      // Eszközök újracímkézése (korábban Supabase -> edgeFunction átirányítás)
-      html = html.replace(/href=["']\/assets\/([^"']*)["']/g, `href="${edgeFunctionUrl}/${assetsPath}/$1"`);
-      html = html.replace(/src=["']\/assets\/([^"']*)["']/g, `src="${edgeFunctionUrl}/${assetsPath}/$1"`);
-      html = html.replace(/url\(["']?\/assets\/([^"')]+)["']?\)/g, `url("${edgeFunctionUrl}/${assetsPath}/$1")`);
+      // Alap asset-útvonalak cseréje – NEM használ proxyt
+      html = html.replace(/(href|src)=["']\/assets\//g, `$1="/${assetsPath}/`);
+      html = html.replace(/url\(["']?\/assets\/([^"')]+)["']?\)/g, `url("/${assetsPath}/$1")`);
 
       setPage(found);
       setProcessedHtml(html);
@@ -129,6 +127,10 @@ export function StaticPageViewer() {
         dangerouslySetInnerHTML={{ __html: processedHtml }}
       />
       <CookieConsent />
+    </>
+  );
+}
+
     </>
   );
 }
