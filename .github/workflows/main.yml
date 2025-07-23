@@ -36,6 +36,11 @@ jobs:
           mkdir -p dist/assets/js
           cp public/assets/bootstrap/js/*.js dist/assets/js/
 
+      - name: Copy custom script to dist/assets/js
+        run: |
+          mkdir -p dist/assets/js
+          cp public/assets/js/script.min.js dist/assets/js/
+
       - name: Deploy to FTP (includes /dist + blog + js)
         uses: SamKirkland/FTP-Deploy-Action@v4.3.5
         with:
