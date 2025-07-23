@@ -1,6 +1,4 @@
-// StaticPageViewer.tsx – Supabase helyett pages.json alapú új változat, a régi logikához igazítva
-
-import { useEffect, useState, useMemo, useCallback } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useParams } from "react-router-dom";
 import { Card, CardContent } from "@/components/ui/card";
 import { CookieConsent } from "@/components/CookieConsent";
@@ -28,8 +26,7 @@ export function StaticPageViewer() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // const edgeFunctionUrl = "/serve-assets"; // kikommentelve, jelenleg nem használjuk
-  const assetsPath = "assets";
+  const assetsPath = "assets"; // Lokális mappa
 
   const normalizeText = (text: string) =>
     text
@@ -56,6 +53,7 @@ export function StaticPageViewer() {
         mapping.set(normalizeText(p.title), p);
       });
 
+      // Kézi aliasok
       const alias: Record<string, string> = {
         contacts: "contact",
         comtact: "contact",
@@ -74,8 +72,9 @@ export function StaticPageViewer() {
 
       let html = found.html_content;
 
-      // Alap asset-útvonalak cseréje – NEM használ proxyt
-      html = html.replace(/(href|src)=["']\/assets\//g, `$1="/${assetsPath}/`);
+      // Asset-útvonalak átírása
+      html = html.replace(/href=["']\/assets\/([^"']*)["']/g, `href="/${assetsPath}/$1"`);
+      html = html.replace(/src=["']\/assets\/([^"']*)["']/g, `src="/${assetsPath}/$1"`);
       html = html.replace(/url\(["']?\/assets\/([^"')]+)["']?\)/g, `url("/${assetsPath}/$1")`);
 
       setPage(found);
@@ -122,15 +121,8 @@ export function StaticPageViewer() {
 
   return (
     <>
-      <div
-        className="min-h-screen"
-        dangerouslySetInnerHTML={{ __html: processedHtml }}
-      />
+      <div className="min-h-screen" dangerouslySetInnerHTML={{ __html: processedHtml }} />
       <CookieConsent />
-    </>
-  );
-}
-
     </>
   );
 }
