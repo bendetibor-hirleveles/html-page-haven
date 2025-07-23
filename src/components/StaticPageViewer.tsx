@@ -76,6 +76,7 @@ export function StaticPageViewer() {
       html = html.replace(/href=["']\/assets\/([^"']*)["']/g, `href="/${assetsPath}/$1"`);
       html = html.replace(/src=["']\/assets\/([^"']*)["']/g, `src="/${assetsPath}/$1"`);
       html = html.replace(/url\(["']?\/assets\/([^"')]+)["']?\)/g, `url("/${assetsPath}/$1")`);
+      html = html.replace(/href="([^"]+)\.html"/g, 'href="/$1"');
 
       setPage(found);
       setProcessedHtml(html);
@@ -118,6 +119,7 @@ export function StaticPageViewer() {
       </div>
     );
   }
+
 
   return (
     <>
