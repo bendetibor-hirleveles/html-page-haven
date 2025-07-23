@@ -1,46 +1,41 @@
-// Header.tsx – Supabase helyett statikus pages.json alapján
-
-import React, { useEffect, useState } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 
 interface Page {
-  id: number;
+  id: string;
   title: string;
   slug: string;
-  show_in_top_menu: boolean;
+  show_in_header?: boolean;
 }
 
 export function Header() {
   const [pages, setPages] = useState<Page[]>([]);
-  const location = useLocation();
 
   useEffect(() => {
-    fetch("/pages.json")
-      .then((res) => res.json())
-      .then((data) => setPages(data.filter((p: Page) => p.show_in_top_menu)))
-      .catch((err) => console.error("Hiba a pages.json betöltésekor:", err));
+    const fetchPages = async () => {
+      try {
+        const res = await fetch("/pages.json");
+        const allPages: Page[] = await res.json();
+        const filtered = allPages.filter(p => p.show_in_header);
+        setPages(filtered);
+      } catch (err) {
+        console.error("Hiba a fejléc oldalak betöltésekor:", err);
+      }
+    };
+
+    fetchPages();
   }, []);
 
   return (
-    <header className="p-4 shadow-md bg-white sticky top-0 z-50">
-      <div className="container mx-auto flex justify-between items-center">
-        <Link to="/" className="text-xl font-bold">Tibby.hu</Link>
-        <nav className="flex space-x-4">
-          {pages.map((page) => (
-            <Link
-              key={page.id}
-              to={`/${page.slug}`}
-              className={`hover:underline ${location.pathname === `/${page.slug}` ? "font-semibold" : ""}`}
-            >
-              {page.title}
-            </Link>
-          ))}
-          <Link to="/blog">Blog</Link>
-          <Link to="/pricing">Árak</Link>
-          <Link to="/admin">Admin</Link>
-          <Link to="/auth">Bejelentkezés</Link>
-        </nav>
-      </div>
+    <header className="bg-white shadow p-4 flex justify-between">
+      <div className="font-bold text-lg">Tibby.hu</div>
+      <nav className="flex gap-4">
+        {pages.map((page) => (
+          <Link key={page.id} to={`/${page.slug}`} className="hover:underline">
+            {page.title}
+          </Link>
+        ))}
+      </nav>
     </header>
   );
 }
