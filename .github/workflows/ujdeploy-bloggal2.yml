@@ -31,6 +31,12 @@ jobs:
           mkdir -p dist/blog
           cp -r blog/* dist/blog || echo "No blog folder found"
 
+      - name: Copy Bootstrap JS to dist/assets/js
+        run: |
+          mkdir -p dist/assets/js
+          cp public/assets/bootstrap/js/bootstrap.min.js dist/assets/js/
+          cp public/assets/bootstrap/js/swiper.min.js dist/assets/js/ || echo "No swiper.min.js found"
+
       - name: Deploy to FTP (includes /dist + /blog)
         uses: SamKirkland/FTP-Deploy-Action@v4.3.5
         with:
