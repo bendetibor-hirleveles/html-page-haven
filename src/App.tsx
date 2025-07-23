@@ -19,6 +19,11 @@ import { useEffect } from "react";
 import { exportFooterSettings, loadFooterSettings } from "@/lib/footerSettings";
 
 const queryClient = new QueryClient();
+const wrongScript = document.querySelector("script[src*='swiper.min.min.js']");
+if (wrongScript) {
+  console.warn("Removing invalid script reference: swiper.min.min.js");
+  wrongScript.remove();
+}
 
 const App = () => {
   useEffect(() => {
