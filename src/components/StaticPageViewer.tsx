@@ -77,6 +77,9 @@ export function StaticPageViewer() {
       html = html.replace(/src=["']\/assets\/([^"']*)["']/g, `src="/${assetsPath}/$1"`);
       html = html.replace(/url\(["']?\/assets\/([^"')]+)["']?\)/g, `url("/${assetsPath}/$1")`);
       html = html.replace(/href="([^"]+)\.html"/g, 'href="/$1"');
+      html = html.replace(/<script src="\/assets\/js\/script\.min\.js"><\/script>/g, '')
+      html = html.replace(/<script src="\/assets\/js\/swiper\.min\.min\.js"><\/script>/g, '');
+
 
       setPage(found);
       setProcessedHtml(html);
