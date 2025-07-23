@@ -10,8 +10,11 @@ import Blog from "./pages/Blog";
 import NotFound from "./pages/NotFound";
 import { StaticPageViewer } from "./components/StaticPageViewer";
 import { AdminRoute } from "./components/AdminRoute";
+import { AuthRoute } from "./components/AuthRoute";
 import { Header } from "@/components/ui/header";
-import BlogList from "@/pages/BlogList"
+import { Footer } from "@/components/Footer";
+import BlogList from "@/pages/BlogList";
+import BlogPost from "@/pages/BlogPost";
 
 const queryClient = new QueryClient();
 
@@ -20,30 +23,30 @@ const App = () => (
     <TooltipProvider>
       <Toaster />
       <Sonner />
-     <BrowserRouter>
-      <Header />
-      <Routes>
-        <Route path="/" element={<Index />} />
+      <BrowserRouter>
+        <Header />
+        <Routes>
+          <Route path="/" element={<Index />} />
 
-        {/* Autentikációs oldalak */}
-        <Route path="/auth" element={<Auth />} />
-        <Route path="/auth/*" element={<AuthRoute><Auth /></AuthRoute>} />
+          {/* Autentikációs oldalak */}
+          <Route path="/auth" element={<Auth />} />
+          <Route path="/auth/*" element={<AuthRoute><Auth /></AuthRoute>} />
 
-        {/* Admin felület és aloldalai */}
-        <Route path="/admin" element={<AdminRoute><Admin /></AdminRoute>} />
-        <Route path="/admin/*" element={<AdminRoute><Admin /></AdminRoute>} />
+          {/* Admin felület és aloldalai */}
+          <Route path="/admin" element={<AdminRoute><Admin /></AdminRoute>} />
+          <Route path="/admin/*" element={<AdminRoute><Admin /></AdminRoute>} />
 
-        {/* Blog */}
-        <Route path="/blog" element={<BlogList />} />
-        <Route path="/blog/:slug" element={<BlogPost />} />
+          {/* Blog */}
+          <Route path="/blog" element={<BlogList />} />
+          <Route path="/blog/:slug" element={<BlogPost />} />
 
-        {/* Statikus oldalak JSON-ből */}
-        <Route path="/:slug" element={<StaticPageViewer />} />
+          {/* Statikus oldalak JSON-ből */}
+          <Route path="/:slug" element={<StaticPageViewer />} />
 
-        {/* 404 */}
-        <Route path="*" element={<NotFound />} />
-  </Routes>
-</BrowserRouter>
+          {/* 404 */}
+          <Route path="*" element={<NotFound />} />
+        </Routes>
+        <Footer />
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>
