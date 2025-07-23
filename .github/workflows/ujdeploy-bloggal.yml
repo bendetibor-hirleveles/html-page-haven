@@ -23,11 +23,11 @@ jobs:
       - name: 📦 Install dependencies
         run: npm ci
 
-      - name: ⚙️ Install build tools
-        run: npm install tsx dotenv @supabase/supabase-js
+      - name: ⚠️ Skip Supabase export – using static pages.json
+        run: echo "Skipping Supabase – using static pages.json from repo"
 
-      - name: 🧠 Export pages.json from Supabase
-        run: npx tsx src/exportPages.ts
+      - name: 📁 Ensure blog folder exists
+        run: mkdir -p blog
 
       - name: 🛠 Build project
         run: npm run build
