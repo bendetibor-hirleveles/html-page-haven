@@ -1,3 +1,4 @@
+import { FooterSettings } from "@/components/admin/FooterSettings";
 import { useState, useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -73,6 +74,10 @@ export default function Admin() {
             </TabsTrigger>
             <TabsTrigger value="redirects" className="flex items-center gap-2">
               <Link className="h-4 w-4" />
+            <TabsTrigger value="footer" className="flex items-center gap-2">
+              <User className="h-4 w-4" />
+              Lábléc
+          </TabsTrigger>
               Redirectek
             </TabsTrigger>
           </TabsList>
@@ -138,8 +143,10 @@ export default function Admin() {
           <TabsContent value="keywords" className="space-y-6">
             <KeywordAnalysis />
           </TabsContent>
-
-          <TabsContent value="redirects" className="space-y-6">
+          <TabsContent value="footer" className="space-y-6">
+            <FooterSettings />
+          </TabsContent>
+         <TabsContent value="redirects" className="space-y-6">
             <RedirectManager />
           </TabsContent>
         </Tabs>
