@@ -26,17 +26,17 @@ jobs:
       - name: Build project
         run: npm run build
 
-      - name: Copy blog to dist/
+      - name: Copy blog folder to dist/
         run: |
           mkdir -p dist/blog
           cp -r blog/* dist/blog || echo "No blog folder found"
 
-      - name: Copy manual assets (bootstrap CSS/JS) to dist/assets/bootstrap
+      - name: Copy Bootstrap JS files to dist/assets/js/
         run: |
-          mkdir -p dist/assets/bootstrap
-          cp -r public/assets/bootstrap/* dist/assets/bootstrap || echo "No bootstrap assets found"
+          mkdir -p dist/assets/js
+          cp public/assets/bootstrap/js/*.js dist/assets/js/
 
-      - name: Deploy to FTP (dist folder only)
+      - name: Deploy to FTP (includes /dist + blog + js)
         uses: SamKirkland/FTP-Deploy-Action@v4.3.5
         with:
           server: ftp.tibby.hu
@@ -50,3 +50,4 @@ jobs:
           delete: false
           include-dotfiles: true
           dry-run: false
+
