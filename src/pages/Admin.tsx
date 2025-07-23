@@ -1,5 +1,4 @@
 import { useState, useEffect } from "react";
-//import { supabase } from "@/integrations/supabase/client";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -13,52 +12,20 @@ import { PageSEOSettings } from "@/components/admin/PageSEOSettings";
 import { RedirectManager } from "@/components/admin/RedirectManager";
 import { ContentRefreshButton } from "@/components/admin/ContentRefreshButton";
 import { AssetExtractor } from "@/components/admin/AssetExtractor";
-import { MFASetup } from "@/components/MFASetup";
-import { FileText, BookOpen, Upload, Globe, Search, Settings, LogOut, Shield, User, Link } from "lucide-react";
-import { useToast } from "@/hooks/use-toast";
+import { FileText, BookOpen, Upload, Globe, Search, Settings, Link } from "lucide-react";
 
 export default function Admin() {
   const [activeTab, setActiveTab] = useState("static-pages");
-  const [showMFASetup, setShowMFASetup] = useState(false);
-  const [hasMFA, setHasMFA] = useState(false);
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
-  const { toast } = useToast();
 
   useEffect(() => {
-    checkMFAStatus();
-    
-    // Handle URL parameters for direct navigation to SEO settings
-    const tab = searchParams.get('tab');
-    if (tab) {
-      setActiveTab(tab);
-    }
+    const tab = searchParams.get("tab");
+    if (tab) setActiveTab(tab);
   }, [searchParams]);
 
-  const checkMFAStatus = async () => {
-    try {
-      const { data } = await supabase.auth.mfa.listFactors();
-      setHasMFA(data?.all?.length > 0);
-    } catch (error) {
-      console.error('Error checking MFA status:', error);
-    }
-  };
-
-  const handleLogout = async () => {
-    try {
-      await supabase.auth.signOut();
-      toast({
-        title: "Sikeres kijelentkezés",
-        description: "Viszlát!",
-      });
-      navigate("/auth");
-    } catch (error: any) {
-      toast({
-        title: "Hiba a kijelentkezéskor",
-        description: error.message,
-        variant: "destructive",
-      });
-    }
+  const handleLogout = () => {
+    navigate("/auth");
   };
 
   return (
@@ -67,38 +34,12 @@ export default function Admin() {
         <div className="mb-8 flex justify-between items-center">
           <div>
             <h1 className="text-3xl font-bold text-foreground mb-2">Admin Panel</h1>
-            <p className="text-muted-foreground">Manage your static pages, blog posts, and SEO settings</p>
+            <p className="text-muted-foreground">Manage static pages, blog posts and SEO settings</p>
           </div>
-          <div className="flex items-center gap-3">
-            {!hasMFA && (
-              <Button
-                onClick={() => setShowMFASetup(true)}
-                variant="outline"
-                className="flex items-center gap-2"
-              >
-                <Shield className="h-4 w-4" />
-                2FA beállítása
-              </Button>
-            )}
-            <Button
-              onClick={handleLogout}
-              variant="ghost"
-              className="flex items-center gap-2"
-            >
-              <LogOut className="h-4 w-4" />
-              Kijelentkezés
-            </Button>
-          </div>
+          <Button onClick={handleLogout} variant="ghost">
+            Kijelentkezés
+          </Button>
         </div>
-
-        {showMFASetup && (
-          <div className="mb-8">
-            <MFASetup onSetupComplete={() => {
-              setShowMFASetup(false);
-              setHasMFA(true);
-            }} />
-          </div>
-        )}
 
         <div className="mb-6">
           <ContentRefreshButton />
@@ -143,9 +84,7 @@ export default function Admin() {
                   <Upload className="h-5 w-5" />
                   Upload Static Page
                 </CardTitle>
-                <CardDescription>
-                  Upload HTML files and optional assets (CSS, images, etc.) in a ZIP file
-                </CardDescription>
+                <CardDescription>Upload HTML files and optional assets (ZIP)</CardDescription>
               </CardHeader>
               <CardContent>
                 <StaticPageUpload />
@@ -170,9 +109,7 @@ export default function Admin() {
                   <Upload className="h-5 w-5" />
                   Upload Blog Post
                 </CardTitle>
-                <CardDescription>
-                  Upload HTML files and optional assets (CSS, images, etc.) in a ZIP file
-                </CardDescription>
+                <CardDescription>Upload blog post as HTML + assets</CardDescription>
               </CardHeader>
               <CardContent>
                 <BlogPostUpload />
@@ -182,7 +119,7 @@ export default function Admin() {
             <Card>
               <CardHeader>
                 <CardTitle>Existing Blog Posts</CardTitle>
-                <CardDescription>Manage your uploaded blog posts</CardDescription>
+                <CardDescription>Manage uploaded blog posts</CardDescription>
               </CardHeader>
               <CardContent>
                 <ContentList type="blog" />
