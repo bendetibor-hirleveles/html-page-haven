@@ -2,7 +2,7 @@ import React from "react";
 import ReactDOM from "react-dom/client";
 import { BrowserRouter } from "react-router-dom";
 import "@/index.css";
-import Admin from "@/components/admin/FooterSettingsAdmin.tsx";
+import Admin from "@/components/admin/FooterSettingsAdmin";
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
