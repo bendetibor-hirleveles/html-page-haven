@@ -2,10 +2,10 @@ import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react-swc";
 import path from "path";
 import { componentTagger } from "lovable-tagger";
+import { resolve } from "path";
 
-// https://vitejs.dev/config/
 export default defineConfig(({ mode }) => ({
-  base: "/", // <-- EZ AZ ÚJ SOR: minden asset a gyökérből töltődik be
+  base: "/", // Minden asset a gyökérből töltődik be
   server: {
     host: "::",
     port: 8080,
@@ -18,5 +18,20 @@ export default defineConfig(({ mode }) => ({
     alias: {
       "@": path.resolve(__dirname, "./src"),
     },
+  },
+  build: {
+    rollupOptions: {
+      input: {
+        main: resolve(__dirname, "index.html"),
+      },
+    },
+  },
+  // ⚠️ Ez az a rész, amit mindenképp hozzá kell adni:
+  // SPA fallback
+  preview: {
+    // preview szerver fallback az index.html-re
+    // csak `vite preview` esetén számít
+    open: true,
+    historyApiFallback: true,
   },
 }));
