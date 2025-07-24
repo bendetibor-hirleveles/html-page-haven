@@ -83,7 +83,7 @@ export function FooterSettings() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Lablec beallitasok</CardTitle>
+        <CardTitle>{"Lablec beallitasok"}</CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
         <div>
