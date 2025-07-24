@@ -16,8 +16,8 @@ import { FooterSettings } from "@/components/admin/FooterSettings";
 import { FileText, BookOpen, Upload, Globe, Search, Settings, LogOut, Link } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
-export default function Admin() {
-  const [activeTab, setActiveTab] = useState("static-pages");
+export default function FooterSettingsAdmin() {
+  const [activeTab, setActiveTab] = useState("footer-settings");
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const { toast } = useToast();
