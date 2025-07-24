@@ -51,7 +51,7 @@ export default function FooterSettingsAdmin() {
     localStorage.removeItem("admin_logged_in");
     toast({
       title: "Sikeres kijelentkezés",
-      description: "Viszlát!",
+      description: "Viszlát!"
     });
     navigate("/auth");
   };
@@ -80,7 +80,7 @@ export default function FooterSettingsAdmin() {
         <div className="mb-8 flex justify-between items-center">
           <div>
             <h1 className="text-3xl font-bold text-foreground mb-2">Admin Panel</h1>
-            <p className="text-muted-foreground">Statikus oldalak, blogposztok és SEO beállítások kezelése</p>
+            <p className="text-muted-foreground">Statikus oldalak, blogposztok és SEO beallitasok kezelese</p>
           </div>
           <Button
             onClick={handleLogout}
