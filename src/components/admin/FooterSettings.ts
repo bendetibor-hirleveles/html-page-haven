@@ -83,17 +83,17 @@ export function FooterSettings() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Lablec beallitasok</CardTitle>
+        <CardTitle>Lablecbeallitasok</CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
         <div>
-          <Label>Lábléc szoveg</Label>
+          <Label>Láblécszoveg</Label>
           <Input value={settings.footer_text} onChange={(e) => handleChange("footer_text", e.target.value)} />
         </div>
 
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <Label>Gomb szovege</Label>
+            <Label>Gombszovege</Label>
             <Input value={settings.cta_button.text} onChange={(e) => handleCtaChange("text", e.target.value)} />
           </div>
           <div>
