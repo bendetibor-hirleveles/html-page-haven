@@ -53,7 +53,7 @@ export function FooterSettings() {
       </CardHeader>
       <CardContent className="space-y-4">
         <div className="space-y-2">
-          <Label htmlFor="text">Szöveges blokk</Label>
+          <Label htmlFor="text">Szoveges blokk</Label>
           <Textarea
             id="text"
             value={data.text}
@@ -72,7 +72,7 @@ export function FooterSettings() {
 
         <div className="grid grid-cols-2 gap-4">
           <div className="space-y-2">
-            <Label htmlFor="buttonText">Gomb szöveg</Label>
+            <Label htmlFor="buttonText">Gomb szoveg</Label>
             <Input
               id="buttonText"
               value={data.buttonText}
@@ -111,7 +111,7 @@ export function FooterSettings() {
           ))}
         </div>
 
-        <Button onClick={handleSave}>Mentés</Button>
+        <Button onClick={handleSave}>Save</Button>
       </CardContent>
     </Card>
   );
