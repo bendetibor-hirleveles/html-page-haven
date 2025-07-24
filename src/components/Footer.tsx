@@ -50,7 +50,7 @@ export function FooterSettings() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Lábléc beállításai</CardTitle>
+        <CardTitle>Lablec beallitasok</CardTitle>
         <CardDescription>
           Testreszabhatod a lábléc tartalmát, gombját és a social ikonokat.
         </CardDescription>
