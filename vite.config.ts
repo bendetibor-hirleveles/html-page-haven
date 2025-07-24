@@ -12,7 +12,7 @@ export default defineConfig(({ mode }) => ({
   plugins: [
     react(),
     mode === "development" && componentTagger(),
-  ].filter(Boolean),
+  ].filter(Boolean), // fejlesztési módban tagger, élesben nem
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
@@ -22,7 +22,7 @@ export default defineConfig(({ mode }) => ({
     rollupOptions: {
       input: {
         main: resolve(__dirname, "index.html"),
-        admin: resolve(__dirname, "admin.html"), // <-- hozzáadva
+        admin: resolve(__dirname, "admin.html"), // admin külön belépési pont
       },
     },
   },
@@ -31,4 +31,3 @@ export default defineConfig(({ mode }) => ({
     historyApiFallback: true,
   },
 }));
-
