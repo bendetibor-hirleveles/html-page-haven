@@ -49,7 +49,7 @@ export function FooterSettings() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Lábléc beállítások</CardTitle>
+        <CardTitle>Lablec beallitasok</CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
         <div className="space-y-2">
