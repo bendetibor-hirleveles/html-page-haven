@@ -18,9 +18,11 @@ export function FooterSettings() {
   }, []);
 
   return (
-    <div>
-      <h2>Footer beállítások</h2>
-      <pre>{JSON.stringify(settings, null, 2)}</pre>
-    </div>
+    <div className="space-y-2">
+  <p><strong>Copyright:</strong> {footerSettings?.copyrightText}</p>
+  <p><strong>Gomb szöveg:</strong> {footerSettings?.buttonText}</p>
+  <p><strong>Facebook:</strong> {footerSettings?.facebook || "Nincs megadva"}</p>
+</div>
+
   );
 }
