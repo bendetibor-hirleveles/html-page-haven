@@ -44,6 +44,8 @@ jobs:
       - name: Copy admin.html to dist/
         run: cp admin.html dist/
 
+      - name: Create admin directory in dist
+        run: mkdir -p dist/admin
 
       - name: Deploy to FTP (includes /dist + blog + js)
         uses: SamKirkland/FTP-Deploy-Action@v4.3.5
