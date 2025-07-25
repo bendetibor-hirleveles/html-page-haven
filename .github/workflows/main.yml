@@ -51,7 +51,7 @@ jobs:
           server: ftp.tibby.hu
           username: ${{ secrets.FTP_USERNAME }}
           password: ${{ secrets.FTP_PASSWORD }}
-          server-dir: /public_html/
+          server-dir: /public_html/       # ide kerül az index.html és admin.html is
           protocol: ftp
           security: loose
           passive: true
@@ -59,4 +59,5 @@ jobs:
           delete: false
           include-dotfiles: true
           dry-run: false
+
 
