@@ -15,6 +15,19 @@ import { Header } from "@/components/ui/header";
 import { Footer } from "@/components/Footer";
 import BlogList from "@/pages/BlogList";
 import BlogPost from "@/pages/BlogPost";
+import { TopNav } from "@/components/TopNav";
+import { FooterNav } from "@/components/FooterNav";
+
+function App() {
+  return (
+    <>
+      <TopNav />
+      {/* ... routing and content ... */}
+      <FooterNav />
+    </>
+  );
+}
+
 
 const queryClient = new QueryClient();
 
