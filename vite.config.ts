@@ -4,7 +4,7 @@ import path, { resolve } from "path";
 import { componentTagger } from "lovable-tagger";
 
 export default defineConfig(({ mode }) => ({
-  base: "/", // Minden asset a gyökérből töltődik be
+  base: "/", // minden asset a gyökérből töltődik be
   server: {
     host: "::",
     port: 8080,
@@ -22,7 +22,7 @@ export default defineConfig(({ mode }) => ({
     rollupOptions: {
       input: {
         main: resolve(__dirname, "index.html"),
-        admin: resolve(__dirname, "admin.html"), // Ez biztosítja az admin külön buildelését
+        admin: resolve(__dirname, "admin.html"),
       },
     },
   },
