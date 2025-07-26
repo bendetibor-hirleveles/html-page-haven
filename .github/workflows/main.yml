@@ -36,8 +36,9 @@ jobs:
           mkdir -p dist/assets/js
           cp public/assets/js/script.min.js dist/assets/js/
 
-      - name: Create admin directory in dist
+      - name: Ensure dist/admin/ folder exists
         run: mkdir -p dist/admin
+
 
       - name: Deploy to FTP (includes /dist + blog + js)
         uses: SamKirkland/FTP-Deploy-Action@v4.3.5
