@@ -126,10 +126,10 @@ export default function FooterSettingsAdmin() {
               <Link className="h-4 w-4" />
               Redirectek
             </TabsTrigger>
-            <TabsTrigger value="footer-settings" className="flex items-center gap-2">
-              <Settings className="h-4 w-4" />
-              Lábléc
-            </TabsTrigger>
+        //    <TabsTrigger value="footer-settings" className="flex items-center gap-2">
+        //      <Settings className="h-4 w-4" />
+        //      Lábléc
+        //    </TabsTrigger>
           </TabsList>
 
           <TabsContent value="static-pages" className="space-y-6">
