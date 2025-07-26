@@ -31,18 +31,10 @@ jobs:
           mkdir -p dist/blog
           cp -r blog/* dist/blog || echo "No blog folder found"
 
-      - name: Copy Bootstrap JS files to dist/assets/js/
-        run: |
-          mkdir -p dist/assets/js
-          cp public/assets/bootstrap/js/*.js dist/assets/js/
-
       - name: Copy custom script to dist/assets/js
         run: |
           mkdir -p dist/assets/js
           cp public/assets/js/script.min.js dist/assets/js/
-
-      - name: Copy admin.html to dist/
-        run: cp admin.html dist/
 
       - name: Create admin directory in dist
         run: mkdir -p dist/admin
