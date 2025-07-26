@@ -39,6 +39,9 @@ jobs:
       - name: Ensure dist/admin/ folder exists
         run: mkdir -p dist/admin
 
+      - name: Másold be az admin.html-t is
+        run: cp admin.html dist/
+
 
       - name: Deploy to FTP (includes /dist + blog + js)
         uses: SamKirkland/FTP-Deploy-Action@v4.3.5
@@ -54,5 +57,5 @@ jobs:
           delete: false
           include-dotfiles: true
           dry-run: false
-
+          concurrent-uploads: 1   # <-- EZ LASSÍT, DE STABILIZÁL
 
