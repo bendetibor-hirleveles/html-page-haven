@@ -74,11 +74,11 @@ export default function Admin() {
             </TabsTrigger>
             <TabsTrigger value="redirects" className="flex items-center gap-2">
               <Link className="h-4 w-4" />
+              Redirectek
+            </TabsTrigger>
             <TabsTrigger value="footer" className="flex items-center gap-2">
               <User className="h-4 w-4" />
               Lábléc
-          </TabsTrigger>
-              Redirectek
             </TabsTrigger>
           </TabsList>
 
