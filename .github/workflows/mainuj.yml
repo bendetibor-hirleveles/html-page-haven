@@ -1,0 +1,91 @@
+name: Build and Deploy to FTP
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: ⬇️ Checkout code
+        uses: actions/checkout@v4
+
+      - name: 🧰 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: 📦 Install dependencies
+        run: npm ci
+
+      - name: ⚠️ Skip Supabase export – using static pages.json
+        run: echo "Skipping Supabase – using static pages.json from repo"
+
+      - name: 📁 Ensure blog folder exists
+        run: mkdir -p blog
+
+      - name: Ensure admin JS file exists
+        run: |
+          echo "Available admin JS:"
+          ls dist/assets/admin-*.js || echo "Nincs admin js"
+
+      - name: 🛠 Build project
+        run: npm run build
+
+      - name: Copy admin JS manually to server
+        run: |
+          ADMIN_JS=$(find dist/assets -name 'admin-*.js' | head -n 1)
+          echo "Found admin JS: $ADMIN_JS"
+          mkdir -p dist/assets/js
+          cp "$ADMIN_JS" dist/assets/js/admin-latest.js
+
+      - name: 📁 Ellenőrzés: dist és blog mappák listázása
+        run: |
+          echo "=== DIST tartalma ==="
+          find dist/ -type f
+          echo "=== BLOG tartalma ==="
+          find blog/ -type f
+
+      - name: 🚀 Deploy dist/ → public_html/
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          server: ftp.tibby.hu
+          port: 21
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          server-dir: /public_html/
+          local-dir: ./dist/
+          protocol: ftp
+          security: loose
+          passive: true
+          include-dotfiles: true
+          delete: true
+          dangerous-clean-slate: true
+          dry-run: false
+
+      - name: 🚀 Deploy blog/ → public_html/blog/
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          server: ftp.tibby.hu
+          port: 21
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          server-dir: /public_html/blog/
+          local-dir: ./blog/
+          protocol: ftp
+          security: loose
+          passive: true
+          include-dotfiles: true
+          delete: false
+          dangerous-clean-slate: false
+          dry-run: false
+
+      - name: ✅ Print contents of dist/
+        run: |
+          echo "=== DIST végső tartalma ==="
+          find dist/ -type f
