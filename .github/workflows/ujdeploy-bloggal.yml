@@ -29,8 +29,16 @@ jobs:
       - name: 📁 Ensure blog folder exists
         run: mkdir -p blog
 
+      - name: Ensure admin JS file exists
+        run: | echo "Available admin JS:"
+        ls dist/assets/admin-*.js || echo "Nincs admin js"
+
       - name: 🛠 Build project
         run: npm run build
+
+      - name: Copy admin JS manually to server
+        run: | ADMIN_JS=$(find dist/assets -name 'admin-*.js' | head -n 1)
+        echo "Found admin JS: $ADMIN_JS" cp "$ADMIN_JS" dist/assets/js/admin-latest.js
 
       - name: 📁 Ellenőrzés: dist és blog mappák listázása
         run: ls -laR dist && ls -laR blog
@@ -68,3 +76,7 @@ jobs:
           delete: false
           dangerous-clean-slate: false
           dry-run: false
+          exclude: | **/admin-*.js # ⚠️ NE törölje a korábbi admin JS fájlokat se!
+
+          - name: Print contents of dist/
+          run: | echo "DIST tartalma:" find dist/ -type f
