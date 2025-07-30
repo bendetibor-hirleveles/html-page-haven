@@ -30,8 +30,10 @@ jobs:
         run: mkdir -p blog
 
       - name: Ensure admin JS file exists
-        run: | echo "Available admin JS:"
-        ls dist/assets/admin-*.js || echo "Nincs admin js"
+        run: |
+          echo "Available admin JS:"
+          ls dist/assets/admin-*.js || echo "Nincs admin js"
+
 
       - name: 🛠 Build project
         run: npm run build
@@ -76,7 +78,11 @@ jobs:
           delete: false
           dangerous-clean-slate: false
           dry-run: false
-          exclude: | **/admin-*.js # ⚠️ NE törölje a korábbi admin JS fájlokat se!
+          # (sajnos a v4.3.5 nem támogatja az exclude-t hivatalosan, ezt kommentelem)
+          # exclude: |
+          #   **/admin-*.js
 
-          - name: Print contents of dist/
-          run: | echo "DIST tartalma:" find dist/ -type f
+      - name: Print contents of dist/
+        run: |
+          echo "DIST tartalma:"
+          find dist/ -type f
